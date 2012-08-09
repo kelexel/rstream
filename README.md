@@ -20,7 +20,6 @@ Content
 	* [Server side requirements]](https://github.com/kelexel/rstream#server-side-requirements)
 	* [Broadcaster side requirements]](https://github.com/kelexel/rstream#broadcaster-side-requirements)
 	* [Client side requirements]](https://github.com/kelexel/rstream#client-side-requirements)
-
 * [Warnings](https://github.com/kelexel/rstream#warnings)
 * [Configuration type "crtmpd-proxy-to-nginx"](https://github.com/kelexel/rstream#configuration)
 * Howtos
@@ -59,6 +58,7 @@ The ultimate goal of this is project is to provide an *easy* way for a single Wi
 What it is
 ---
 
+* For me, a week of random r&d including a heavy dose of trial an error, docs ingesting, google resarch
 * It uses good old bourne shell - so it just works *out of the box*
 * A set of configuration files and script to simplify deploy a full-feature streaming server CDN capable of transcoding a single FLV (h264) sent over the RTMP protocol,
 to multiple bitrate for FLASH-style (RTMP) and iOS-style HTTPLiveStreaming (HLS) compatible browsers.
@@ -75,6 +75,7 @@ It has been tested using the following broadcasting softwares:
 What it is NOT
 ---
 
+* It is not pefect, 0.1 was written in roughly 6hours, 0.2 was  released few (sleepless) hours later
 * The "crtmpd-proxy-to-nginx mode" is not yet production-stress-tested !! (any idea on how to efficiently simul a stress-test is welcomed)
 * It is NOT -YET- MULTI-CONCURENT-BROADCASTERS friendly (just fork it!)
 * It is NOT -YET- MULTI-CONCURENT-STREAMS friendly (just fork it!)
@@ -318,7 +319,8 @@ Same as above except you would use as rtmp url:
 Credits
 ======
 
-Well, this whole project was a heavy dose of trial an error + docs ingesting + google, but it would have been impossible without these persons / teams:
+
+I would like to extend my *diamonds for ever* to these persons / teams:
 
 * arut, for his patience and port of nginx-rtmp (available at https://github.com/arut/nginx-rtmp-module)
 * the people helping and improving crtmpserver, alias crtmpd, alias c++rtmpserver (available at http://www.rtmpd.com/)
@@ -326,6 +328,8 @@ Well, this whole project was a heavy dose of trial an error + docs ingesting + g
 * #nginx@freenode
 * #freebsd@freenode
 * #ffmpeg@freenode
+* #mootools/freenode
+* #monome/freenode
 
 Final notes
 ======
