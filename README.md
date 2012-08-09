@@ -1,4 +1,4 @@
-RStream 0.2
+RStream 0.3
 ===========
 
 Note !!! Note !!! Note !!!
@@ -16,6 +16,7 @@ Content
 * Changelog
 	* [TAG 0.1](https://github.com/kelexel/rstream#tag-01)
 	* [TAG 0.2](https://github.com/kelexel/rstream#tag-02)
+	* [TAG 0.3](https://github.com/kelexel/rstream#tag-03)
 * [Todo](https://github.com/kelexel/rstream#todo)
 * Requirements
 	* [Server side requirements](https://github.com/kelexel/rstream#server-side-requirements)
@@ -108,6 +109,14 @@ TAG 0.2
 * added "-setup crtmpd-proxy-to-nginx"
 * added "-nginx (start|stop|status|setup)"
 * added "-crtmpd (start|stop|status|setup)"
+
+TAG 0.3
+---
+
+* added rstream-firewall.dist 0.1 - Firewalls ONE or SEVERAL IPs on a SINGLE ETHERNET ADAPTER *BSD System !
+* enabled auth for broadcasters connecting to rtmp://<CRTMPD_RTMP_IP>:<CRTMPD_RTMP_PORT>/proxy default
+* added auth default credentials in $HOME/etc/crtmpd-users.lua (username: "broadcast", password: "n3rox")
+* added prerequisists to transcoding
 
 Todo
 ======

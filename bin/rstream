@@ -28,7 +28,7 @@ USER="rstream"
 #########################
 #########################
 
-TAG="0.2"
+TAG="0.3"
 
 # set DAEMONTOOLS_SERVICE based on default port service path
 DAEMONTOOLS_SERVICE="/var/service"

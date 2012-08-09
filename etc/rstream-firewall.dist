@@ -1,0 +1,51 @@
+######################################################################################
+### rstream-firewal.dist
+# 
+# license: GPL
+# 
+# authors:
+# - Rudolph Sand aka https://github.com/kelexel
+# 
+# url:
+# - https://github.com/kelexel/rstream
+#
+# purpose:
+# - Firewalls ONE or SEVERAL IPs on a SINGLE ETHERNET ADAPTER *BSD System
+#
+# disclaimer:
+# - Only play with this script if you have a (physical|virtual) way to reboot the box, or best case scenario a KVM(IP)/IPMI plugged to it ;)
+# - This script comes as is, USE AT YOUR OWN RISKS
+#
+# prerequisits:
+# - # set pf_enable="YES" in /etc/rc.conf
+# - # copy this dist file under /etc/pf.conf (make backups if necessary !!!)
+# Warning - bellow this point you are going to start PF; if you are connected to your server via SSH, your connection will be closed. 
+# This is *in theory* normal.
+# Just re-connect to your server via SSH right after issuing the following command:
+# - # service pf start
+#
+#
+######################################################################################
+# 
+
+# These are the PUBLIC IPs set on the PUBLIC INTERFACE of your server
+host_ip  = "{ 1.2.3.4 2.3.3.2 }"
+
+# don't filter  lo !
+set skip on lo
+
+# block everything in
+block in all
+
+# permit everything out
+pass out all
+
+# pass all icmp in / out
+pass proto { icmp icmp6 }
+
+# allow http in
+pass in proto tcp to $host_ip port { http https }
+# allow ssh in
+pass in proto tcp to $host_ip port { ssh }
+# allow rtmp in
+pass in proto tcp to $host_ip port { 1935 1936 }
