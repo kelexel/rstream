@@ -279,10 +279,10 @@ Create a new broadcast profile profile containing:
 On client side
 ----
 
-See [Howto: Test client side](https://github.com/kelexel/rstream#howto_client-side-tets)
+See [Howto: Test client side](https://github.com/kelexel/rstream#howto_client-side-tests)
 
 
-Howto: Wirecast broadcaster to many nginx-rtmp clients (+HLS support)
+Howto: client side tests
 ======
 
 Woops I need to make the flv / hls player code :)
