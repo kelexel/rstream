@@ -13,15 +13,17 @@ About
 Why crmptd + nginx-rtmp at the same time ?!
 ---
 
-The ultimate goal of this is project is to provide an *easy* way for a single broadcaster to send one stream to to *any* kinds devices supporting either the RTMP or HLS protocols, this means it can stream to both Flash (+v9?) compatible players AND iOS (v5+) devices
+The ultimate goal of this is project is to provide an *easy* way for a single Wirecast broadcaster to send one stream to *any* kind of device supporting either the RTMP or HLS protocols, this means it can stream to both Flash (+v9?) compatible players AND iOS (v5+) devices
 
-* It assumes you are currently (as of 08/08/2012) using Telestream's Wirecast(pro) which IS NOT YET compatible with nginx-rtmp (see: https://github.com/arut/nginx-rtmp-module/issues/34), thus the need to use crtmpd -s an RTMPD-proxy between the broadcaster (Wireast / FMLE) and nginx-rtmp
+* only one connection is made to crtmpd by one single broadcaster 
+* crtmpd is only used as a proxy from the broadcaster, pushing  to a *main* nginx-rtmp server
+* only nginx is exposed to the clients
+* Therefore nginx-rtmp is handle both the connection of the HLS clients (over regular nginx-http), and connections of the RTMP clients (via nginx-rtmp)
 
 What it is
 ---
 
-
-* A set of configuration files and script to simplify deploying a full-feature RTMP server capable of transcoding a single FLV (h264) sent over the RTMP protocol,
+* A set of configuration files and script to simplify deploy a full-feature streaming server CDN capable of transcoding a single FLV (h264) sent over the RTMP protocol,
 to multiple bitrate for FLASH-style (RTMP) and iOS-style HTTPLiveStreaming (HLS) compatible browsers.
 * If transcoding is enabled the same broadcaster's stream will be transcoded to 3 different sizes 720p, 480p, 320p FLV (h264/aac) over RTMP
 * IF NGINX_HLS is enabled the same broadcaster's stream will be converted to -whatever-the-current-resolution-currently-sent-by-the-broadcaster- HLS-friendly url available via the preconfigured nginx-rtmp.conf file
@@ -35,18 +37,9 @@ It has been tested using the following broadcasting softwares:
 What it is NOT
 ---
 
-The -proxy mode is not yet production-stress-tested !!
-BUT, assuming nginx-rtmp (and it's HLS properties) have already been stress tested:
-
-* only one connection is made to crtmpd by one single broadcaster 
-* crtmpd is only used as a proxy from the broadcaster, pushing  to a *main* nginx-rtmp server
-* only nginx is exposed to the clients
-* Therefore nginx-rtmp is handle both the connection of the HLS clients (over regular nginx-http), and connections of the RTMP clients (via nginx-rtmp)
-
-It assumes only one broadcaster is currently connected and publishing one unique stream to rtmp://<CRMTPD_RTMP_IP>:<CRTMP_RTMP_PORT>/proxy/<CRTMPD_STREAM> this also means:
-
-* It is NOT MULTI-BROADCASTER friendly !
-* It only supports ONE STREAM from the broadcaster 
+* The -proxy mode is not yet production-stress-tested !!
+* It is NOT MULTI-CONCURENT-BROADCASTERS friendly !
+* It is NOT MULTI-CONCURENT-STREAMS friendly !
 
 
 How it works
@@ -59,7 +52,7 @@ Config files required for rstream are linked from ~rstream/etc/<config_file> to 
 Todo
 ======
 
-* Put the transcoding part on github (!)
+* Put the transcoding ffmpeg scripts on github (!)
 * Decide if HLS should be done by nginx-rtmp or by ffmpeg -via- crtmpd only
 * HLS transcoding (need more nginx-rtmp/hls tests)
 * Implement nginx-rtmp only OR crtmpd only option
@@ -96,21 +89,19 @@ Installation
 ======
 By default rstream expects to be installed in /home/rstream
 
-Proceed as follows using git:
+To fetch the rstream sources
 
 ```bash
+# Proceed as follows using git:
 mkdir /home/rstream
 cd /home/rstream && git clone https://github.com/kelexel/rstream.git
-```
 
-Or downloading the current tag
-
-```bash 
+# Or downloading the current tag
 mkdir /home/rstream
 cd /home/rstream && fetch https://github.com/kelexel/rstream/tarball/<tag>
 ```
 
-(In case you want to install rstream in another location, you only need to edit the HOME variable setting on top of ~rstream/bin/_installer.sh)
+(In case you want to install rstream in another location, you only need to edit the HOME variable setting on top of ~rstream/bin/rstream.sh)
 
 Create a configuration file under ~rstream/etc/rstream.conf (see below)
 
@@ -118,7 +109,7 @@ Configuration
 ======
 
 To use rstream YOU MUST MANUALY CREATE an ~rstream/etc/rstream.conf file.
-Here is a default template:
+Here is a default ~rstream/etc/rstream.conf template for -proxy mode:
 
 ```bash
 ### crtmpd related
@@ -166,17 +157,17 @@ On server side
 Make tests!
 
 ```bash
-#First start nginx
+# First start nginx
 service daemontools star
-#Start crtmpd/run manually at least once using:
+# Start crtmpd/run manually at least once using:
 ~rstream/bin/supervise/crtmpd/run
 # (should show crtmpd log files and NO ERRORS
-#Start crtmpd/log/run manually at least once using:
+# Start crtmpd/log/run manually at least once using:
 ~rstream/bin/supervise/crtmpd/log/run 
 # (should show not output)
 ```
 
-Once you are sure the service work you can link them to your OS's daemontools service dir using 
+Once you are sure the service work correctly, you can link them to your OS's daemontools service path by using:
 
 ```bash
 ~rstream/bin/rstream.sh -link
@@ -187,7 +178,9 @@ service daemontools start
 On Wirecast broadcaster side
 ----
 
-Go to Broadcast settings (CMD+Y)
+Download and install Wirecast(pro) demo from http://www.telestream.net/wirecast/overview.htm
+
+Go to Broadcast settings (on OSX, CMD+Y)
 Create a new broadcast profile profile containing:
 
 * Input the matching url (yes the /proxy is required and fixed): rtmp://<CRTMPD_RTMP_IP>:<CRTMPD_RTMP_PORT>/proxy
@@ -232,9 +225,9 @@ Credits
 
 Well, this whole project was a heavy doze of trial an error + docs ingesting + google, but it would have been impossible without these persons / teams:
 
-* Many thanks to arut for his patience and port of nginx-rtmp (available at https://github.com/arut/nginx-rtmp-module)
-* Many thanks to the people helping and improving crtmpserver, alias crtmpd, alias c++rtmpserver (available at http://www.rtmpd.com/)
-* Many thanks to lobotom.org for the Android testing
+* arut, for his patience and port of nginx-rtmp (available at https://github.com/arut/nginx-rtmp-module)
+* the people helping and improving crtmpserver, alias crtmpd, alias c++rtmpserver (available at http://www.rtmpd.com/)
+* lobotom(.org), for the Android testing
 
 Final notes
 ======
