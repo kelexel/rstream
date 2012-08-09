@@ -17,7 +17,7 @@ Content
 	* [TAG 0.1](https://github.com/kelexel/rstream#tag-01)
 	* [TAG 0.2](https://github.com/kelexel/rstream#tag-02)
 * [Todo](https://github.com/kelexel/rstream#todo)
-* [Requirements](https://github.com/kelexel/rstream#requirements)
+* Requirements
 	* [Server side requirements](https://github.com/kelexel/rstream#server-side-requirements)
 	* [Broadcaster side requirements](https://github.com/kelexel/rstream#broadcaster-side-requirements)
 	* [Client side requirements](https://github.com/kelexel/rstream#client-side-requirements)
