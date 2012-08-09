@@ -19,7 +19,7 @@ Content
 * [Requirements](https://github.com/kelexel/rstream#requirements)
 * [Warnings](https://github.com/kelexel/rstream#warnings)
 * [Configuration type "crtmpd-proxy-to-nginx"](https://github.com/kelexel/rstream#configuration)
-* [Howto: Per-daemon control](https://github.com/kelexel/rstream#per-daemon-control)
+* [Howto: Per-daemon control](https://github.com/kelexel/rstream#howto-per-daemon-control)
 * [Howto: Wirecast broadcaster to many nginx-rtmp clients (+HLS support)](https://github.com/kelexel/rstream#howto-wirecast-broadcaster-to-many-nginx-rtmp-clients-hls-support)
 * [Credits](https://github.com/kelexel/rstream#credits)
 * [Final notes](https://github.com/kelexel/rstream#final-notes)
