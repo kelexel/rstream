@@ -1,5 +1,5 @@
 RStream - thin Open Source Steaming deployment scripts
-============
+----------==
 
 Note !!!
 Note !!!
@@ -8,17 +8,17 @@ Note !!!
 * The current release uses and relies on both nginx-rtmp AND c++rtmpserver to provide from ONE UNIQUE broadcaster pushing ONE UNIQUE stream  to *many* RTMP and HLS clients !!!!!!!
 
 About
-=======
+-----==
 
 Why crmptd + nginx-rtmp at the same time ?!
-===
+---
 
 The ultimate goal of this is project is to provide an *easy* way for a single broadcaster to send one stream to to *any* kinds devices supporting either the RTMP or HLS protocols, this means it can stream to both Flash (+v9?) compatible players AND iOS (v5+) devices
 
 * It assumes you are currently (as of 08/08/2012) using Telestream's Wirecast(pro) which IS NOT YET compatible with nginx-rtmp (see: https://github.com/arut/nginx-rtmp-module/issues/34 ), thus the need to use crtmpd -s an RTMPD-proxy between the broadcaster (Wireast / FMLE) and nginx-rtmp
 
 What it is
-===
+---
 
 Well, this whole project was a heavy doze of trial an error + docs ingesting + google.
 
@@ -36,7 +36,7 @@ It has been tested using the following broadcasting softwares:
 * Android: OS Broadcaster (https://play.google.com/store/search?q=+OS+Broadcaster&c=apps)
 
 What it is NOT
-===
+---
 
 The -proxy mode is not yet production-stress-tested !!
 BUT, assuming nginx-rtmp (and it's HLS properties) have already been stress tested:
@@ -53,21 +53,21 @@ It assumes only one broadcaster is currently connected and publishing one unique
 
 
 How it works
-===
+---
 
 It uses good old bourne shell - so it just works *out of the box*
 Everything is "jailed" to ~rstream EXCEPT the ports required by rstream (see Requirements)
 Config files required for rstream are linked from ~rstream/etc/<config_file> to their matching /usr/local/etc/path/to/<config_file>
 
 Credits
-=======
+-----==
 
 Many thanks to arut for his patience and port of nginx-rtmp (available at https://github.com/arut/nginx-rtmp-module )
 Many thanks to the people helping and improving crtmpserver, alias crtmpd, alias c++rtmpserver (available at http://www.rtmpd.com/ )
 Thanks to lobotom.org for the Android testing
 
 Todo
-=======
+-----==
 
 * Put the transcoding part on github (!)
 * Decide if HLS should be done by nginx-rtmp or by ffmpeg -via- crtmpd only
@@ -77,10 +77,10 @@ Todo
 * Make rstream in .py or .rb ? (you just fork it!)
 
 Requirements
-=======
+-----==
 
 Server side 
-======
+-----=
 
 * FreeBSD 9.x - I am currently running this setup in FreeBSD 9.1-prelease jail.
 * nginx (compiled from a recent port tree, with the "nginx-rtmp" module enabled)
@@ -89,12 +89,12 @@ Server side
 * that you backup (if any) your previously existing nginx config files located under /usr/local/etc/nginx/* (!!!)
 
 Broadcaster side
-======
+-----=
 
 * The RTMP broadcasting tool of your choice (Wirecast, Flash Media Live Encoder, an flv based RTMP encoder...)
 
 WARNING
-==========
+----------
 
 If you have an existing nginx installation please backup your WHOLE NGINX configuration BEFORE running rstream.sh !
 More precisely the following files:
@@ -103,7 +103,7 @@ More precisely the following files:
 * /usr/local/etc/nginx/mime.types (if used in your actual setup)
 
 Installation
-=======
+-----==
 By default rstream expects to be installed in /home/rstream
 
 Proceed as follows using git:
@@ -125,7 +125,7 @@ cd /home/rstream && fetch .....
 Create a configuration file under ~rstream/etc/rstream.conf (see below)
 
 Configuration
-=======
+-----==
 
 To use rstream YOU MUST MANUALY CREATE an ~rstream/etc/rstream.conf file.
 Here is a default template:
@@ -164,13 +164,13 @@ NGINX_REGEN_CONF=1
 ```
 
 Usage
-=======
+-----==
 
 Howto: one wirecast broadcaster to one nginx-rtmp url (+hls)
-======
+-----=
 
 On server side
-=====
+-----
 
 ```bash
  sh ~rstream/bin/rstream.sh -proxy
@@ -198,7 +198,7 @@ service daemontools start
 
 
 On Wirecast broadcaster side
-=====
+----
 
 Go to Broadcast settings (CMD+Y)
 Create a new broadcast profile profile containing:
@@ -208,18 +208,18 @@ Create a new broadcast profile profile containing:
 * Set stream name to <CRTMPD_RTMP_STREAM>
 
 On client side
-====
+----
 
 Woops I need to make the flv / hls player code :)
 BUT 
 
 Testing HLS on iOS devices
-===
+---
 
 * Open this URL in Mobile Safari : http://<NGINX_RTMP_FQDN>/hls/<NGINX_RTMP_STREAM>.m3u8
 
 Testing the raw  FLV / RTMP stream
-===
+---
 
  I can only recommand the flvplayer.swf mentioned here: https://groups.google.com/forum/?fromgroups#!topic/c-rtmp-server/yPkD3PKnpMM[1-25] and available for download here: http://dl.dropbox.com/u/2918563/flvplayback.swf
 
@@ -231,7 +231,7 @@ Testing the raw  FLV / RTMP stream
 * Press the Play button
 
 Testing the transcoded  FLV / RTMP stream
-===
+---
 
 Same as above except you would use as rtmp url:
 
@@ -242,6 +242,6 @@ Same as above except you would use as rtmp url:
 
 
 Final notes
-=======
+-----==
 
 Open-Source 4 ever.
