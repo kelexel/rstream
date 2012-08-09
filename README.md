@@ -1,4 +1,4 @@
-RStream - thin Open Source Steaming deployment scripts
+RStream
 ===========
 
 Note !!!
@@ -20,14 +20,11 @@ The ultimate goal of this is project is to provide an *easy* way for a single br
 What it is
 ---
 
-Well, this whole project was a heavy doze of trial an error + docs ingesting + google.
 
-A set of configuration files and script to simplify deploying a full-feature RTMP server capable of transcoding a single FLV (h264) sent over the RTMP protocol,
+* A set of configuration files and script to simplify deploying a full-feature RTMP server capable of transcoding a single FLV (h264) sent over the RTMP protocol,
 to multiple bitrate for FLASH-style and iOS-style HTTPLiveStreaming (HLS) compatible browsers.
-
-If transcoding is enabled the same broadcaster's stream will be transcoded to 3 different sizes 720p, 480p, 320p FLV (h264/aac) over RTMP
-
-IF NGINX_HLS is enabled the same broadcaster's stream will be converted to -whatever-the-current-resolution-currently-sent-by-the-broadcaster- HLS-friendly url available via the preconfigured nginx-rtmp.conf file
+* If transcoding is enabled the same broadcaster's stream will be transcoded to 3 different sizes 720p, 480p, 320p FLV (h264/aac) over RTMP
+* IF NGINX_HLS is enabled the same broadcaster's stream will be converted to -whatever-the-current-resolution-currently-sent-by-the-broadcaster- HLS-friendly url available via the preconfigured nginx-rtmp.conf file
 
 It has been tested using the following broadcasting softwares:
 
@@ -232,6 +229,8 @@ Same as above except you would use as rtmp url:
 
 Credits
 ======
+
+Well, this whole project was a heavy doze of trial an error + docs ingesting + google, but it would have been impossible without these persons / teams:
 
 * Many thanks to arut for his patience and port of nginx-rtmp (available at https://github.com/arut/nginx-rtmp-module)
 * Many thanks to the people helping and improving crtmpserver, alias crtmpd, alias c++rtmpserver (available at http://www.rtmpd.com/)
