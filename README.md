@@ -44,9 +44,10 @@ What can it do
 * Add required daemons to system startup
 * Generate daemontools service scripts for crtmpd(/log) and ffmpeg(/log)
 * Supported broadcasters:
-	* Telestream Wirecast
-	* Adobe FlashMediaLiveEncoer
-	* http://www.osmf.org/configurator/fmp/
+	* [Telestream Wirecast](http://www.adobe.com/products/flash-media-encoder.html) (OSX 10.7.x / Windows 7)
+	* [Adobe FlashMediaLiveEncoer](http://www.adobe.com/products/flash-media-encoder.html) (OSX 10.7.x / Windows 7 / Linux)
+	* http://www.osmf.org/configurator/fmp/ (Flash Player 11+)
+	* [Android: OS Broadcaster](https://play.google.com/store/search?q=+OS+Broadcaster&c=apps) (Android 3+)
 * Supported clients:
 	* jwplayer
 	* flowplayer
@@ -64,12 +65,6 @@ to multiple bitrate for FLASH-style (RTMP) and iOS-style HTTPLiveStreaming (HLS)
 * If transcoding is enabled the same broadcaster's stream will be transcoded to 3 different sizes 720p, 480p, 320p FLV (h264/aac) over RTMP
 * IF NGINX_HLS is enabled the same broadcaster's stream will be converted to -whatever-the-current-resolution-currently-sent-by-the-broadcaster- HLS-friendly url available via the preconfigured nginx-rtmp.conf file
 * new 0.2: it is now per OS-type customisable - but still only supports FreeBSD !
-
-It has been tested using the following broadcasting softwares:
-
-* OSX 10.7.x / Windows 7: Telestream Wirecast (http://www.telestream.net/wirecast/overview.htm)
-* OSX 10.7.x / Windows 7 / Linux: Flash Media Live Encoder (http://www.adobe.com/products/flash-media-encoder.html)
-* Android: OS Broadcaster (https://play.google.com/store/search?q=+OS+Broadcaster&c=apps)
 
 What it is NOT
 ---
