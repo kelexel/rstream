@@ -17,10 +17,16 @@ Content
 * [Changelog](https://github.com/kelexel/rstream#changelog)
 * [Todo](https://github.com/kelexel/rstream#todo)
 * [Requirements](https://github.com/kelexel/rstream#requirements)
+	* [Server side requirements]](https://github.com/kelexel/rstream#server-side-requirements)
+	* [Broadcaster side requirements]](https://github.com/kelexel/rstream#broadcaster-side-requirements)
+	* [Client side requirements]](https://github.com/kelexel/rstream#client-side-requirements)
+
 * [Warnings](https://github.com/kelexel/rstream#warnings)
 * [Configuration type "crtmpd-proxy-to-nginx"](https://github.com/kelexel/rstream#configuration)
-* [Howto: Per-daemon control](https://github.com/kelexel/rstream#howto-per-daemon-control)
-* [Howto: Wirecast broadcaster to many nginx-rtmp clients (+HLS support)](https://github.com/kelexel/rstream#howto-wirecast-broadcaster-to-many-nginx-rtmp-clients-hls-support)
+* Howtos
+	* [Howto: Per-daemon control](https://github.com/kelexel/rstream#howto-per-daemon-control)
+	* [Howto: Wirecast broadcaster to many nginx-rtmp clients (+HLS support)](https://github.com/kelexel/rstream#howto-wirecast-broadcaster-to-many-nginx-rtmp-clients-hls-support)
+	* [Howto: Client side tests](https://github.com/kelexel/rstream#howto-client-side-tests)
 * [Credits](https://github.com/kelexel/rstream#credits)
 * [Final notes](https://github.com/kelexel/rstream#final-notes)
 
@@ -107,7 +113,7 @@ Todo
 Requirements
 ======
 
-Server side 
+Server side requirements
 ---
 
 * FreeBSD 9.x - I am currently running this setup in FreeBSD 9.1-prelease jail.
@@ -116,10 +122,15 @@ Server side
 * ffmpeg (optional - if transcoding to lower bitrates)
 * that you backup (if any) your previously existing nginx config files located under /usr/local/etc/nginx/* (!!!)
 
-Broadcaster side
+Broadcaster side requirements
 ---
 
 * The RTMP broadcasting tool of your choice (Wirecast, Flash Media Live Encoder, an flv based RTMP encoder...)
+
+Client side requirements
+---
+
+* An RTMP or HLS friendly client
 
 WARNINGS
 ==========
@@ -267,6 +278,11 @@ Create a new broadcast profile profile containing:
 
 On client side
 ----
+
+See [Howto: Test client side](https://github.com/kelexel/rstream#howto_client-side-tets)
+
+
+Howto: Wirecast broadcaster to many nginx-rtmp clients (+HLS support)
 
 Woops I need to make the flv / hls player code :)
 BUT 
