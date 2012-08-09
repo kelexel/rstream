@@ -1,8 +1,5 @@
-rstream
+RStream - thin Open Source Steaming deployment scripts
 ============
-
-FreeBSD 9.x RTMP (+HTTPLiveStream +Transcoding) deployment tool 
-=========
 
 Note !!!
 Note !!!
@@ -87,7 +84,7 @@ Server side
 
 * FreeBSD 9.x - I am currently running this setup in FreeBSD 9.1-prelease jail.
 * nginx (compiled from a recent port tree, with the "nginx-rtmp" module enabled)
-* nginx-rtmp HLS (optional - needs modification of the port's Makefile - see under NGINX_HLS )
+* nginx-rtmp HLS (optional - needs modification of the port's Makefile - see under NGINX_HLS notes)
 * ffmpeg (optional - if transcoding to lower bitrates)
 * that you backup (if any) your previously existing nginx config files located under /usr/local/etc/nginx/* (!!!)
 
@@ -111,12 +108,17 @@ By default rstream expects to be installed in /home/rstream
 
 Proceed as follows using git:
 
-> mkdir /home/rstream
-> cd /home/rstream && git clone https://github.com/kelexel/rstream.git
+```bash
+mkdir /home/rstream
+cd /home/rstream && git clone https://github.com/kelexel/rstream.git
+```
 
 Or downloading the current tag
-> mkdir /home/rstream
-> cd /home/rstream && fetch .....
+
+```bash 
+mkdir /home/rstream
+cd /home/rstream && fetch .....
+```
 
 (In case you want to install rstream in another location, you only need to edit the HOME variable setting on top of ~rstream/bin/_installer.sh)
 
@@ -128,45 +130,41 @@ Configuration
 To use rstream YOU MUST MANUALY CREATE an ~rstream/etc/rstream.conf file.
 Here is a default template:
 
-> ### crtmpd related
-> # You must download the crtmpserver binary from http://www.rtmpd.com/downloads/ and edit the path below
-> CRTMPD_BIN="$HOME/src/crtmpserver-trunk-x86_64-FreeBSD-9.0/crtmpserver"
-> 
-> # Configuration type (right now only crtmpd-proxy-to-nginx)
-> CRTMPD_CONF_TYPE="crtmpd-proxy-to-nginx"
->
-> CRTMPD_RTMP_IP="1.2.3.4"
-> CRTMPD_RTMP_PORT="1936"
-> CRTMPD_LIVEFLV_IP="1.2.3.4"
-> CRTMPD_LIVEFLV_PORT="21935"
-> CRTMPD_RTMP_STREAM="test"
-> # Force crtmpd config file regen
-> CRTMPD_REGEN_CONF=1
-> 
-> ### nginx related
-> NGINX_RTMP_FQDN="some.fullqualified.domain.name"
-> NGINX_RTMP_IP="1.2.3.4"
-> NGINX_RTMP_PORT="1935"
-> NGINX_RTMP_STREAM="test"
-> # Force nginx config file regen
-> NGINX_REGEN_CONF=1
->
-> ### HLS special notes:
-> # If you want nginx-rtmp/hls support you must edit nginx(-devel)/Makefile and find:
-> #
-> #		CONFIGURE_ARGS+=--add-module=${WRKDIR}/arut-nginx-rtmp-module-${GIT_RTMP_VERSION:S/^0-g//}
-> #
-> # and replace it by:
-> #
-> #		CONFIGURE_ARGS+=--add-module=${WRKDIR}/arut-nginx-rtmp-module-${GIT_RTMP_VERSION:S/^0-g//} \
-> #		--add-module=${WRKDIR}/arut-nginx-rtmp-module-${GIT_RTMP_VERSION:S/^0-g//}/hls/
-> #
-> # Use HTTP Live Streaming with nginx ? [0/1]
+```bash
+### crtmpd related
+# You must download the crtmpserver binary from http://www.rtmpd.com/downloads/ and edit the path below
+CRTMPD_BIN="$HOME/src/crtmpserver-trunk-x86_64-FreeBSD-9.0/crtmpserver"
+
+# Configuration type (right now only crtmpd-proxy-to-nginx)
+CRTMPD_CONF_TYPE="crtmpd-proxy-to-nginx"
+CRTMPD_RTMP_IP="1.2.3.4"
+CRTMPD_RTMP_PORT="1936"
+CRTMPD_LIVEFLV_IP="1.2.3.4"
+CRTMPD_LIVEFLV_PORT="21935"
+CRTMPD_RTMP_STREAM="test"
+# Force crtmpd config file regen
+CRTMPD_REGEN_CONF=1
+
+### nginx related
+NGINX_RTMP_FQDN="some.fullqualified.domain.name"
+NGINX_RTMP_IP="1.2.3.4"
+NGINX_RTMP_PORT="1935"
+NGINX_RTMP_STREAM="test"
+# Force nginx config file regen
+NGINX_REGEN_CONF=1
+
+### HLS notes:
+# If you want nginx-rtmp/hls support you must edit nginx(-devel)/Makefile and find:
+#	CONFIGURE_ARGS+=--add-module=${WRKDIR}/arut-nginx-rtmp-module-${GIT_RTMP_VERSION:S/^0-g//}
+# and replace it by:
+#	CONFIGURE_ARGS+=--add-module=${WRKDIR}/arut-nginx-rtmp-module-${GIT_RTMP_VERSION:S/^0-g//} \
+#	--add-module=${WRKDIR}/arut-nginx-rtmp-module-${GIT_RTMP_VERSION:S/^0-g//}/hls/
+# Use HTTP Live Streaming with nginx ? [0/1]
 > NGINX_HLS="1"
+```
 
 Usage
 =======
-
 
 Howto: one wirecast broadcaster to one nginx-rtmp url (+hls)
 ======
@@ -174,26 +172,29 @@ Howto: one wirecast broadcaster to one nginx-rtmp url (+hls)
 On server side
 =====
 
-> sh ~rstream/bin/rstream.sh -proxy
+```bash
+ sh ~rstream/bin/rstream.sh -proxy
+```
 
 Make tests!
 
-> #First start nginx
-> service daemontools start
-
-> #Start crtmpd/run manually at least once using:
-> ~rstream/bin/supervise/crtmpd/run
-> # (should show crtmpd log files and NO ERRORS)
-
-> #Start crtmpd/log/run manually at least once using:
-> ~rstream/bin/supervise/crtmpd/log/run 
-> # (should show not output)
+```bash
+#First start nginx
+service daemontools star
+#Start crtmpd/run manually at least once using:
+~rstream/bin/supervise/crtmpd/run
+# (should show crtmpd log files and NO ERRORS
+#Start crtmpd/log/run manually at least once using:
+~rstream/bin/supervise/crtmpd/log/run 
+# (should show not output)
+```
 
 Once you are sure the service work you can link them to your OS's daemontools service dir using 
 
-> ~rstream/bin/rstream.sh -link
-> service daemontools start
-
+```bash
+~rstream/bin/rstream.sh -link
+service daemontools start
+```
 
 
 On Wirecast broadcaster side
