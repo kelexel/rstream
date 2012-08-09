@@ -1,5 +1,8 @@
 
 types {
+    application/x-mpegURL                 m3u8;
+    video/MP2T                            ts;
+
     text/html                             html htm shtml;
     text/css                              css;
     text/xml                              xml;
@@ -23,9 +26,6 @@ types {
     image/x-ms-bmp                        bmp;
     image/svg+xml                         svg svgz;
     image/webp                            webp;
-
-application/x-mpegURL m3u8;
-video/MP2T ts;
 
     application/java-archive              jar war ear;
     application/mac-binhex40              hqx;

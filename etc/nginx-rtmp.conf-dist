@@ -16,41 +16,41 @@ rtmp {
         listen _NGINX_RTMP_IP_:_NGINX_RTMP_PORT_;
         chunk_size 128;
         publish_time_fix on;
-        application proxy {  
-        live on;
-#   Not working on FreeBSD as of 08/08/2012
-#       exec /usr/local/etc/nginx/nginx_rtmp_transcode.sh;
-#       exec /usr/local/bin/ffmpeg -re -i rtmp://_NGINX_RTMP_FQDN_:_NGINX_RTMP_PORT_/proxy/_NGINX_RTMP_STREAM_ -vcodec flv -acodec copy -s 32x32 -f flv rtmp://_NGINX_RTMP_FQDN_:_NGINX_RTMP_PORT_/720p/_NGINX_RTMP_STREAM_;
-#       exec /home/stream/tmp/test.sh;
+            application proxy {  
+            live on;
+            # Not working on FreeBSD as of 08/08/2012
+            # exec /usr/local/etc/nginx/nginx_rtmp_transcode.sh;
+            # exec /usr/local/bin/ffmpeg -re -i rtmp://_NGINX_RTMP_FQDN_:_NGINX_RTMP_PORT_/proxy/_NGINX_RTMP_STREAM_ -vcodec flv -acodec copy -s 32x32 -f flv rtmp://_NGINX_RTMP_FQDN_:_NGINX_RTMP_PORT_/720p/_NGINX_RTMP_STREAM_;
+            # exec /home/stream/tmp/test.sh;
         hls on;
-        hls_path _HOME_/tmp/hls;
-        hls_fragment 15s;
-#        allow publish _NGINX_RTMP_IP_;
-#        deny publish all;
-        allow play all;
-    }
-    application 720p {
-        live on;
-        allow publish _NGINX_RTMP_IP_;
-        deny publish all;
-        allow play all;
-    }
-    application 480p {
-        live on;
-        allow publish _NGINX_RTMP_IP_;
-        deny publish all;
-        allow play all;
-    }
-    application 360p {
-        live on;
-        allow publish _NGINX_RTMP_IP_;
-        deny publish all;
-        allow play all;
-   }
-    application 240p {
-        live on;
-        allow publish _NGINX_RTMP_IP_;
-        deny publish all;
+            hls_path _HOME_/tmp/hls;
+            hls_fragment 15s;
+            # allow publish _NGINX_RTMP_IP_;
+            # deny publish all;
+            allow play all;
+         }
+         application 720p {
+             live on;
+             allow publish _NGINX_RTMP_IP_;
+             deny publish all;
+             allow play all;
+         }
+         application 480p {
+             live on;
+             allow publish _NGINX_RTMP_IP_;
+             deny publish all;
+             allow play all;
+         }
+         application 360p {
+             live on;
+             allow publish _NGINX_RTMP_IP_;
+             deny publish all;
+             allow play all;
+        }
+         application 240p {
+             live on;
+             allow publish _NGINX_RTMP_IP_;
+             deny publish all;
         allow play all;
         }
     }

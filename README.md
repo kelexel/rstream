@@ -1,4 +1,4 @@
-RStream
+RStream 0.2
 ===========
 
 Note !!!
@@ -10,11 +10,17 @@ Note !!!
 Content
 ======
 * [About](https://github.com/kelexel/rstream#about)
+	* [Why crmptd + nginx-rtmp at the same time ?!](https://github.com/kelexel/rstream#why-crmptd-nginx-rtmp-at-the-same-time)
+	* [What it is](https://github.com/kelexel/rstream#what-it-is)
+	* [What it is NOT](https://github.com/kelexel/rstream#what-it-is-not)
+	* [What can it do](https://github.com/kelexel/rstream#what-can-it-do)
+* [Changelog](https://github.com/kelexel/rstream#changelog)
 * [Todo](https://github.com/kelexel/rstream#todo)
 * [Requirements](https://github.com/kelexel/rstream#requirements)
-* [Warning](https://github.com/kelexel/rstream#warning)
+* [Warnings](https://github.com/kelexel/rstream#warnings)
 * [Configuration](https://github.com/kelexel/rstream#configuration)
-* [- Howto: Wirecast broadcaster to many nginx-rtmp clients (+HLS support)](https://github.com/kelexel/rstream#howto-wirecast-broadcaster-to-many-nginx-rtmp-clients-hls-support)
+* [Howto: Per-daemon control](https://github.com/kelexel/rstream#per-daemon-control)
+* [Howto: Wirecast broadcaster to many nginx-rtmp clients (+HLS support)](https://github.com/kelexel/rstream#howto-wirecast-broadcaster-to-many-nginx-rtmp-clients-hls-support)
 * [Credits](https://github.com/kelexel/rstream#credits)
 * [Final notes](https://github.com/kelexel/rstream#final-notes)
 
@@ -34,10 +40,12 @@ The ultimate goal of this is project is to provide an *easy* way for a single Wi
 What it is
 ---
 
+* It uses good old bourne shell - so it just works *out of the box*
 * A set of configuration files and script to simplify deploy a full-feature streaming server CDN capable of transcoding a single FLV (h264) sent over the RTMP protocol,
 to multiple bitrate for FLASH-style (RTMP) and iOS-style HTTPLiveStreaming (HLS) compatible browsers.
 * If transcoding is enabled the same broadcaster's stream will be transcoded to 3 different sizes 720p, 480p, 320p FLV (h264/aac) over RTMP
 * IF NGINX_HLS is enabled the same broadcaster's stream will be converted to -whatever-the-current-resolution-currently-sent-by-the-broadcaster- HLS-friendly url available via the preconfigured nginx-rtmp.conf file
+* new 0.2: it is now per OS-type customisable - but still only supports FreeBSD !
 
 It has been tested using the following broadcasting softwares:
 
@@ -48,17 +56,43 @@ It has been tested using the following broadcasting softwares:
 What it is NOT
 ---
 
-* The -proxy mode is not yet production-stress-tested !!
-* It is NOT MULTI-CONCURENT-BROADCASTERS friendly !
-* It is NOT MULTI-CONCURENT-STREAMS friendly !
+* The \"crtmpd-proxy-to-nginx mode\" is not yet production-stress-tested !! (any idea on how to efficiently simul a stress-test is welcomed)
+* It is NOT -YET- MULTI-CONCURENT-BROADCASTERS friendly (just fork it!)
+* It is NOT -YET- MULTI-CONCURENT-STREAMS friendly (just fork it!)
 
 
-How it works
+What can it do
 ---
 
-It uses good old bourne shell - so it just works *out of the box*
-Everything is "jailed" to ~rstream EXCEPT the ports required by rstream (see Requirements)
-Config files required for rstream are linked from ~rstream/etc/<config_file> to their matching /usr/local/etc/path/to/<config_file>
+* Keep all scripts, configs, media, HLS-stream to to ~rstream
+
+* Copy required config files in place of required daemons, like  ~rstream/etc/<config_file> would match /usr/local/etc/path/to/<config_file>
+
+* Add required daemons to system startup
+
+* Generate daemontools service scripts for crtmpd(/log) and ffmpeg(/log)
+
+
+Changelog
+======
+
+0.1
+
+* initial release, Freebsd9 only
+* added "-proxy"
+* added "-debug-reset"
+
+0.2
+
+* updated to new modulable script structure
+* added per OS-Type helpers
+* created rstrea-core containing cross-OS logic
+* added nginx-rtmpd-hls.conf-dist
+* updated nginx-rtmpd.conf-dist
+* removed "-proxy"
+* added "-setup crtmpd-proxy-to-nginx"
+* added "-nginx (start|stop|status|setup)"
+* added "-crtmpd (start|stop|status|setup)"
 
 Todo
 ======
@@ -87,17 +121,20 @@ Broadcaster side
 
 * The RTMP broadcasting tool of your choice (Wirecast, Flash Media Live Encoder, an flv based RTMP encoder...)
 
-WARNING
+WARNINGS
 ==========
 
-If you have an existing nginx installation please backup your WHOLE NGINX configuration BEFORE running rstream.sh !
+If you have an existing nginx installation please backup your WHOLE NGINX configuration BEFORE running rstream !
 More precisely the following files:
 
 * /usr/local/etc/nginx/nginx.conf
 * /usr/local/etc/nginx/mime.types (if used in your actual setup)
 
+By using this software you agree to the possibility of breaking something or loosing all your data (j/k).
+
 Installation
 ======
+
 By default rstream expects to be installed in /home/rstream
 
 To fetch the rstream sources
@@ -112,15 +149,15 @@ mkdir /home/rstream
 cd /home/rstream && fetch https://github.com/kelexel/rstream/tarball/<tag>
 ```
 
-(In case you want to install rstream in another location, you only need to edit the HOME variable setting on top of ~rstream/bin/rstream.sh)
+(In case you want to install rstream in another location, you only need to edit the HOME variable setting on top of ~rstream/bin/rstream)
 
 Create a configuration file under ~rstream/etc/rstream.conf (see below)
 
-Configuration
+Configuration type \"crtmpd-proxy-to-nginx\"
 ======
 
 To use rstream YOU MUST MANUALY CREATE an ~rstream/etc/rstream.conf file.
-Here is a default ~rstream/etc/rstream.conf template for -proxy mode:
+Here is the content of a default ~rstream/etc/rstream.conf template for rstream \"crtmpd-proxy-to-nginx\" type (all fields are mendatory):
 
 ```bash
 ### crtmpd related
@@ -128,7 +165,6 @@ Here is a default ~rstream/etc/rstream.conf template for -proxy mode:
 CRTMPD_BIN="$HOME/src/crtmpserver-trunk-x86_64-FreeBSD-9.0/crtmpserver"
 
 # Configuration type (right now only crtmpd-proxy-to-nginx)
-CRTMPD_CONF_TYPE="crtmpd-proxy-to-nginx"
 CRTMPD_RTMP_IP="1.2.3.4"
 CRTMPD_RTMP_PORT="1936"
 CRTMPD_LIVEFLV_IP="1.2.3.4"
@@ -155,34 +191,65 @@ NGINX_REGEN_CONF=1
 > NGINX_HLS="1"
 ```
 
+Howto: Per-daemon control
+======
+
+Each daemons (crtmpd, nginx, daemontools) can be controlled via rstream
+
+```bash
+# Exemples
+~rstream/bin/rstream -crtmpd status
+~rstream/bin/rstream -crtmpd stop
+~rstream/bin/rstream -crtmpd start
+~rstream/bin/rstream -crtmpd restart
+
+~nginx/bin/rstream -crtmpd status
+~nginx/bin/rstream -crtmpd stop
+~nginx/bin/rstream -crtmpd start
+~nginx/bin/rstream -crtmpd restart
+
+~daemontools/bin/rstream -daemontools status
+~daemontools/bin/rstream -daemontools stop
+~daemontools/bin/rstream -daemontools start
+~daemontools/bin/rstream -daemontools restart
+
+```
+
 Howto: Wirecast broadcaster to many nginx-rtmp clients (+HLS support)
-=====
+======
+
+This will let you setup a Wirecast to *many* (+hls) Streaming CDN
 
 On server side
 -----
 
 ```bash
- sh ~rstream/bin/rstream.sh -proxy
+~rstream/bin/rstream -setup crtmpd-proxy-to-nginx
 ```
 
 Make tests!
 
 ```bash
-# First start nginx
-service daemontools star
+# Start nginx
+~rstream -nginx start
+~rstream -nginx status
+# Start daemontools
+~rstream -daemontools start
+~rstream -daemontools status
 # Start crtmpd/run manually at least once using:
-~rstream/bin/supervise/crtmpd/run
-# (should show crtmpd log files and NO ERRORS
-# Start crtmpd/log/run manually at least once using:
-~rstream/bin/supervise/crtmpd/log/run 
-# (should show not output)
-```
+~rstream -crtmpd start
+~rstream -crtmpd status
 
 Once you are sure the service work correctly, you can link them to your OS's daemontools service path by using:
 
 ```bash
-~rstream/bin/rstream.sh -link
+~rstream/bin/rstream -link
+# start daemontools
 service daemontools start
+# check if the crtmpd service is up (should report as "up" for more than 3seconds)
+svstat /var/supervise/crtmpd
+# check if the crtmpd/log service is up (should report as "up" for more than 3seconds)
+svstat /var/supervise/crtmpd/log
 ```
 
 
@@ -234,7 +301,7 @@ Same as above except you would use as rtmp url:
 Credits
 ======
 
-Well, this whole project was a heavy doze of trial an error + docs ingesting + google, but it would have been impossible without these persons / teams:
+Well, this whole project was a heavy dose of trial an error + docs ingesting + google, but it would have been impossible without these persons / teams:
 
 * arut, for his patience and port of nginx-rtmp (available at https://github.com/arut/nginx-rtmp-module)
 * the people helping and improving crtmpserver, alias crtmpd, alias c++rtmpserver (available at http://www.rtmpd.com/)

@@ -67,7 +67,7 @@ debugReset(){
 	cmd="rm -rf $HOME/tmp"
 	cmd="$cmd && rm -rf $HOME/var"
 	cmd="$cmd && rm -rf $HOME/shared"
-	cmd="$cmd && rm -f $HOME/etc/rstream.conf"
+	# cmd="$cmd && rm -f $HOME/etc/rstream.conf"
 	cmd="$cmd && rm -f $HOME/etc/crtmpd-proxy-to-nginx.lua"
 	cmd="$cmd  && rm -f $HOME/etc/nginx-rtmp.conf"
 	cmd="$cmd && rm -f $HOME/bin/supervise/crtmpd/run"
@@ -77,7 +77,7 @@ debugReset(){
 	echo "[y/N]"
 	read debug_confirmation
 	case $debug_confirmation in
-		[yY]) echo "> running `$cmd`"; exit 0;;
+		[yY]) `$cmd`;;
 		*) echo "!! User-canceled reset" exit 1;;
 	esac
 }
@@ -114,8 +114,14 @@ route(){
 	routeInit
 	case $1 in
 		stop)
+			daemontoolsRouter "stop"
 			nginxRouter "stop"
 			crtmpdRouter "stop"
+		;;
+		start)
+			daemontoolsRouter "start"
+			nginxRouter "start"
+			crtmpdRouter "start"
 		;;
 		-link)
 			setupServices
@@ -127,6 +133,9 @@ route(){
 		-nginx)
 			if [ -z $2 ]; then route; exit 99; fi
 			nginxRouter $2
+		;;
+		-daemontools|svscan)
+			daemontoolsRouter $2
 		;;
 		-debug-reset)
 			debugReset

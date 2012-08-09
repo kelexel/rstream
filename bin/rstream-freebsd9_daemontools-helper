@@ -42,3 +42,36 @@ crtmpdRouter(){
 		;;
 	esac
 }
+
+####
+### CRTMPD router
+####
+daemontoolsRouter(){
+	if [ -z $1 ]; then routeHelp; exit 1; fi
+	logRoute "nginx" $1 
+	case $1 in
+		setup)
+			daemontoolsSetup
+		;;
+		status|stat)
+			echo "* checking if svscan is running"
+			service svscan status
+		;;
+		stop)
+			echo "* stopping svscan"
+			service svscan stop
+		;;
+		start)
+			echo "* starting svscan"
+			service svscan start
+			daemontoolsRouter "status"
+		;;
+		restart)
+			daemontoolsRouter "stop"
+			daemontoolsRouter "start"
+		;;
+		*) 
+			routeHelp
+		;;
+	esac
+}
