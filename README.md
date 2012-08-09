@@ -15,6 +15,8 @@ Content
 	* [What it is NOT](https://github.com/kelexel/rstream#what-it-is-not)
 	* [Why crmptd + nginx-rtmp at the same time ?!](https://github.com/kelexel/rstream#why-crmptd--nginx-rtmp-at-the-same-time-)
 * [Changelog](https://github.com/kelexel/rstream#changelog)
+	* [0.1](https://github.com/kelexel/rstream#0-1)
+	* [0.2](https://github.com/kelexel/rstream#0-2)
 * [Todo](https://github.com/kelexel/rstream#todo)
 * [Requirements](https://github.com/kelexel/rstream#requirements)
 	* [Server side requirements](https://github.com/kelexel/rstream#server-side-requirements)
@@ -84,12 +86,14 @@ Changelog
 ======
 
 0.1
+---
 
 * initial release, Freebsd9 only
 * added "-proxy"
 * added "-debug-reset"
 
 0.2
+---
 
 * updated to new modulable script structure
 * added per OS-Type helpers
@@ -280,7 +284,7 @@ Create a new broadcast profile profile containing:
 On client side
 ----
 
-See [Howto: Test client side](https://github.com/kelexel/rstream#howto_client-side-tests)
+See [Howto: Client side tests](https://github.com/kelexel/rstream#howto-client-side-tests)
 
 
 Howto: client side tests
