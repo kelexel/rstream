@@ -11,15 +11,15 @@ Content
 ======
 * [About](https://github.com/kelexel/rstream#about)
 	* [What can it do](https://github.com/kelexel/rstream#what-can-it-do)
-	* [Why crmptd + nginx-rtmp at the same time ?!](https://github.com/kelexel/rstream#why-crmptd--nginx-rtmp-at-the-same-time-)
 	* [What it is](https://github.com/kelexel/rstream#what-it-is)
 	* [What it is NOT](https://github.com/kelexel/rstream#what-it-is-not)
+	* [Why crmptd + nginx-rtmp at the same time ?!](https://github.com/kelexel/rstream#why-crmptd--nginx-rtmp-at-the-same-time-)
 * [Changelog](https://github.com/kelexel/rstream#changelog)
 * [Todo](https://github.com/kelexel/rstream#todo)
 * [Requirements](https://github.com/kelexel/rstream#requirements)
-	* [Server side requirements]](https://github.com/kelexel/rstream#server-side-requirements)
-	* [Broadcaster side requirements]](https://github.com/kelexel/rstream#broadcaster-side-requirements)
-	* [Client side requirements]](https://github.com/kelexel/rstream#client-side-requirements)
+	* [Server side requirements](https://github.com/kelexel/rstream#server-side-requirements)
+	* [Broadcaster side requirements](https://github.com/kelexel/rstream#broadcaster-side-requirements)
+	* [Client side requirements](https://github.com/kelexel/rstream#client-side-requirements)
 * [Warnings](https://github.com/kelexel/rstream#warnings)
 * [Configuration type "crtmpd-proxy-to-nginx"](https://github.com/kelexel/rstream#configuration)
 * Howtos
@@ -45,16 +45,6 @@ What can it do
 
 * Generate daemontools service scripts for crtmpd(/log) and ffmpeg(/log)
 
-Why crmptd + nginx-rtmp at the same time ?!
----
-
-The ultimate goal of this is project is to provide an *easy* way for a single Wirecast broadcaster to send one stream to *any* kind of device supporting either the RTMP or HLS protocols, this means it can stream to both Flash (+v9?) compatible players AND iOS (v5+) devices
-
-* Only one connection is made to crtmpd by one single broadcaster 
-* crtmpd is only used as a proxy from the broadcaster, pushing  to a *main* nginx-rtmp server
-* Only nginx is exposed to the clients
-* Therefore nginx handles both the connection of the HLS clients (over regular nginx-http), and connections of the RTMP clients (via nginx-rtmp)
-
 What it is
 ---
 
@@ -79,6 +69,16 @@ What it is NOT
 * The "crtmpd-proxy-to-nginx mode" is not yet production-stress-tested !! (any idea on how to efficiently simul a stress-test is welcomed)
 * It is NOT -YET- MULTI-CONCURENT-BROADCASTERS friendly (just fork it!)
 * It is NOT -YET- MULTI-CONCURENT-STREAMS friendly (just fork it!)
+
+Why crmptd + nginx-rtmp at the same time ?!
+---
+
+The ultimate goal of this is project is to provide an *easy* way for a single Wirecast broadcaster to send one stream to *any* kind of device supporting either the RTMP or HLS protocols, this means it can stream to both Flash (+v9?) compatible players AND iOS (v5+) devices
+
+* Only one connection is made to crtmpd by one single broadcaster 
+* crtmpd is only used as a proxy from the broadcaster, pushing  to a *main* nginx-rtmp server
+* Only nginx is exposed to the clients
+* Therefore nginx handles both the connection of the HLS clients (over regular nginx-http), and connections of the RTMP clients (via nginx-rtmp)
 
 Changelog
 ======
