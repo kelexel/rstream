@@ -339,8 +339,8 @@ I would like to extend my *diamonds for ever* to these persons / teams:
 * #nginx@freenode
 * #freebsd@freenode
 * #ffmpeg@freenode
-* #mootools/freenode
-* #monome/freenode
+* #mootools@freenode
+* #monome@freenode
 
 Final notes
 ======
