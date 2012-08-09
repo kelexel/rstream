@@ -10,15 +10,15 @@ Note !!!
 Content
 ======
 * [About](https://github.com/kelexel/rstream#about)
-	* [Why crmptd + nginx-rtmp at the same time ?!](https://github.com/kelexel/rstream#why-crmptd-nginx-rtmp-at-the-same-time)
+	* [What can it do](https://github.com/kelexel/rstream#what-can-it-do)
+	* [Why crmptd + nginx-rtmp at the same time ?!](https://github.com/kelexel/rstream#why-crmptd--nginx-rtmp-at-the-same-time-)
 	* [What it is](https://github.com/kelexel/rstream#what-it-is)
 	* [What it is NOT](https://github.com/kelexel/rstream#what-it-is-not)
-	* [What can it do](https://github.com/kelexel/rstream#what-can-it-do)
 * [Changelog](https://github.com/kelexel/rstream#changelog)
 * [Todo](https://github.com/kelexel/rstream#todo)
 * [Requirements](https://github.com/kelexel/rstream#requirements)
 * [Warnings](https://github.com/kelexel/rstream#warnings)
-* [Configuration](https://github.com/kelexel/rstream#configuration)
+* [Configuration type "crtmpd-proxy-to-nginx"](https://github.com/kelexel/rstream#configuration)
 * [Howto: Per-daemon control](https://github.com/kelexel/rstream#per-daemon-control)
 * [Howto: Wirecast broadcaster to many nginx-rtmp clients (+HLS support)](https://github.com/kelexel/rstream#howto-wirecast-broadcaster-to-many-nginx-rtmp-clients-hls-support)
 * [Credits](https://github.com/kelexel/rstream#credits)
@@ -26,6 +26,19 @@ Content
 
 About
 ======
+
+What can it do
+---
+
+* Setup a fully featured Streaming CDN with HTTPLiveStream + RTMP + Transcoding
+
+* Keep all scripts, configs, media, HLS-stream to to ~rstream
+
+* Copy required config files in place of required daemons, like  ~rstream/etc/<config_file> would match /usr/local/etc/path/to/<config_file>
+
+* Add required daemons to system startup
+
+* Generate daemontools service scripts for crtmpd(/log) and ffmpeg(/log)
 
 Why crmptd + nginx-rtmp at the same time ?!
 ---
@@ -56,22 +69,9 @@ It has been tested using the following broadcasting softwares:
 What it is NOT
 ---
 
-* The \"crtmpd-proxy-to-nginx mode\" is not yet production-stress-tested !! (any idea on how to efficiently simul a stress-test is welcomed)
+* The "crtmpd-proxy-to-nginx mode" is not yet production-stress-tested !! (any idea on how to efficiently simul a stress-test is welcomed)
 * It is NOT -YET- MULTI-CONCURENT-BROADCASTERS friendly (just fork it!)
 * It is NOT -YET- MULTI-CONCURENT-STREAMS friendly (just fork it!)
-
-
-What can it do
----
-
-* Keep all scripts, configs, media, HLS-stream to to ~rstream
-
-* Copy required config files in place of required daemons, like  ~rstream/etc/<config_file> would match /usr/local/etc/path/to/<config_file>
-
-* Add required daemons to system startup
-
-* Generate daemontools service scripts for crtmpd(/log) and ffmpeg(/log)
-
 
 Changelog
 ======
@@ -153,7 +153,7 @@ cd /home/rstream && fetch https://github.com/kelexel/rstream/tarball/<tag>
 
 Create a configuration file under ~rstream/etc/rstream.conf (see below)
 
-Configuration type \"crtmpd-proxy-to-nginx\"
+Configuration type "crtmpd-proxy-to-nginx"
 ======
 
 To use rstream YOU MUST MANUALY CREATE an ~rstream/etc/rstream.conf file.
