@@ -1,5 +1,8 @@
-rstream - FreeBSD 9.x RTMP (+HTTPLiveStream +Transcoding) deployment tool 
+rstream
 ============
+
+FreeBSD 9.x RTMP (+HTTPLiveStream +Transcoding) deployment tool 
+=========
 
 Note !!!
 Note !!!
@@ -11,14 +14,14 @@ About
 =======
 
 Why crmptd + nginx-rtmp at the same time ?!
-=====
+===
 
 The ultimate goal of this is project is to provide an *easy* way for a single broadcaster to send one stream to to *any* kinds devices supporting either the RTMP or HLS protocols, this means it can stream to both Flash (+v9?) compatible players AND iOS (v5+) devices
 
 * It assumes you are currently (as of 08/08/2012) using Telestream's Wirecast(pro) which IS NOT YET compatible with nginx-rtmp (see: https://github.com/arut/nginx-rtmp-module/issues/34 ), thus the need to use crtmpd -s an RTMPD-proxy between the broadcaster (Wireast / FMLE) and nginx-rtmp
 
 What it is
-=====
+===
 
 Well, this whole project was a heavy doze of trial an error + docs ingesting + google.
 
@@ -36,7 +39,7 @@ It has been tested using the following broadcasting softwares:
 * Android: OS Broadcaster (https://play.google.com/store/search?q=+OS+Broadcaster&c=apps)
 
 What it is NOT
-=====
+===
 
 The -proxy mode is not yet production-stress-tested !!
 BUT, assuming nginx-rtmp (and it's HLS properties) have already been stress tested:
@@ -44,7 +47,7 @@ BUT, assuming nginx-rtmp (and it's HLS properties) have already been stress test
 * only one connection is made to crtmpd by one single broadcaster 
 * crtmpd is only used as a proxy from the broadcaster, pushing  to a *main* nginx-rtmp server
 * only nginx is exposed to the clients
-* therefore nginx-rtmp is handle both the connection of the HLS clients (over regular nginx-http), and connections of the RTMP clients (via nginx-rtmp)
+* Therefore nginx-rtmp is handle both the connection of the HLS clients (over regular nginx-http), and connections of the RTMP clients (via nginx-rtmp)
 
 It assumes only one broadcaster is currently connected and publishing one unique stream to rtmp://<CRMTPD_RTMP_IP>:<CRTMP_RTMP_PORT>/proxy/<CRTMPD_STREAM> this also means:
 
@@ -53,7 +56,7 @@ It assumes only one broadcaster is currently connected and publishing one unique
 
 
 How it works
-=====
+===
 
 It uses good old bourne shell - so it just works *out of the box*
 Everything is "jailed" to ~rstream EXCEPT the ports required by rstream (see Requirements)
@@ -204,18 +207,18 @@ Create a new broadcast profile profile containing:
 * Set stream name to <CRTMPD_RTMP_STREAM>
 
 On client side
-=====
+====
 
 Woops I need to make the flv / hls player code :)
 BUT 
 
 Testing HLS on iOS devices
-====
+===
 
-* Open this URL in Mobile Safari : http://<NGINX_RTMP_FQDN/hls/<NGINX_RTMP_STREAM>.m3u8
+* Open this URL in Mobile Safari : http://<NGINX_RTMP_FQDN>/hls/<NGINX_RTMP_STREAM>.m3u8
 
 Testing the raw  FLV / RTMP stream
-====
+===
 
  I can only recommand the flvplayer.swf mentioned here: https://groups.google.com/forum/?fromgroups#!topic/c-rtmp-server/yPkD3PKnpMM[1-25] and available for download here: http://dl.dropbox.com/u/2918563/flvplayback.swf
 
@@ -227,13 +230,13 @@ Testing the raw  FLV / RTMP stream
 * Press the Play button
 
 Testing the transcoded  FLV / RTMP stream
-====
+===
 
 Same as above except you would use as rtmp url:
 
-* rtmp://<NGINX_RTMP_IP>:<NGINX_RTMP_PORT>/720p
-* rtmp://<NGINX_RTMP_IP>:<NGINX_RTMP_PORT>/480p
-* rtmp://<NGINX_RTMP_IP>:<NGINX_RTMP_PORT>/320p
+* rtmp://NGINX_RTMP_IP:<NGINX_RTMP_PORT>/720p
+* rtmp://NGINX_RTMP_IP:NGINX_RTMP_PORT>/480p
+* rtmp://NGINX_RTMP_IP:NGINX_RTMP_PORT>/320p
 
 
 
