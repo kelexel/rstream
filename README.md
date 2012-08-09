@@ -1,9 +1,8 @@
 RStream 0.2
 ===========
 
-Note !!!
-Note !!!
-Note !!!
+Note !!! Note !!! Note !!!
+----
 
 * The current release uses and relies on both nginx-rtmp AND c++rtmpserver to provide a streaming CDN allowing ONE UNIQUE broadcaster pushing ONE UNIQUE stream  to *many* RTMP and HLS clients !!!!!!!
 
@@ -101,7 +100,7 @@ TAG 0.2
 
 * updated to new modulable script structure
 * added per OS-Type helpers
-* created rstrea-core containing cross-OS logic
+* created rstream-core containing cross-OS logic
 * added nginx-rtmpd-hls.conf-dist
 * updated nginx-rtmpd.conf-dist
 * removed "-proxy"
