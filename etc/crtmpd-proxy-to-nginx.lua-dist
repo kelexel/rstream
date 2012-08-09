@@ -1,0 +1,68 @@
+-- Start of the configuration. This is the only node in the config file. 
+-- The rest of them are sub-nodes
+configuration=
+{
+	daemon=false,
+	pathSeparator="/",
+	logAppenders=
+	{
+		{
+			name="console appender",
+			type="coloredConsole",
+			level=6
+		},
+	},
+	applications=
+	{
+		rootDirectory="applications",
+		{
+			name="proxypublish",
+			description="Application for forwarding streams to another RTMP server",
+			protocol="dynamiclinklibrary",
+			mediaFolder="_HOME_/shared/media",
+			--[[alias={
+				"proxy"
+			},]]--
+			acceptors =
+			{
+				{
+					ip="_CRTMPD_RTMP_IP_",
+					port=_CRTMPD_RTMP_PORT_,
+					protocol="inboundRtmp"
+				},
+   				{	
+					ip="_CRTMPD_LIVEFLV_IP_",
+					port=_CRTMPD_LIVEFLV_PORT_,
+					protocol="inboundLiveFlv"
+				},
+			},
+			abortOnConnectError=true,
+			targetServers= 
+			{
+				{
+					targetUri="rtmp://_NGINX_RTMP_IP_:_NGINX_RTMP_PORT_/proxy",
+					targetStreamName="_NGINX_RTMP_STREAM_",
+					localStreamName="_CRTMPD_RTMP_STREAM_",
+					--emulateUserAgent="FMLE/3.0 (compatible; FMSc/1.0 http://www.rtmpd.com)"
+				},
+			},
+			--[[authentication=
+			{
+					tmp={
+					type="adobe",
+					encoderAgents=
+					{
+						"FMLE/3.0 (compatible; FMSc/1.0)",
+					},
+					usersFile="./configs/users.lua"
+					 },
+					rtsp={
+						usersFile="./configs/users.lua"
+					}
+			},]]--
+			validateHandshake=false,
+			--default=true,
+		}
+	}
+}
+

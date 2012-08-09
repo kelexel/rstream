@@ -1,0 +1,12 @@
+bin/supervise/crtmpd/run
+bin/supervise/crtmpd/supervise
+bin/supervise/crtmpd/log/run
+bin/supervise/crtmpd/supervise
+bin/supervise/nginx-rtmp-ffmpeg
+etc/nginx-rtmp.conf
+etc/crtmpd-proxy-to-nginx.lua
+etc/rstream.conf
+src
+local
+tmp
+var
