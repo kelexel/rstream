@@ -51,9 +51,9 @@ What can it do
 * Supported clients:
 	* jwplayer
 	* flowplayer
-	* iOS Mobile Safari
-	* http://dl.dropbox.com/u/2918563/flvplayback.swf
-	* http://www.osmf.org/configurator/fmp/
+	* Mobile Safari (iOS/ipad 5+, iOS/iphone 5+, should work with iOS/ipad 5+)
+	* http://dl.dropbox.com/u/2918563/flvplayback.swf (Flash Player 10+)
+	* http://www.osmf.org/configurator/fmp/  (Flash Player 10+)
 
 What it is
 ---
