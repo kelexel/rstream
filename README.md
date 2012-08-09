@@ -15,15 +15,16 @@ Content
 	* [What it is NOT](https://github.com/kelexel/rstream#what-it-is-not)
 	* [Why crmptd + nginx-rtmp at the same time ?!](https://github.com/kelexel/rstream#why-crmptd--nginx-rtmp-at-the-same-time-)
 * Changelog
-	* [0.1](https://github.com/kelexel/rstream#tag-01)
-	* [0.2](https://github.com/kelexel/rstream#tag-02)
+	* [TAG 0.1](https://github.com/kelexel/rstream#tag-01)
+	* [TAG 0.2](https://github.com/kelexel/rstream#tag-02)
 * [Todo](https://github.com/kelexel/rstream#todo)
 * [Requirements](https://github.com/kelexel/rstream#requirements)
 	* [Server side requirements](https://github.com/kelexel/rstream#server-side-requirements)
 	* [Broadcaster side requirements](https://github.com/kelexel/rstream#broadcaster-side-requirements)
 	* [Client side requirements](https://github.com/kelexel/rstream#client-side-requirements)
 * [Warnings](https://github.com/kelexel/rstream#warnings)
-* [Configuration type "crtmpd-proxy-to-nginx"](https://github.com/kelexel/rstream#configuration)
+* [Configurations]
+	* [Configuration type "crtmpd-proxy-to-nginx"](https://github.com/kelexel/rstream#configuration-type-crtmpd-proxy-to-nginx)
 * Howtos
 	* [Howto: Per-daemon control](https://github.com/kelexel/rstream#howto-per-daemon-control)
 	* [Howto: Wirecast broadcaster to many nginx-rtmp clients (+HLS support)](https://github.com/kelexel/rstream#howto-wirecast-broadcaster-to-many-nginx-rtmp-clients-hls-support)
