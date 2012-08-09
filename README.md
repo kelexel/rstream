@@ -15,7 +15,7 @@ Why crmptd + nginx-rtmp at the same time ?!
 
 The ultimate goal of this is project is to provide an *easy* way for a single broadcaster to send one stream to to *any* kinds devices supporting either the RTMP or HLS protocols, this means it can stream to both Flash (+v9?) compatible players AND iOS (v5+) devices
 
-* It assumes you are currently (as of 08/08/2012) using Telestream's Wirecast(pro) which IS NOT YET compatible with nginx-rtmp (see: https://github.com/arut/nginx-rtmp-module/issues/34 ), thus the need to use crtmpd -s an RTMPD-proxy between the broadcaster (Wireast / FMLE) and nginx-rtmp
+* It assumes you are currently (as of 08/08/2012) using Telestream's Wirecast(pro) which IS NOT YET compatible with nginx-rtmp (see: https://github.com/arut/nginx-rtmp-module/issues/34), thus the need to use crtmpd -s an RTMPD-proxy between the broadcaster (Wireast / FMLE) and nginx-rtmp
 
 What it is
 ---
@@ -60,7 +60,7 @@ Everything is "jailed" to ~rstream EXCEPT the ports required by rstream (see Req
 Config files required for rstream are linked from ~rstream/etc/<config_file> to their matching /usr/local/etc/path/to/<config_file>
 
 Todo
------
+======
 
 * Put the transcoding part on github (!)
 * Decide if HLS should be done by nginx-rtmp or by ffmpeg -via- crtmpd only
@@ -110,7 +110,7 @@ Or downloading the current tag
 
 ```bash 
 mkdir /home/rstream
-cd /home/rstream && fetch .....
+cd /home/rstream && fetch https://github.com/kelexel/rstream/tarball/<tag>
 ```
 
 (In case you want to install rstream in another location, you only need to edit the HOME variable setting on top of ~rstream/bin/_installer.sh)
@@ -233,8 +233,8 @@ Same as above except you would use as rtmp url:
 Credits
 ======
 
-* Many thanks to arut for his patience and port of nginx-rtmp (available at https://github.com/arut/nginx-rtmp-module )
-* Many thanks to the people helping and improving crtmpserver, alias crtmpd, alias c++rtmpserver (available at http://www.rtmpd.com/ )
+* Many thanks to arut for his patience and port of nginx-rtmp (available at https://github.com/arut/nginx-rtmp-module)
+* Many thanks to the people helping and improving crtmpserver, alias crtmpd, alias c++rtmpserver (available at http://www.rtmpd.com/)
 * Many thanks to lobotom.org for the Android testing
 
 Final notes
