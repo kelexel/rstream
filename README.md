@@ -15,8 +15,8 @@ Content
 	* [What it is NOT](https://github.com/kelexel/rstream#what-it-is-not)
 	* [Why crmptd + nginx-rtmp at the same time ?!](https://github.com/kelexel/rstream#why-crmptd--nginx-rtmp-at-the-same-time-)
 * Changelog
-	* [0.1](https://github.com/kelexel/rstream#0-1)
-	* [0.2](https://github.com/kelexel/rstream#0-2)
+	* [0.1](https://github.com/kelexel/rstream#tag-01)
+	* [0.2](https://github.com/kelexel/rstream#tag-02)
 * [Todo](https://github.com/kelexel/rstream#todo)
 * [Requirements](https://github.com/kelexel/rstream#requirements)
 	* [Server side requirements](https://github.com/kelexel/rstream#server-side-requirements)
@@ -87,14 +87,14 @@ The ultimate goal of this is project is to provide an *easy* way for a single Wi
 Changelog
 ======
 
-0.1
+TAG 0.1
 ---
 
 * initial release, Freebsd9 only
 * added "-proxy"
 * added "-debug-reset"
 
-0.2
+TAG 0.2
 ---
 
 * updated to new modulable script structure
