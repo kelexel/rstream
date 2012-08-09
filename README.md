@@ -156,7 +156,7 @@ Installation
 
 By default rstream expects to be installed in /home/rstream
 
-To fetch the rstream sources
+Get the rstream-<tag> sources from https://github.com/kelexel/rstream
 
 ```bash
 # Proceed as follows using git:
