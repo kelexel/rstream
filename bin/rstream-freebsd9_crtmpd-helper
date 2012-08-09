@@ -84,13 +84,15 @@ crtmpdRouter(){
 		;;
 		stop)
 			echo "* stopping svscan"
-			service svscan stop
+			svc -d $DAEMONTOOLS_SERVICE/crtmpd
+			svc -d $DAEMONTOOLS_SERVICE/crtmpd/log
 			echo "* killing remaining $USER processes"
 			killall -u $USER
 		;;
 		start)
 			echo "* starting svscan"
-			service svscan start
+			svc -u $DAEMONTOOLS_SERVICE/crtmpd
+			svc -u $DAEMONTOOLS_SERVICE/crtmpd/log
 			echo "* waiting 5secons ..."
 			sleep 5
 			crtmpdRouter "status"

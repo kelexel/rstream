@@ -33,8 +33,8 @@ TAG="0.2"
 # set DAEMONTOOLS_SERVICE based on default port service path
 DAEMONTOOLS_SERVICE="/var/service"
 
-
-
+# clear dirty terminals
+clear
 
 ####
 ### Load OS Core files

@@ -15,7 +15,7 @@
 if [ -z $TAG ]; then echo "!! Error you are not suppoesd to execute this file directly"; routerHelp; fi
 
 ####
-### Daemon tools
+### daemontools Setup
 ####
 daemontoolsSetup(){
 	logHeader "daemontools setup"
@@ -27,28 +27,14 @@ daemontoolsSetup(){
 	enableRc "svscan"
 }
 
-####
-### daemontools router
-####
-crtmpdRouter(){
-	if [ -z $1 ]; then routeHelp; exit 1; fi
-	logRoute "daemontools" $1 
-	case $1 in
-		setup)
-			daemontoolsSetup
-		;;
-		*)
-			routeHelp
-		;;
-	esac
-}
+
 
 ####
-### CRTMPD router
+### daemontools Router
 ####
 daemontoolsRouter(){
 	if [ -z $1 ]; then routeHelp; exit 1; fi
-	logRoute "nginx" $1 
+	logRoute "daemontools" $1 
 	case $1 in
 		setup)
 			daemontoolsSetup

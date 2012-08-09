@@ -72,12 +72,13 @@ debugReset(){
 	cmd="$cmd  && rm -f $HOME/etc/nginx-rtmp.conf"
 	cmd="$cmd && rm -f $HOME/bin/supervise/crtmpd/run"
 	cmd="$cmd && rm -f $HOME/bin/supervise/crtmpd/log/run"
+	cmd="$cmd && rm -f $DAEMONTOOLS_SERVICE/crtmpd"
 	echo "-! Are you sure you want to execute:"
 	echo $cmd;
 	echo "[y/N]"
 	read debug_confirmation
 	case $debug_confirmation in
-		[yY]) `$cmd`;;
+		[yY]) route "stop"; echo ""; echo "* Cleaning up.." `$cmd`;;
 		*) echo "!! User-canceled reset" exit 1;;
 	esac
 }
@@ -114,9 +115,11 @@ route(){
 	routeInit
 	case $1 in
 		stop)
-			daemontoolsRouter "stop"
 			nginxRouter "stop"
 			crtmpdRouter "stop"
+			daemontoolsRouter "stop"
+			killall -u $USER
+			killall -TERM readproctitle supervise multilog crtmpserver
 		;;
 		start)
 			daemontoolsRouter "start"
@@ -146,9 +149,8 @@ route(){
 				crtmpd-proxy-to-nginx)
 					echo "> rstream type \"$2\"";
 					rstream_type="$2";
-					nginxRouter "stop"
+					route "stop"
 					nginxRouter "setup"
-					crtmpdRouter "stop"
 					crtmpdRouter "setup"
 					daemontoolsRouter "setup"
 				;;
