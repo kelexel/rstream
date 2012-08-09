@@ -156,7 +156,7 @@ NGINX_REGEN_CONF=1
 > NGINX_HLS="1"
 ```
 
-Howto: one wirecast broadcaster to one nginx-rtmp url (+hls)
+Howto: Wirecast broadcaster to many nginx-rtmp clients (+HLS support)
 =====
 
 On server side
@@ -233,9 +233,9 @@ Same as above except you would use as rtmp url:
 Credits
 ======
 
-Many thanks to arut for his patience and port of nginx-rtmp (available at https://github.com/arut/nginx-rtmp-module )
-Many thanks to the people helping and improving crtmpserver, alias crtmpd, alias c++rtmpserver (available at http://www.rtmpd.com/ )
-Thanks to lobotom.org for the Android testing
+* Many thanks to arut for his patience and port of nginx-rtmp (available at https://github.com/arut/nginx-rtmp-module )
+* Many thanks to the people helping and improving crtmpserver, alias crtmpd, alias c++rtmpserver (available at http://www.rtmpd.com/ )
+* Many thanks to lobotom.org for the Android testing
 
 Final notes
 ======
