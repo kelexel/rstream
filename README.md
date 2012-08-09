@@ -5,7 +5,7 @@ Note !!!
 Note !!!
 Note !!!
 
-* The current release uses and relies on both nginx-rtmp AND c++rtmpserver to provide from ONE UNIQUE broadcaster pushing ONE UNIQUE stream  to *many* RTMP and HLS clients !!!!!!!
+* The current release uses and relies on both nginx-rtmp AND c++rtmpserver to provide a streaming CDN allowing ONE UNIQUE broadcaster pushing ONE UNIQUE stream  to *many* RTMP and HLS clients !!!!!!!
 
 About
 ======
