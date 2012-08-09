@@ -14,7 +14,7 @@ Content
 	* [What it is](https://github.com/kelexel/rstream#what-it-is)
 	* [What it is NOT](https://github.com/kelexel/rstream#what-it-is-not)
 	* [Why crmptd + nginx-rtmp at the same time ?!](https://github.com/kelexel/rstream#why-crmptd--nginx-rtmp-at-the-same-time-)
-* [Changelog](https://github.com/kelexel/rstream#changelog)
+* Changelog
 	* [0.1](https://github.com/kelexel/rstream#0-1)
 	* [0.2](https://github.com/kelexel/rstream#0-2)
 * [Todo](https://github.com/kelexel/rstream#todo)
@@ -69,8 +69,10 @@ What it is NOT
 
 * It is not pefect, 0.1 was written in roughly 6hours, 0.2 was  released few (sleepless) hours later
 * The "crtmpd-proxy-to-nginx mode" is not yet production-stress-tested !! (any idea on how to efficiently simul a stress-test is welcomed)
-* It is NOT -YET- MULTI-CONCURENT-BROADCASTERS friendly (just fork it!)
-* It is NOT -YET- MULTI-CONCURENT-STREAMS friendly (just fork it!)
+* It is NOT-YET multi-concurent-broadcaster-friendly (just fork it!)
+* It is NOT-YET multi-concurent-streams-per-single-broadcaster-friendly (just fork it!)
+* It is NOT-YET Linux-friendly (just fork it!)
+* It is NOT-YET OSX-friendly (just fork it!)
 
 Why crmptd + nginx-rtmp at the same time ?!
 ---
