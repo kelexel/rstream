@@ -181,11 +181,9 @@ To use rstream YOU MUST MANUALY CREATE an ~rstream/etc/rstream.conf file.
 Here is the content of a default ~rstream/etc/rstream.conf template for rstream \"crtmpd-proxy-to-nginx\" type (all fields are mendatory):
 
 ```bash
-### crtmpd related
+### crtmpd related  (used by the broadcaster)
 # You must download the crtmpserver binary from http://www.rtmpd.com/downloads/ and edit the path below
 CRTMPD_BIN="$HOME/src/crtmpserver-trunk-x86_64-FreeBSD-9.0/crtmpserver"
-
-# Configuration type (right now only crtmpd-proxy-to-nginx)
 CRTMPD_RTMP_IP="1.2.3.4"
 CRTMPD_RTMP_PORT="1936"
 CRTMPD_LIVEFLV_IP="1.2.3.4"
@@ -194,7 +192,7 @@ CRTMPD_RTMP_STREAM="test"
 # Force crtmpd config file regen
 CRTMPD_REGEN_CONF=1
 
-### nginx related
+### nginx related (used by the clients)
 NGINX_RTMP_FQDN="some.fullqualified.domain.name"
 NGINX_RTMP_IP="1.2.3.4"
 NGINX_RTMP_PORT="1935"

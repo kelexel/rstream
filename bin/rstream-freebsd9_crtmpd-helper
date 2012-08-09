@@ -77,23 +77,25 @@ crtmpdRouter(){
 			crtmpdSetup
 		;;
 		status|stat)
-			echo "* checking if svscan is running"
+			echo "* checking if crtmpd service is running"
 			service svscan status
 			svstat $DAEMONTOOLS_SERVICE/crtmpd
 			svstat $DAEMONTOOLS_SERVICE/crtmpd/log
 		;;
 		stop)
-			echo "* stopping svscan"
+			echo "* stopping crtmpd service"
 			svc -d $DAEMONTOOLS_SERVICE/crtmpd
 			svc -d $DAEMONTOOLS_SERVICE/crtmpd/log
 			echo "* killing remaining $USER processes"
-			killall -u $USER
+			killall -TERM supervise
+			killall -TERM multilog 
+			killall -TERM crtmpserver
 		;;
 		start)
-			echo "* starting svscan"
+			echo "* starting crtmpd service"
 			svc -u $DAEMONTOOLS_SERVICE/crtmpd
 			svc -u $DAEMONTOOLS_SERVICE/crtmpd/log
-			echo "* waiting 5secons ..."
+			echo "* waiting 5seconds ..."
 			sleep 5
 			crtmpdRouter "status"
 		;;
