@@ -165,7 +165,9 @@ cd /home/rstream && git clone https://github.com/kelexel/rstream.git
 
 # Or downloading the current tag
 mkdir /home/rstream
-cd /home/rstream && fetch https://github.com/kelexel/rstream/tarball/<tag>
+cd /home/rstream
+# fetch a current TAG tarball, ie: fetch -o rstream-<tag>.tgz https://github.com/kelexel/rstream/tarball/<tag>
+fetch -o rstream-0.2.tgz https://github.com/kelexel/rstream/tarball/0.2
 ```
 
 (In case you want to install rstream in another location, you only need to edit the HOME variable setting on top of ~rstream/bin/rstream)
