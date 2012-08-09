@@ -1,5 +1,5 @@
 RStream - thin Open Source Steaming deployment scripts
-----------==
+-----======
 
 Note !!!
 Note !!!
@@ -8,7 +8,7 @@ Note !!!
 * The current release uses and relies on both nginx-rtmp AND c++rtmpserver to provide from ONE UNIQUE broadcaster pushing ONE UNIQUE stream  to *many* RTMP and HLS clients !!!!!!!
 
 About
------==
+======
 
 Why crmptd + nginx-rtmp at the same time ?!
 ---
@@ -60,14 +60,14 @@ Everything is "jailed" to ~rstream EXCEPT the ports required by rstream (see Req
 Config files required for rstream are linked from ~rstream/etc/<config_file> to their matching /usr/local/etc/path/to/<config_file>
 
 Credits
------==
+======
 
 Many thanks to arut for his patience and port of nginx-rtmp (available at https://github.com/arut/nginx-rtmp-module )
 Many thanks to the people helping and improving crtmpserver, alias crtmpd, alias c++rtmpserver (available at http://www.rtmpd.com/ )
 Thanks to lobotom.org for the Android testing
 
 Todo
------==
+-----
 
 * Put the transcoding part on github (!)
 * Decide if HLS should be done by nginx-rtmp or by ffmpeg -via- crtmpd only
@@ -77,10 +77,10 @@ Todo
 * Make rstream in .py or .rb ? (you just fork it!)
 
 Requirements
------==
+-----
 
 Server side 
------=
+-----
 
 * FreeBSD 9.x - I am currently running this setup in FreeBSD 9.1-prelease jail.
 * nginx (compiled from a recent port tree, with the "nginx-rtmp" module enabled)
@@ -103,7 +103,7 @@ More precisely the following files:
 * /usr/local/etc/nginx/mime.types (if used in your actual setup)
 
 Installation
------==
+======
 By default rstream expects to be installed in /home/rstream
 
 Proceed as follows using git:
@@ -125,7 +125,7 @@ cd /home/rstream && fetch .....
 Create a configuration file under ~rstream/etc/rstream.conf (see below)
 
 Configuration
------==
+======
 
 To use rstream YOU MUST MANUALY CREATE an ~rstream/etc/rstream.conf file.
 Here is a default template:
@@ -164,7 +164,7 @@ NGINX_REGEN_CONF=1
 ```
 
 Usage
------==
+======
 
 Howto: one wirecast broadcaster to one nginx-rtmp url (+hls)
 -----=
@@ -242,6 +242,6 @@ Same as above except you would use as rtmp url:
 
 
 Final notes
------==
+======
 
 Open-Source 4 ever.
