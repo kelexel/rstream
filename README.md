@@ -43,10 +43,10 @@ What can it do
 * Add required daemons to system startup
 * Generate daemontools service scripts for crtmpd(/log) and ffmpeg(/log)
 * Supported broadcasters:
-	* [Telestream Wirecast](http://www.adobe.com/products/flash-media-encoder.html) (OSX 10.7.x / Windows 7)
-	* [Adobe FlashMediaLiveEncoer](http://www.adobe.com/products/flash-media-encoder.html) (OSX 10.7.x / Windows 7 / Linux)
-	* http://www.osmf.org/configurator/fmp/ (Flash Player 11+)
-	* [Android: OS Broadcaster](https://play.google.com/store/search?q=+OS+Broadcaster&c=apps) (Android 3+)
+	* [Telestream Wirecast](http://www.adobe.com/products/flash-media-encoder.html) (OSX 10.7.x / Windows 7, h254/aac)
+	* [Adobe FlashMediaLiveEncoer](http://www.adobe.com/products/flash-media-encoder.html) (OSX 10.7.x / Windows 7 / Linux, h254/aac)
+	* http://www.osmf.org/configurator/fmp/ (Flash Player 11+, h254/aac)
+	* [Android: OS Broadcaster](https://play.google.com/store/search?q=+OS+Broadcaster&c=apps) (Android 3+, h254/aac)
 * Supported clients:
 	* jwplayer
 	* flowplayer
@@ -74,6 +74,7 @@ What it is NOT
 * It is NOT-YET multi-concurent-streams-per-single-broadcaster-friendly (just fork it!)
 * It is NOT-YET Linux-friendly (just fork it!)
 * It is NOT-YET OSX-friendly (just fork it!)
+* It is NOT-YET capable of steaming vp6/mp3
 
 Why crmptd + nginx-rtmp at the same time ?!
 ---
@@ -281,6 +282,7 @@ Go to Broadcast settings (on OSX, CMD+Y)
 Create a new broadcast profile profile containing:
 
 * Input the matching url (yes the /proxy is required and fixed): rtmp://<CRTMPD_RTMP_IP>:<CRTMPD_RTMP_PORT>/proxy
+* Set authentication settings with username "broadcast", password "n3rox". The user list is located in $HOME/etc/crtmpd-users.lua
 * Set User Agent to FMLE/3.0
 * Set stream name to <CRTMPD_RTMP_STREAM>
 

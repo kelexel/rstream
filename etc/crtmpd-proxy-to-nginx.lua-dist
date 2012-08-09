@@ -46,23 +46,20 @@ configuration=
 					--emulateUserAgent="FMLE/3.0 (compatible; FMSc/1.0 http://www.rtmpd.com)"
 				},
 			},
-			--[[authentication=
+			authentication=
 			{
-					tmp={
-					type="adobe",
-					encoderAgents=
-					{
-						"FMLE/3.0 (compatible; FMSc/1.0)",
-					},
-					usersFile="./configs/users.lua"
-					 },
-					rtsp={
-						usersFile="./configs/users.lua"
-					}
-			},]]--
+				rtmp={
+						type="adobe",
+						encoderAgents=
+						{
+							"FMLE/3.0 (compatible; FMSc/1.0)",
+						},
+						usersFile="_HOME_/etc/crtmpd-users.lua",
+				},
+			},
 			validateHandshake=false,
 			--default=true,
-		}
-	}
+		},
+	},
 }
 
