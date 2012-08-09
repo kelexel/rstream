@@ -26,10 +26,10 @@ Why crmptd + nginx-rtmp at the same time ?!
 
 The ultimate goal of this is project is to provide an *easy* way for a single Wirecast broadcaster to send one stream to *any* kind of device supporting either the RTMP or HLS protocols, this means it can stream to both Flash (+v9?) compatible players AND iOS (v5+) devices
 
-* only one connection is made to crtmpd by one single broadcaster 
+* Only one connection is made to crtmpd by one single broadcaster 
 * crtmpd is only used as a proxy from the broadcaster, pushing  to a *main* nginx-rtmp server
-* only nginx is exposed to the clients
-* Therefore nginx-rtmp is handle both the connection of the HLS clients (over regular nginx-http), and connections of the RTMP clients (via nginx-rtmp)
+* Only nginx is exposed to the clients
+* Therefore nginx handles both the connection of the HLS clients (over regular nginx-http), and connections of the RTMP clients (via nginx-rtmp)
 
 What it is
 ---
