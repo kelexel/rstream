@@ -23,7 +23,7 @@ Content
 	* [Broadcaster side requirements](https://github.com/kelexel/rstream#broadcaster-side-requirements)
 	* [Client side requirements](https://github.com/kelexel/rstream#client-side-requirements)
 * [Warnings](https://github.com/kelexel/rstream#warnings)
-* [Configurations]
+* Configurations
 	* [Configuration type "crtmpd-proxy-to-nginx"](https://github.com/kelexel/rstream#configuration-type-crtmpd-proxy-to-nginx)
 * Howtos
 	* [Howto: Per-daemon control](https://github.com/kelexel/rstream#howto-per-daemon-control)
@@ -39,19 +39,15 @@ What can it do
 ---
 
 * Setup a fully featured Streaming CDN with HTTPLiveStream + RTMP + Transcoding
-
 * Keep all scripts, configs, media, HLS-stream to to ~rstream
-
 * Copy required config files in place of required daemons, like  ~rstream/etc/<config_file> would match /usr/local/etc/path/to/<config_file>
-
 * Add required daemons to system startup
-
 * Generate daemontools service scripts for crtmpd(/log) and ffmpeg(/log)
 
 What it is
 ---
 
-* For me, a week of random r&d including a heavy dose of trial an error, docs ingesting, google resarch
+* For me, a week of random r&d including a heavy dose of trial an error, docs ingesting, google resarch, all possible because of [these people](https://github.com/kelexel/rstream#credits)
 * It uses good old bourne shell - so it just works *out of the box*
 * A set of configuration files and script to simplify deploy a full-feature streaming server CDN capable of transcoding a single FLV (h264) sent over the RTMP protocol,
 to multiple bitrate for FLASH-style (RTMP) and iOS-style HTTPLiveStreaming (HLS) compatible browsers.
@@ -304,7 +300,7 @@ Testing HLS on iOS devices
 Testing the raw  FLV / RTMP stream
 ---
 
- I can only recommand the flvplayer.swf mentioned here: https://groups.google.com/forum/?fromgroups#!topic/c-rtmp-server/yPkD3PKnpMM[1-25] and available for download here: http://dl.dropbox.com/u/2918563/flvplayback.swf
+ I can only recommand the "flvplayer.swf" mentioned [here](https://groups.google.com/forum/?fromgroups#!topic/c-rtmp-server/yPkD3PKnpMM[1-25]) and available for download [here](http://dl.dropbox.com/u/2918563/flvplayback.swf)
 
 * Just download  the file and open it with flash player or a browser
 * Use rtmp://<NGINX_RTMP_IP>:<NGINX_RTMP_PORT>/proxy as "Connecting String" field
@@ -331,6 +327,8 @@ I would like to extend my *diamonds for ever* to these persons / teams:
 
 * arut, for his patience and port of nginx-rtmp (available at https://github.com/arut/nginx-rtmp-module)
 * the people helping and improving crtmpserver, alias crtmpd, alias c++rtmpserver (available at http://www.rtmpd.com/)
+* whoever created and shared http://dl.dropbox.com/u/2918563/flvplayback.swf
+* whoever created and shared http://www.osmf.org/configurator/fmp/#
 * lobotom(.org), for the Android testing
 * #nginx@freenode
 * #freebsd@freenode
