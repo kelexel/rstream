@@ -1,0 +1,44 @@
+#!/bin/sh
+######################################################################################
+### rstream-freebsd9_daemontools-helper
+# 
+# license: GPL
+# 
+# authors:
+# - Rudolph Sand aka https://github.com/kelexel
+# 
+# url:
+# - https://github.com/kelexel/rstream
+#
+######################################################################################
+
+if [ -z $TAG ]; then echo "!! Error you are not suppoesd to execute this file directly"; routerHelp; fi
+
+####
+### Daemon tools
+####
+daemontoolsSetup(){
+	logHeader "daemontools setup"
+	# check if daemontools is installed
+	checkPort "daemontools"
+	# check if services exist
+	checkDir $DAEMONTOOLS_SERVICE -rc
+	# enable daemontools
+	enableRc "svscan"
+}
+
+####
+### daemontools router
+####
+crtmpdRouter(){
+	if [ -z $1 ]; then routeHelp; exit 1; fi
+	logRoute "daemontools" $1 
+	case $1 in
+		setup)
+			daemontoolsSetup
+		;;
+		*)
+			routeHelp
+		;;
+	esac
+}

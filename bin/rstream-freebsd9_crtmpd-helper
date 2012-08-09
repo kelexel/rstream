@@ -1,0 +1,106 @@
+#!/bin/sh
+######################################################################################
+### rstream-freebsd9_crtmpd-helper
+# 
+# license: GPL
+# 
+# authors:
+# - Rudolph Sand aka https://github.com/kelexel
+# 
+# url:
+# - https://github.com/kelexel/rstream
+#
+######################################################################################
+
+if [ -z $TAG ]; then echo "!! Error you are not suppoesd to execute this file directly"; routerHelp; fi
+
+####
+### CRTMPD setup
+####
+crtmpdSetup(){
+	logHeader "crtmpd setup"
+	# check if CRTMPD_BIN is found
+	checkFile $CRTMPD_BIN 1
+	#set CRTMPD_CONF variable based on $rstream_type
+	if [ ! -f $HOME/etc/${rstream_type}.lua-dist ]; then echo "!! Invalid rstream_type , existing. "; exit 99; fi
+	CRTMPD_CONF="$HOME/etc/${rstream_type}.lua"
+	# cosmetics
+	if [ $CRTMPD_REGEN_CONF -eq 1 ]; then echo "-! enforcing CRTMPD_REGEN_CONF"; fi
+	# generate CRTMPD CONF
+	if [ $CRTMPD_REGEN_CONF -eq 1 ] || [ ! -f $HOME/etc/${rstream_type}.lua ]; then
+		echo "*+ generating new crtmpd conf";
+		# generate local nginx conf
+		cat ${CRTMPD_CONF}-dist \
+			| sed s,_HOME_,$HOME,g \
+			| sed s,_NGINX_RTMP_IP_,$NGINX_RTMP_IP,g \
+			| sed s,_NGINX_RTMP_PORT_,$NGINX_RTMP_PORT,g \
+			| sed s,_NGINX_RTMP_STREAM_,$NGINX_RTMP_STREAM,g \
+			| sed s,_CRTMPD_RTMP_IP_,$CRTMPD_RTMP_IP,g \
+			| sed s,_CRTMPD_RTMP_PORT_,$CRTMPD_RTMP_PORT,g \
+			| sed s,_CRTMPD_LIVEFLV_IP_,$CRTMPD_LIVEFLV_IP,g \
+			| sed s,_CRTMPD_LIVEFLV_PORT_,$CRTMPD_LIVEFLV_PORT,g \
+			| sed s,_CRTMPD_RTMP_STREAM_,$CRTMPD_RTMP_STREAM,g \
+			> $CRTMPD_CONF
+	fi
+
+
+	# generate CRTMPD run script
+	#if [ $CRTMPD_REGEN_CONF -eq 1 ]; then echo "-! enforcing regen_conf"; fi
+		# generate crtmpd/run script
+		echo "*+ generating new crtmpd/run script";
+		cat $HOME/bin/supervise/crtmpd/run-dist \
+			| sed s,_CRTMPD_BIN_,$CRTMPD_BIN,g \
+			| sed s,_CRTMPD_CONF_,$CRTMPD_CONF,g \
+			| sed s,_USER_,$USER,g \
+			> $HOME/bin/supervise/crtmpd/run
+			chmod 755 $HOME/bin/supervise/crtmpd/run
+		# generate crtmpd/log/run script
+		echo "*+ generating new crtmpd/log/run script";
+		cat $HOME/bin/supervise/crtmpd/log/run-dist \
+			| sed s,_USER_,$USER,g \
+			| sed s,_LOG_DIR_,$HOME/var/log/crtmpd,g \
+			> $HOME/bin/supervise/crtmpd/log/run
+			chmod 755 $HOME/bin/supervise/crtmpd/log/run
+
+	#fi
+}
+
+####
+### CRTMPD router
+####
+crtmpdRouter(){
+	if [ -z $1 ]; then routeHelp; exit 1; fi
+	logRoute "crtmpd" $1 
+	if [ -z $DAEMONTOOLS_SERVICE ] || [ ! -d $DAEMONTOOLS_SERVICE ]; then echo "!! error invalid DAEMONTOOLS_SERVICE \"$DAEMONTOOLS_SERVICE\", existing."; exit 99; fi
+	case $1 in
+		setup)
+			crtmpdSetup
+		;;
+		status|stat)
+			echo "* checking if svscan is running"
+			service svscan status
+			svstat $DAEMONTOOLS_SERVICE/crtmpd
+			svstat $DAEMONTOOLS_SERVICE/crtmpd/log
+		;;
+		stop)
+			echo "* stopping svscan"
+			service svscan stop
+			echo "* killing remaining $USER processes"
+			killall -u $USER
+		;;
+		start)
+			echo "* starting svscan"
+			service svscan start
+			echo "* waiting 5secons ..."
+			sleep 5
+			crtmpdRouter "status"
+		;;
+		restart)
+			crtmpdRouter "stop"
+			crtmpdRouter "start"
+		;;
+		*)
+			routeHelp
+		;;
+	esac
+}

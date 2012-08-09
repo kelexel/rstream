@@ -1,0 +1,83 @@
+#!/bin/sh
+######################################################################################
+### rstream-freebsd9_common-helper
+# 
+# license: GPL
+# 
+# authors:
+# - Rudolph Sand aka https://github.com/kelexel
+# 
+# url:
+# - https://github.com/kelexel/rstream
+#
+######################################################################################
+
+if [ -z $TAG ]; then echo "!! Error you are not suppoesd to execute this file directly"; routerHelp; fi
+
+## Used to check the existence of a given username on the system
+checkUser(){
+	if [ `cat /etc/shells | grep -q "/usr/sbin/nologin" && echo $?` -eq 1 ]; then
+		echo "*+ adding /usr/sbin/nologin to system /etc/shells"
+		echo "/usr/sbin/nologin" >> /etc/shells
+	fi
+	if [ `id $1 2>&1 | grep -q 'no such user'; echo $?` -eq 0  ]; then 
+		echo "*+ adding system user \"$1\" with shell \"/sbin/nologin\" and home \"$HOME\" ";
+		pw useradd $1 -s /sbi/nologin -d $2
+		if [ ! $? -eq 0 ]; then echo "!! error !!"; exit 99; fi
+	else
+		echo "* found system user \"$1\"";
+	fi
+}
+## Used ot check if a given file exists
+checkFile(){
+	if [ ! -f $1 ] && [ ! -z $2 ]; then echo "!! file \"$1\" not found! exiting"; exit 99; fi
+	if [ ! -f $1 ] ; then echo "-! missing file \"$1\" !";
+	else echo "* found file \"$1\""; fi
+}
+
+## Used to check the existence of a directory, and create it if required
+checkDir(){
+if [ ! -d $1 ]; then
+	if [ ! -z $2 ]; then
+		case $2 in
+			# -c == create
+			"-c") 
+				echo "*+ creating \"$1\"";
+				mkdir -p $1
+				if [ ! $? -eq 0 ]; then echo "!! error !!"; exit 99; fi
+				# check for chown arg
+				if [ ! -z $3 ]; then
+					echo "*+ setting ownership to \"$3\" on \"$1\""
+					chown ${3}:${3} $1
+					if [ ! $? -eq 0 ]; then echo "!! error !!"; exit 99; fi
+				fi
+				# check chmod chown arg
+				if [ ! -z $4 ]; then
+					echo "*+ setting permisions to \"$4\" on \"$1\""
+					chmod ${4} $1
+					if [ ! $? -eq 0 ]; then echo "!! error !!"; exit 99; fi
+				fi
+			;;
+		esac
+	fi
+else
+	echo "* found $1";
+fi
+}
+
+## Used to check if a given portname ($1) is installed on the current system
+checkPort(){
+	if [ ! `pkg_info | grep -q $1 && echo $?` -eq 0 ]; then echo "!! port \"$1\" is not installed on this system ! exiting.": exit 99; fi
+	echo "* found port $1";
+}
+
+## Used to check if a given port is enabled in the system's rc.conf
+enableRc(){
+	if [ `grep -q "${1}_enable=\"YES\"" /etc/rc.conf && echo $?` -eq 1 ]; then
+		echo "*+ enabling \"$1\" in /etc/rc.conf";
+		echo "$1_enable=\"YES\"" >> /etc/rc.conf
+		if [ ! $? -eq 0 ]; then echo "!! error !!"; exit 99; fi
+	else
+		echo "* found $1 enabled in rc.conf";
+	fi
+}

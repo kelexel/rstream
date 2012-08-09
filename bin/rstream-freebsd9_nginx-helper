@@ -1,0 +1,103 @@
+#!/bin/sh
+######################################################################################
+### rstream-freebsd9_nginx-helper
+# 
+# license: GPL
+# 
+# authors:
+# - Rudolph Sand aka https://github.com/kelexel
+# 
+# url:
+# - https://github.com/kelexel/rstream
+#
+#######################################################################################
+
+if [ -z $TAG ]; then echo "!! Error you are not suppoesd to execute this file directly"; routerHelp; fi
+
+####
+### Nginx setup
+####
+nginxSetup(){
+	logHeader "nginx setup"
+	# test if nginx is installed
+	checkPort "nginx"
+	nginx_bin=`which nginx` # should result in /usr/local/bin/nginx
+	# test if nginx was compiled with nginx-rtmp support
+	if [ ! `$nginx_bin -V 2>&1 | grep -q rtmp &&  echo $?` -eq 0 ]; then echo "!! nginx was not compiled with nginx-rtmp support , existing."; exit 99; fi
+	echo "* found nginx-rtmp support";
+	# test if nginx was compiled with nginx-rtmp/hls support
+	if [ $NGINX_HLS -eq 1 ] && [ ! `$nginx_bin -V 2>&1 | grep -q hls &&  echo $?` -eq 0 ]; then echo "!! nginx was not compiled with nginx-rtmp/hls support , existing."; exit 99; 
+		else if [ $NGINX_HLS -eq 1 ]; then echo "* found nginx-rtmp/hls support"; fi
+	fi
+	# set nginx_conf to default FreeBSD nginx port config location
+	nginx_conf="/usr/local/etc/nginx/nginx.conf"
+	# set nginx_conf_dist based on $NGINX_HLS
+	if [ $NGINX_HLS ]; then 
+		nginx_conf_dist=${HOME}/etc/nginx-rtmp-hls.conf-dist
+	else
+		nginx_conf_dist=${HOME}/etc/nginx-rtmp.conf-dist
+	fi
+	if [ $NGINX_REGEN_CONF -eq 1 ]; then echo "-! enforcing NGINX_REGEN_CONF"; fi
+	if [ $NGINX_REGEN_CONF -eq 1 ] || [ ! -f $HOME/etc/nginx-rtmp.conf ]; then
+		echo "*+ generating new nginx conf";
+		# generate local nginx conf
+		cat $nginx_conf_dist \
+			| sed s,_HOME_,$HOME,g \
+			| sed s,_NGINX_RTMP_IP_,$NGINX_RTMP_IP,g \
+			| sed s,_NGINX_RTMP_PORT_,$NGINX_RTMP_PORT,g \
+			| sed s,_NGINX_RTMP_STREAM_,$NGINX_RTMP_STREAM,g \
+			> $HOME/etc/nginx-rtmp.conf
+	fi
+	# link nginx conf
+	linkConf $HOME/etc/nginx-rtmp.conf $nginx_conf
+	# only make the following tests if NGINX_HLS is set to 1
+	if [ $USER_HLS ]; then
+		# set nginx_mime_types to default FreeBSD nginx port config location
+		nginx_mime_types="/usr/local/etc/nginx/mime.types"
+		# link mime types
+		linkConf $HOME/etc/nginx-rtmp-mime.types $nginx_mime_types
+	fi
+	# enable nginx
+	
+#	 "nginx"
+}	
+
+####
+### CRTMPD router
+####
+nginxRouter(){
+	if [ -z $1 ]; then routeHelp; exit 1; fi
+	logRoute "nginx" $1 
+	case $1 in
+		setup)
+			nginxSetup
+		;;
+		status|stat)
+			echo "* checking if svscan is running"
+			service nginx status
+		;;
+		stop)
+			echo "* stopping svscan"
+			service nginx stop
+		;;
+		start)
+			echo "* starting svscan"
+			service nginx start
+			echo "* waiting 5secons ..."
+			sleep 5
+			nginxRouter "status"
+		;;
+		restart)
+			nginxRouter "stop"
+			nginxRouter "start"
+		;;
+		hls-flush)
+			echo "* flushing hls directory"
+			rm -f $HOME/tmp/hls/*.ts
+			rm -f $HOME/tmp/hls/*.m3u8
+		;;
+		*) 
+			outeHelp
+		;;
+	esac
+}

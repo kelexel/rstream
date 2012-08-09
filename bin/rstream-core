@@ -1,0 +1,156 @@
+#!/bin/sh
+######################################################################################
+### rstream-core
+# 
+# license: GPL
+# 
+# authors:
+# - Rudolph Sand aka https://github.com/kelexel
+# 
+# url:
+# - https://github.com/kelexel/rstream
+#
+######################################################################################
+
+if [ -z $TAG ]; then echo "!! Error you are not suppoesd to execute this file directly"; routerHelp; fi
+
+## Used for log consmetics
+logRoute(){
+	echo "";
+	echo ">> route \"$1/$2\"";
+}
+logHeader(){
+	echo "** $1";
+}
+## Used to link configuration file $1 to path $2 (and backups $2 if it is a file)
+linkConf(){
+	# test if $2 is a file, not a symblink
+	if [ ! -h $2 ] && [ -f $2 ]; then
+		echo "*+ backuping file \"$1\" to \"${1}.back\"";
+		mv $2 ${2}.back
+		if [ ! $? -eq 0 ]; then echo "!! error !!"; exit 99; fi
+	fi
+	if [ ! -h $2 ]; then
+		echo "*+ linking \"$1\" to \"$2\""
+		ln -s $1 $2
+		if [ ! $? -eq 0 ]; then echo "!! error !!"; exit 99; fi
+	else
+		echo "* found existing link from \"$1\" to \"$2\"";
+	fi
+}
+
+## Used to link a daemontools service
+linkService(){
+	if [ ! -h $2/$1 ]; then
+		echo "*+ creating service link for \"$1\" in \"$2\"";
+		ln -s $HOME/bin/supervise/$1 $2/
+		if [ ! $? -eq 0 ]; then echo "!! error !!"; exit 99; fi
+	else
+		echo "* found daemontools service in $2/$1";
+	fi
+}
+
+
+
+####
+### Services
+####
+setupServices(){
+	logHeader="services setup"
+	if [ -z $DAEMONTOOLS_SERVICE ] || [ ! -d $DAEMONTOOLS_SERVICE ]; then echo "!! error invalid DAEMONTOOLS_SERVICE \"$DAEMONTOOLS_SERVICE\", existing."; exit 99; fi
+	# testing if link to crtmpd service exists
+	linkService crtmpd $DAEMONTOOLS_SERVICE
+}
+
+debugReset(){
+	logHeader="debug reset"
+	cmd="rm -rf $HOME/tmp"
+	cmd="$cmd && rm -rf $HOME/var"
+	cmd="$cmd && rm -rf $HOME/shared"
+	cmd="$cmd && rm -f $HOME/etc/rstream.conf"
+	cmd="$cmd && rm -f $HOME/etc/crtmpd-proxy-to-nginx.lua"
+	cmd="$cmd  && rm -f $HOME/etc/nginx-rtmp.conf"
+	cmd="$cmd && rm -f $HOME/bin/supervise/crtmpd/run"
+	cmd="$cmd && rm -f $HOME/bin/supervise/crtmpd/log/run"
+	echo "-! Are you sure you want to execute:"
+	echo $cmd;
+	echo "[y/N]"
+	read debug_confirmation
+	case $debug_confirmation in
+		[yY]) echo "> running `$cmd`"; exit 0;;
+		*) echo "!! User-canceled reset" exit 1;;
+	esac
+}
+
+routeInit(){
+	logHeader "- init checks"
+	# check for config file
+	checkFile $HOME/etc/rstream.conf 1
+
+	# check if our main $USER exists
+	checkUser $USER $HOME;
+	# check $HOME strucutre
+	checkDir $HOME/var/log -c
+	checkDir $HOME/var/log/www -c
+	checkDir $HOME/var/log/www/stats -c www 777
+	checkDir $HOME/var/log/crtmpd -c $USER
+	checkDir $HOME/var/log/nginx -c
+	checkDir $HOME/var/log/nginx-crtmpd-ffmpeg -c $USER
+	checkDir $HOME/shared/media -c $USER
+	checkDir $HOME/shared/www -c $USER 755
+	checkDir $HOME/tmp -c
+	if [ ! -z $NGINX_HLS ] && [ $NGINX_HLS -eq 1 ]; then checkDir $HOME/tmp/hls -c www 777; fi
+}
+
+routeHelp(){
+	echo "!! error, no valid argument(s) specified !"
+	echo "-! please consult the documentation: https://github.com/kelexel/rstream";
+}
+
+
+route(){
+	if [ -z $1 ]; then routeHelp; exit 1; fi
+	. $HOME/etc/rstream.conf
+	routeInit
+	case $1 in
+		stop)
+			nginxRouter "stop"
+			crtmpdRouter "stop"
+		;;
+		-link)
+			setupServices
+		;;
+		-crtmp|-crtmpd)
+			if [ -z $2 ]; then route; exit 99; fi
+			crtmpdRouter $2
+		;;
+		-nginx)
+			if [ -z $2 ]; then route; exit 99; fi
+			nginxRouter $2
+		;;
+		-debug-reset)
+			debugReset
+		;;
+		-setup|-install)
+			if [ -z $2 ]; then route; exit 99; fi
+			case $2 in
+				crtmpd-proxy-to-nginx)
+					echo "> rstream type \"$2\"";
+					rstream_type="$2";
+					nginxRouter "stop"
+					nginxRouter "setup"
+					crtmpdRouter "stop"
+					crtmpdRouter "setup"
+					daemontoolsRouter "setup"
+				;;
+				*)
+					routeHelp
+				;;
+			esac
+		;;
+		*)
+			routeHelp
+			exit 1;
+		;;
+	esac
+}
