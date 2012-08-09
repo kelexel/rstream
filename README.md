@@ -22,7 +22,7 @@ What it is
 
 
 * A set of configuration files and script to simplify deploying a full-feature RTMP server capable of transcoding a single FLV (h264) sent over the RTMP protocol,
-to multiple bitrate for FLASH-style and iOS-style HTTPLiveStreaming (HLS) compatible browsers.
+to multiple bitrate for FLASH-style (RTMP) and iOS-style HTTPLiveStreaming (HLS) compatible browsers.
 * If transcoding is enabled the same broadcaster's stream will be transcoded to 3 different sizes 720p, 480p, 320p FLV (h264/aac) over RTMP
 * IF NGINX_HLS is enabled the same broadcaster's stream will be converted to -whatever-the-current-resolution-currently-sent-by-the-broadcaster- HLS-friendly url available via the preconfigured nginx-rtmp.conf file
 
