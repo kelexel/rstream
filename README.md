@@ -239,6 +239,9 @@ Well, this whole project was a heavy doze of trial an error + docs ingesting + g
 * arut, for his patience and port of nginx-rtmp (available at https://github.com/arut/nginx-rtmp-module)
 * the people helping and improving crtmpserver, alias crtmpd, alias c++rtmpserver (available at http://www.rtmpd.com/)
 * lobotom(.org), for the Android testing
+* #nginx@freenode
+* #freebsd@freenode
+* #ffmpeg@freenode
 
 Final notes
 ======
