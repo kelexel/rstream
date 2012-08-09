@@ -59,13 +59,6 @@ It uses good old bourne shell - so it just works *out of the box*
 Everything is "jailed" to ~rstream EXCEPT the ports required by rstream (see Requirements)
 Config files required for rstream are linked from ~rstream/etc/<config_file> to their matching /usr/local/etc/path/to/<config_file>
 
-Credits
-======
-
-Many thanks to arut for his patience and port of nginx-rtmp (available at https://github.com/arut/nginx-rtmp-module )
-Many thanks to the people helping and improving crtmpserver, alias crtmpd, alias c++rtmpserver (available at http://www.rtmpd.com/ )
-Thanks to lobotom.org for the Android testing
-
 Todo
 -----
 
@@ -77,10 +70,10 @@ Todo
 * Make rstream in .py or .rb ? (you just fork it!)
 
 Requirements
------
+======
 
 Server side 
------
+---
 
 * FreeBSD 9.x - I am currently running this setup in FreeBSD 9.1-prelease jail.
 * nginx (compiled from a recent port tree, with the "nginx-rtmp" module enabled)
@@ -89,7 +82,7 @@ Server side
 * that you backup (if any) your previously existing nginx config files located under /usr/local/etc/nginx/* (!!!)
 
 Broadcaster side
------=
+---
 
 * The RTMP broadcasting tool of your choice (Wirecast, Flash Media Live Encoder, an flv based RTMP encoder...)
 
@@ -163,11 +156,8 @@ NGINX_REGEN_CONF=1
 > NGINX_HLS="1"
 ```
 
-Usage
-======
-
 Howto: one wirecast broadcaster to one nginx-rtmp url (+hls)
------=
+=====
 
 On server side
 -----
@@ -240,6 +230,12 @@ Same as above except you would use as rtmp url:
 * rtmp://NGINX_RTMP_IP:NGINX_RTMP_PORT>/320p
 
 
+Credits
+======
+
+Many thanks to arut for his patience and port of nginx-rtmp (available at https://github.com/arut/nginx-rtmp-module )
+Many thanks to the people helping and improving crtmpserver, alias crtmpd, alias c++rtmpserver (available at http://www.rtmpd.com/ )
+Thanks to lobotom.org for the Android testing
 
 Final notes
 ======
