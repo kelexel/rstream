@@ -43,6 +43,16 @@ What can it do
 * Copy required config files in place of required daemons, like  ~rstream/etc/<config_file> would match /usr/local/etc/path/to/<config_file>
 * Add required daemons to system startup
 * Generate daemontools service scripts for crtmpd(/log) and ffmpeg(/log)
+* Supported broadcasters:
+	* Telestream Wirecast
+	* Adobe FlashMediaLiveEncoer
+	* http://www.osmf.org/configurator/fmp/
+* Supported clients:
+	* jwplayer
+	* flowplayer
+	* iOS Mobile Safari
+	* http://dl.dropbox.com/u/2918563/flvplayback.swf
+	* http://www.osmf.org/configurator/fmp/
 
 What it is
 ---
@@ -328,7 +338,7 @@ I would like to extend my *diamonds for ever* to these persons / teams:
 * arut, for his patience and port of nginx-rtmp (available at https://github.com/arut/nginx-rtmp-module)
 * the people helping and improving crtmpserver, alias crtmpd, alias c++rtmpserver (available at http://www.rtmpd.com/)
 * whoever created and shared http://dl.dropbox.com/u/2918563/flvplayback.swf
-* whoever created and shared http://www.osmf.org/configurator/fmp/#
+* whoever created and shared http://www.osmf.org/configurator/fmp/
 * lobotom(.org), for the Android testing
 * #nginx@freenode
 * #freebsd@freenode
