@@ -20,9 +20,9 @@ configuration=
 			description="Application for forwarding streams to another RTMP server",
 			protocol="dynamiclinklibrary",
 			mediaFolder="_HOME_/shared/media",
-			--[[alias={
-				"proxy"
-			},]]--
+			--[[alias=[
+				"proxy", "720p", "480p", "320p",
+			],]]--
 			acceptors =
 			{
 				{

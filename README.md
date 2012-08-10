@@ -1,4 +1,4 @@
-RStream 0.3
+RStream 0.3s
 ===========
 
 Note !!! Note !!! Note !!!
@@ -17,6 +17,7 @@ Content
 	* [TAG 0.1](https://github.com/kelexel/rstream#tag-01)
 	* [TAG 0.2](https://github.com/kelexel/rstream#tag-02)
 	* [TAG 0.3](https://github.com/kelexel/rstream#tag-03)
+	* [TAG 0.3t](https://github.com/kelexel/rstream#tag-03t)
 * [Todo](https://github.com/kelexel/rstream#todo)
 * Requirements
 	* [Server side requirements](https://github.com/kelexel/rstream#server-side-requirements)
@@ -29,6 +30,7 @@ Content
 	* [Howto: Per-daemon control](https://github.com/kelexel/rstream#howto-per-daemon-control)
 	* [Howto: Wirecast broadcaster to many nginx-rtmp clients (+HLS support)](https://github.com/kelexel/rstream#howto-wirecast-broadcaster-to-many-nginx-rtmp-clients-hls-support)
 	* [Howto: Client side tests](https://github.com/kelexel/rstream#howto-client-side-tests)
+	* [new 0.3s Howto: Transcoding, testing *rstream-transcoder -run m1*](https://github.com/kelexel/rstream#howto-wirecast-broadcaster-to-many-nginx-rtmp-clients-hls-support)
 * [Credits](https://github.com/kelexel/rstream#credits)
 * [Final notes](https://github.com/kelexel/rstream#final-notes)
 
@@ -113,10 +115,20 @@ TAG 0.2
 TAG 0.3
 ---
 
+* added global "start|stop|restart" switches
 * added rstream-firewall.dist 0.1 - Firewalls ONE or SEVERAL IPs on a SINGLE ETHERNET ADAPTER *BSD System !
 * enabled auth for broadcasters connecting to rtmp://<CRTMPD_RTMP_IP>:<CRTMPD_RTMP_PORT>/proxy default
 * added auth default credentials in $HOME/etc/crtmpd-users.lua (username: "broadcast", password: "n3rox")
 * added prerequisists to transcoding
+
+TAG 0.3t
+---
+* enhancements and fixes for transcoding compatibility
+* added ffmpeg source presets in $HOME/etc/ffmpeg 
+* highly experimental ffmpeg-transcoding using:
+	* *~rstream/bin/rstream-transcoder -run m1* CRTMPD (RTMP / FLV) > ffmpeg > CRTMPD (tcvp / FLV)
+	* * ~rstream/bin/rstream-transcoder -run m2* CRTMPD (RTMP / FLV) > ffmpeg > NGINX (rtmp / FLV)
+* added "-debug-cycle", cleans, reinstalls, configures and restarts rstream
 
 Todo
 ======
@@ -160,6 +172,8 @@ More precisely the following files:
 * /usr/local/etc/nginx/mime.types (if used in your actual setup)
 
 By using this software you agree to the possibility of breaking something or loosing all your data (j/k).
+
+You understand that *rstream-transcode* is higly experimental and that piping it's output to a log file might be a VERY BAD IDEA.
 
 Installation
 ======
@@ -209,8 +223,7 @@ NGINX_RTMP_PORT="1935"
 NGINX_RTMP_STREAM="test"
 # Force nginx config file regen
 NGINX_REGEN_CONF=1
-
-### HLS notes:
+### nginx-rtmp HLS notes:
 # If you want nginx-rtmp/hls support you must edit nginx(-devel)/Makefile and find:
 #	CONFIGURE_ARGS+=--add-module=${WRKDIR}/arut-nginx-rtmp-module-${GIT_RTMP_VERSION:S/^0-g//}
 # and replace it by:
@@ -218,6 +231,16 @@ NGINX_REGEN_CONF=1
 #	--add-module=${WRKDIR}/arut-nginx-rtmp-module-${GIT_RTMP_VERSION:S/^0-g//}/hls/
 # Use HTTP Live Streaming with nginx ? [0/1]
 > NGINX_HLS="1"
+
+### ffmpeg related (used for transcoding)
+# Do we want to activate method1 in rstream-transcode ? 
+# Provides:	*~rstream/bin/rstream-transcoder -run m1* CRTMPD (RTMP / FLV) > ffmpeg > CRTMPD (tcvp / FLV)
+FFMPEG_CRTMPD_TO_CRTMPD_TRANSCODING="1" # barely working right now
+# Do we want to activate method2 in rstream-transcode ? 
+# Provides: *~rstream/bin/rstream-transcoder -run m2* CRTMPD (RTMP / FLV) > ffmpeg > NGINX (rtmp / FLV)
+FFMPEG_CRTMPD_TO_NGINX_TRANSCODING="1" # barely working right now
+# Do we want to activate FFMPEG_CRTMPD_HLS in rstream-transcode ? NO !! (broken right now)
+FFMPEG_HLS="0"
 ```
 
 Howto: Per-daemon control
@@ -269,16 +292,12 @@ Make tests!
 ~rstream -crtmpd start
 ~rstream -crtmpd status
 
-Once you are sure the service work correctly, you can link them to your OS's daemontools service path by using:
 
-```bash
+# Once you are sure the service work correctly, you can link them to your OS's daemontools service path by using:
 ~rstream/bin/rstream -link
-# start daemontools
-service daemontools start
-# check if the crtmpd service is up (should report as "up" for more than 3seconds)
-svstat /var/supervise/crtmpd
-# check if the crtmpd/log service is up (should report as "up" for more than 3seconds)
-svstat /var/supervise/crtmpd/log
+
+# finally restart the whole setup
+~rstream/bin/rstream restart
 ```
 
 
@@ -324,7 +343,21 @@ Testing the raw  FLV / RTMP stream
 * In the (un-labelled) input field just above the "Connect" button, enter your <NGINX_RTMP_STREAM>
 * Press the Play button
 
-Testing the transcoded  FLV / RTMP stream
+Howto: Transcoding, testing *rstream-transcoder -run m1
+======
+
+*working* - Testing the transcoded  FLV / RTMP streams on CRTMPD (as a broadcaster)
+---
+
+* As a broadcaster log to crtmpd *rtmp://<CRTMPD_RTMP_IP>:<CRTMPD_RTMP_PORT>/proxy*  supplying your <CRTMPD_RTMP_STREAM> and credentials
+* As a non-privileged user (preferably \"$USER\"), *run ~rstream/bin/rstream-transcoder -run m1* WARNING do not pipe this command to a (log)file !
+* As a client, open any of the following URLs:
+	* rtmp://<CRTMPD_RTMP_IP:<CRTMPD_RTMP_PORT>/720p/<CRTMPD_RTMP_STREAM>
+	* rtmp://<CRTMPD_RTMP_IP:<CRTMPD_RTMP_PORT>/480p/<CRTMPD_RTMP_STREAM>
+	* rtmp://<CRTMPD_RTMP_IP:<CRTMPD_RTMP_PORT>/320p/<CRTMPD_RTMP_STREAM>
+
+
+*broken* - Testing the transcoded  FLV / RTMP stream
 ---
 
 Same as above except you would use as rtmp url:

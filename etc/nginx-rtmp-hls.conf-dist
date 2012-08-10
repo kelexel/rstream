@@ -31,26 +31,26 @@ rtmp {
          }
          application 720p {
              live on;
-             allow publish _NGINX_RTMP_IP_;
-             deny publish all;
+#             allow publish _NGINX_RTMP_IP_;
+#             deny publish all;
              allow play all;
          }
          application 480p {
              live on;
-             allow publish _NGINX_RTMP_IP_;
-             deny publish all;
+#             allow publish _NGINX_RTMP_IP_;
+#            deny publish all;
              allow play all;
          }
          application 360p {
              live on;
-             allow publish _NGINX_RTMP_IP_;
-             deny publish all;
+#             allow publish _NGINX_RTMP_IP_;
+#             deny publish all;
              allow play all;
         }
          application 240p {
              live on;
-             allow publish _NGINX_RTMP_IP_;
-             deny publish all;
+#             allow publish _NGINX_RTMP_IP_;
+#             deny publish all;
         allow play all;
         }
     }

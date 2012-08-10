@@ -62,6 +62,14 @@ setupServices(){
 	linkService crtmpd $DAEMONTOOLS_SERVICE
 }
 
+debugCycle(){
+	pauseTime=3
+	~rstream/bin/rstream -debug-reset && sleep $pauseTime \
+	&& ~rstream/bin/rstream -setup crtmpd-proxy-to-nginx && sleep $pauseTime \
+	&& ~rstream/bin/rstream -link && sleep $pauseTime \
+	&& ~rstream/bin/rstream restart
+}
+
 debugReset(){
 	logHeader="debug reset"
 	cmd="rm -rf $HOME/tmp"
@@ -128,12 +136,9 @@ route(){
 		;;
 		restart)
 			route "stop"
-			sleep 3
 			route "start"
 		;;
-		-link)
-			setupServices
-		;;
+		-link) setupServices;;
 		-crtmp|-crtmpd)
 			if [ -z $2 ]; then route; exit 99; fi
 			crtmpdRouter $2
@@ -145,9 +150,8 @@ route(){
 		-daemontools|svscan)
 			daemontoolsRouter $2
 		;;
-		-debug-reset)
-			debugReset
-		;;
+		-debug-cycle) debugCycle;;
+		-debug-reset) debugReset;;
 		-setup|-install)
 			if [ -z $2 ]; then route; exit 99; fi
 			case $2 in
@@ -159,14 +163,9 @@ route(){
 					crtmpdRouter "setup"
 					daemontoolsRouter "setup"
 				;;
-				*)
-					routeHelp
-				;;
+				*) routeHelp;;
 			esac
 		;;
-		*)
-			routeHelp
-			exit 1;
-		;;
+		*) routeHelp; exit 1;;
 	esac
 }
