@@ -30,7 +30,7 @@ Content
 	* [Howto: Per-daemon control](https://github.com/kelexel/rstream#howto-per-daemon-control)
 	* [Howto: Wirecast broadcaster to many nginx-rtmp clients (+HLS support)](https://github.com/kelexel/rstream#howto-wirecast-broadcaster-to-many-nginx-rtmp-clients-hls-support)
 	* [Howto: Client side tests](https://github.com/kelexel/rstream#howto-client-side-tests)
-	* [NEW 0.3t - Howto: Transcoding, testing *rstream-transcoder -run m1*](https://github.com/kelexel/rstream#howto-wirecast-broadcaster-to-many-nginx-rtmp-clients-hls-support)
+	* [NEW 0.3t - Howto: Transcoding, testing *rstream-transcoder -run m1*](https://github.com/kelexel/rstream#howto-transcoding-testing-rstreambinstream-transcoder--run-m1)
 * [Credits](https://github.com/kelexel/rstream#credits)
 * [Final notes](https://github.com/kelexel/rstream#final-notes)
 
