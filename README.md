@@ -30,7 +30,7 @@ Content
 	* [Howto: Per-daemon control](https://github.com/kelexel/rstream#howto-per-daemon-control)
 	* [Howto: Wirecast broadcaster to many nginx-rtmp clients (+HLS support)](https://github.com/kelexel/rstream#howto-wirecast-broadcaster-to-many-nginx-rtmp-clients-hls-support)
 	* [Howto: Client side tests](https://github.com/kelexel/rstream#howto-client-side-tests)
-	* [new 0.3s Howto: Transcoding, testing *rstream-transcoder -run m1*](https://github.com/kelexel/rstream#howto-wirecast-broadcaster-to-many-nginx-rtmp-clients-hls-support)
+	* [NEW 0.3t - Howto: Transcoding, testing *rstream-transcoder -run m1*](https://github.com/kelexel/rstream#howto-wirecast-broadcaster-to-many-nginx-rtmp-clients-hls-support)
 * [Credits](https://github.com/kelexel/rstream#credits)
 * [Final notes](https://github.com/kelexel/rstream#final-notes)
 
@@ -343,7 +343,7 @@ Testing the raw  FLV / RTMP stream
 * In the (un-labelled) input field just above the "Connect" button, enter your <NGINX_RTMP_STREAM>
 * Press the Play button
 
-Howto: Transcoding, testing *rstream-transcoder -run m1*
+Howto: Transcoding, testing "~rstream/bin/stream-transcoder -run m1"
 ======
 
 *working* - Testing the transcoded  FLV / RTMP streams on CRTMPD (as a broadcaster)
