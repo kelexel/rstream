@@ -41,7 +41,6 @@ clear
 ####
 echo ""
 echo ""
-echo "### rstream $TAG for $system_os"
 ##
 if [ ! -f $HOME/bin/rstream-core ]; then echo "!! invalid rstream setup - invalid HOME ?"; exit 99; fi
 . $HOME/bin/rstream-core
@@ -53,10 +52,14 @@ case `uname -s` in
 	FreeBSD) system_os="freebsd9";;
 	*) echo "!! Sorry, but your current Operating System is not supported yet, exiting." exit 2;;
 esac
+echo "########## rstream $TAG for $system_os"
+echo ""
 . $HOME/bin/rstream-${system_os}_common-helper
 . $HOME/bin/rstream-${system_os}_nginx-helper
 . $HOME/bin/rstream-${system_os}_crtmpd-helper
 . $HOME/bin/rstream-${system_os}_daemontools-helper
+. $HOME/etc/rstream.conf
+routeInit
 
 route $1 $2
 

@@ -12,7 +12,7 @@
 #
 ######################################################################################
 
-if [ -z $TAG ]; then echo "!! Error you are not suppoesd to execute this file directly"; routerHelp; fi
+if [ -z $TAG ]; then echo "!! Error you are not supposed to execute this file directly"; routeHelp; exit 2; fi
 
 ## Used for log consmetics
 logRoute(){
@@ -101,6 +101,8 @@ routeInit(){
 	checkDir $HOME/shared/www -c $USER 755
 	checkDir $HOME/tmp -c
 	if [ ! -z $NGINX_HLS ] && [ $NGINX_HLS -eq 1 ]; then checkDir $HOME/tmp/hls -c www 777; fi
+	if [ ! -z $FFMPEG_HLS ] && [ $FFMPEG_HLS -eq 1 ]; then checkDir $HOME/tmp/hls/ipad -c www 777; fi
+	if [ ! -z $FFMPEG_HLS ] && [ $FFMPEG_HLS -eq 1 ]; then checkDir $HOME/tmp/hls/iphone -c www 777; fi
 }
 
 routeHelp(){
@@ -111,8 +113,6 @@ routeHelp(){
 
 route(){
 	if [ -z $1 ]; then routeHelp; exit 1; fi
-	. $HOME/etc/rstream.conf
-	routeInit
 	case $1 in
 		stop)
 			nginxRouter "stop"
@@ -122,9 +122,14 @@ route(){
 			killall -TERM readproctitle supervise multilog crtmpserver
 		;;
 		start)
-			daemontoolsRouter "start"
 			nginxRouter "start"
+			daemontoolsRouter "start"
 			crtmpdRouter "start"
+		;;
+		restart)
+			route "stop"
+			sleep 3
+			route "start"
 		;;
 		-link)
 			setupServices

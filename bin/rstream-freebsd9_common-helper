@@ -12,7 +12,7 @@
 #
 ######################################################################################
 
-if [ -z $TAG ]; then echo "!! Error you are not suppoesd to execute this file directly"; routerHelp; fi
+if [ -z $TAG ]; then echo "!! Error you are not supposed to execute this file directly"; routerHelp; exit 2; fi
 
 ## Used to check the existence of a given username on the system
 checkUser(){
@@ -66,7 +66,7 @@ fi
 }
 
 ## Used to check if a given portname ($1) is installed on the current system
-checkPort(){
+checkDependency(){
 	if [ ! `pkg_info | grep -q $1 && echo $?` -eq 0 ]; then echo "!! port \"$1\" is not installed on this system ! exiting.": exit 99; fi
 	echo "* found port $1";
 }

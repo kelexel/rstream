@@ -1,0 +1,145 @@
+#!/bin/sh
+######################################################################################
+### rstream-transcoder
+# 
+# license: GPL
+# 
+# authors:
+# - Rudolph Sand aka https://github.com/kelexel
+# 
+# url:
+# - https://github.com/kelexel/rstream
+#
+######################################################################################
+
+
+clear 
+
+HOME="/home/rstream"
+# User to which everything will be setuidgid to
+# This only checks & creates the default user test on your system
+USER="rstream"
+
+TAG="0.3"
+
+####
+### Load OS Core files
+####
+echo ""
+echo ""
+##
+if [ ! -f $HOME/bin/rstream-core ]; then echo "!! invalid rstream setup - invalid HOME ?"; exit 99; fi
+. $HOME/bin/rstream-core
+
+####
+### Load OS Core files
+####
+case `uname -s` in
+	FreeBSD) system_os="freebsd9";;
+	*) echo "!! Sorry, but your current Operating System is not supported yet, exiting." exit 2;;
+esac
+echo "########## rstream-transcoder-$TAG for rstream $TAG on $system_os"
+echo ""
+. $HOME/bin/rstream-${system_os}_common-helper
+#. $HOME/bin/rstream-${system_os}_nginx-helper
+#. $HOME/bin/rstream-${system_os}_crtmpd-helper
+#. $HOME/bin/rstream-${system_os}_daemontools-helper
+. $HOME/etc/rstream.conf
+routeInit
+
+app="proxy"
+stream=$CRTMPD_RTMP_STREAM
+src="rtmp://$CRTMPD_RTMP_IP:$CRTMPD_RTMP_PORT/$app/$stream"
+app="proxy"
+
+
+hls_dest="/home/rstream/tmp/hls"
+
+transcodeInit(){
+	proto=$1
+	dest_host=$2
+	dest_port=$3
+	stream=$4
+	# a bit of logic ..
+	dest_720="$proto://${dest_host}:${dest_port}/720p/$stream"
+	dest_480="$proto://${dest_host}:${dest_port}/480p/$stream"
+	dest_360="$proto://${dest_host}:${dest_port}/360p/$stream"
+	dest_240="$proto://${dest_host}:${dest_port}/240p/$stream"
+}
+
+transcoderMethod1(){
+	if [ -z $FFMPEG_CRTMPD_TRANSCODING ] || [ ! $FFMPEG_CRTMPD_TRANSCODING -eq 1 ]; then echo "Error: \"-run m1\" supplied, but FFMPEG_CRTMPD_TRANSCODING is not set to \"1\" in $HOME/etc/rstream.conf, exiting !"; exit 98; fi
+	transcodeInit "tcp" $CRTMPD_LIVEFLV_IP $CRTMPD_LIVEFLV_PORT $NGINX_RTMP_STREAM
+
+	stream=$NGINX_RTMP_STREAM
+	hls_iphone="libx264-ipod320"
+	hls_ipad="libx264-ipod640"
+
+	ffmpeg_bin="/usr/local/bin/ffmpeg"
+	#ffmpeg_bin=/home/rstream/bin/ffmpeg
+	cmd="$cmd -re -acodec libfaac -ar 44100 -b:a 96k -vcodec libx264 -s 1280x720 -b:v 500k -f flv -metadata streamName=${stream} -f flv $dest_720"
+	cmd="$cmd -re -acodec libfaac -ar 44100 -b:a 96k -vcodec libx264 -s 854x480 -b:v 500k -f flv -metadata streamName=${stream} -f flv $dest_480"
+	cmd="$cmd -re -acodec libfaac -ar 22050 -b:a 96k -vcodec libx264 -s 640x360 -b:v 300k -f flv -metadata streamName=${stream} -f flv $dest_360"
+	cmd="$cmd -re -acodec libfaac -ar 22050 -b:a 48k -vcodec libx264 -s 426x250 -b:v 100k -f flv -metadata streamName=${stream} -f flv $dest_240"
+	if [ ! -z $FFMPEG_HLS ] && [ $FFMPEG_HLS -eq 1 ]; then
+		checkDir $HOME/tmp/hls/ipad/$stream -c www 777
+		checkDir $HOME/tmp/hls/iphone/$stream -c www 777
+		checkDir "$hls_dest/$app/iphone" -rc
+		cmd=" -re -an -c:v libx264 -b:v 128k -vpre $hls_iphonet -flags -global_header -map 0 -f segment -segment_time 4 -segment_list $hls_dest/$app/$stream/${stream}_iphone.m3u8 -segment_format mpegts $hls_dest/$app/iphone/stream%05d.ts"
+		checkDir "$hls_dest/$app/ipad" -rc
+		cmd=" -re -an -c:v libx264 -b:v 256k -vpre $hls_ipad -flags -global_header -map 0 -f segment -segment_time 4 -segment_list $hls_dest/$app/$stream/${stream}_ipad.m3u8 -segment_format mpegts $hls_dest/ipad/$stream/stream%05d.ts"
+	fi
+	echo ""
+	logHeader "Running $cmd"
+	echo
+	exec $ffmpeg_bin -threads 15 -i "$src live=1" $cmd
+}
+
+routeTranscoder(){
+
+	if [ -z $1 ]; then routeHelp; exit 99; fi
+	case $1 in
+		-run)
+			if [ -z $2 ]; then routeHelp; exit 99; fi
+			case $2 in
+				m1) transcoderMethod1;;
+				*) routeHelp;;
+			esac
+		;;
+	esac
+}
+
+
+routeTranscoder $1 $2
+#checkDir $hls_dest/$app/$stream -rc
+
+# From https://groups.google.com/forum/#!topic/c-rtmp-server/bzsV61wJGHg[1-25]
+#ffmpeg -i "rtmp://localhost:1935/live/mystream live=1" -fpre "/usr/share/ffmpeg/libx264-ipod640.ffpreset" -vcodec libx264 -acodec aac -ac 2 -ar 44100 -ab 127k -strict experimental -f flv "rtmp://localhost:1935/live/mystream_recode live=1"
+
+
+#-re -acodec libfaac -ar 22050 -b:a 96 -vcodec libx264 -s svga -b:v 500k -f flv "rtmp://localhost:1935/live/test_500?authmod=adobe&login=broadcast&password=n3rox flashver=FMLE/3.0\20(compatible;\20FMSc/1.0)"
+#-re -acodec libfaac -ar 22050 -vcodec libx264 -s svga -b:v 500k -f flv "rtmp://localhost:1935/live/test_500?login=broadcast&password=n3rox flashver=FMLE/3.0\20(compatible;\20FMSc/1.0)"
+#-re -acodec libfaac -ar 22050 -vcodec libx264 -s svga -b:v 500k -f flv "/home/stream/docs/test_500b.flv"
+#ffmpeg -i "rtmp://localhost/live/test live=1" \
+#-re -acodec libfaac -ar 22050 -vcodec libx264 -s svga -b:v 500k -f flv "rtmp://localhost/live/test_500" 
+
+#-re -acodec libfaac -ar 22050 -vcodec libx264 -s vga -b 300k -f flv "rtmp://localhost/live/test_300" 
+
+
+#ffmpeg -threads 15 -i "rtmp://localhost/live/test live=1" \
+#-re -acodec libfaac -ar 22050 -vcodec libx264 -s svga -b 500k -f flv "rtmp://localhost/live/test_500" \
+#-re -acodec libfaac -ar 22050 -vcodec libx264 -s vga -b 300k -f flv "rtmp://localhost/live/test_300" \
+#-re -acodec libfaac -ar 22050 -vcodec libx264 -s qvga -b 150k -f flv "rtmp://localhost/live/test_150" \
+#-re -acodec libfaac -ar 22050 -vcodec libx264 -s qqvga -b 50k -f flv "rtmp://localhost/live/test_50"
+
+
+
+# -f flv "rtmp://live.justin.tv/app/$STREAM_KEY flashver=FMLE/3.0\20(compatible;\20FMSc/1.0)"  
+
+#routeTranscoder $1 $2
+
+# nice and clean ..
+echo ""
+echo "> done"
+echo ""
+exit 0;

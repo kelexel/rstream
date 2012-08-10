@@ -12,7 +12,7 @@
 #
 ######################################################################################
 
-if [ -z $TAG ]; then echo "!! Error you are not suppoesd to execute this file directly"; routerHelp; fi
+if [ -z $TAG ]; then echo "!! Error you are not suppoesd to execute this file directly"; routerHelp; exit 2; fi
 
 ####
 ### daemontools Setup
@@ -20,7 +20,7 @@ if [ -z $TAG ]; then echo "!! Error you are not suppoesd to execute this file di
 daemontoolsSetup(){
 	logHeader "daemontools setup"
 	# check if daemontools is installed
-	checkPort "daemontools"
+	checkDependency "daemontools"
 	# check if services exist
 	checkDir $DAEMONTOOLS_SERVICE -rc
 	# enable daemontools
