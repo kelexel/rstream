@@ -350,11 +350,11 @@ Howto: Transcoding, testing "~rstream/bin/stream-transcoder -run m1"
 ---
 
 * As a broadcaster log to crtmpd *rtmp://<CRTMPD_RTMP_IP>:<CRTMPD_RTMP_PORT>/proxy*  supplying your <CRTMPD_RTMP_STREAM> and credentials
-* As a non-privileged user (preferably \"$USER\"), *run ~rstream/bin/rstream-transcoder -run m1* WARNING do not pipe this command to a (log)file !
+* As a non-privileged user (preferably "$USER"), *run ~rstream/bin/rstream-transcoder -run m1* WARNING do not pipe this command to a (log)file !
 * As a client, open any of the following URLs:
-	* rtmp://<CRTMPD_RTMP_IP:<CRTMPD_RTMP_PORT>/720p/<CRTMPD_RTMP_STREAM>
-	* rtmp://<CRTMPD_RTMP_IP:<CRTMPD_RTMP_PORT>/480p/<CRTMPD_RTMP_STREAM>
-	* rtmp://<CRTMPD_RTMP_IP:<CRTMPD_RTMP_PORT>/320p/<CRTMPD_RTMP_STREAM>
+	* "rtmp://<CRTMPD_RTMP_IP>:<CRTMPD_RTMP_PORT>/720p/<CRTMPD_RTMP_STREAM>"
+	* "rtmp://<CRTMPD_RTMP_IP>:<CRTMPD_RTMP_PORT>/480p/<CRTMPD_RTMP_STREAM>"
+	* "rtmp://<CRTMPD_RTMP_IP>:<CRTMPD_RTMP_PORT>/320p/<CRTMPD_RTMP_STREAM>"
 
 
 *broken* - Testing the transcoded  FLV / RTMP stream
