@@ -1,4 +1,4 @@
-RStream 0.3s
+RStream 0.3t
 ===========
 
 Note !!! Note !!! Note !!!
@@ -343,7 +343,7 @@ Testing the raw  FLV / RTMP stream
 * In the (un-labelled) input field just above the "Connect" button, enter your <NGINX_RTMP_STREAM>
 * Press the Play button
 
-Howto: Transcoding, testing *rstream-transcoder -run m1
+Howto: Transcoding, testing *rstream-transcoder -run m1*
 ======
 
 *working* - Testing the transcoded  FLV / RTMP streams on CRTMPD (as a broadcaster)
