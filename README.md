@@ -126,8 +126,8 @@ TAG 0.3t
 * enhancements and fixes for transcoding compatibility
 * added ffmpeg source presets in $HOME/etc/ffmpeg 
 * highly experimental ffmpeg-transcoding using:
-	* *~rstream/bin/rstream-transcoder -run m1* CRTMPD (RTMP / FLV) > ffmpeg > CRTMPD (tcvp / FLV)
-	* * ~rstream/bin/rstream-transcoder -run m2* CRTMPD (RTMP / FLV) > ffmpeg > NGINX (rtmp / FLV)
+	* "~rstream/bin/rstream-transcoder -run m1" == CRTMPD (RTMP / FLV) > ffmpeg > CRTMPD (tcvp / FLV)
+	* "~rstream/bin/rstream-transcoder -run m2" == CRTMPD (RTMP / FLV) > ffmpeg > NGINX (rtmp / FLV)
 * added "-debug-cycle", cleans, reinstalls, configures and restarts rstream
 
 Todo
@@ -357,7 +357,7 @@ Howto: Transcoding, testing "~rstream/bin/stream-transcoder -run m1"
 # rtmp://<CRTMPD_RTMP_IP>:<CRTMPD_RTMP_PORT>/720p/<CRTMPD_RTMP_STREAM>
 # rtmp://<CRTMPD_RTMP_IP>:<CRTMPD_RTMP_PORT>/480p/<CRTMPD_RTMP_STREAM>
 # rtmp://<CRTMPD_RTMP_IP>:<CRTMPD_RTMP_PORT>/320p/<CRTMPD_RTMP_STREAM>
-```
+``
 
 *broken* - Testing the transcoded  FLV / RTMP stream
 ---
