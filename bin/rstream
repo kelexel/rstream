@@ -42,8 +42,8 @@ clear
 echo ""
 echo ""
 ##
-if [ ! -f $HOME/bin/rstream-core ]; then echo "!! invalid rstream setup - invalid HOME ?"; exit 99; fi
-. $HOME/bin/rstream-core
+if [ ! -f $HOME/include/rstream-core ]; then echo "!! invalid rstream setup - invalid HOME ?"; exit 99; fi
+. $HOME/include/rstream-core
 
 ####
 ### Load OS Core files
@@ -54,10 +54,10 @@ case `uname -s` in
 esac
 echo "########## rstream $TAG for $system_os"
 echo ""
-. $HOME/bin/rstream-${system_os}_common-helper
-. $HOME/bin/rstream-${system_os}_nginx-helper
-. $HOME/bin/rstream-${system_os}_crtmpd-helper
-. $HOME/bin/rstream-${system_os}_daemontools-helper
+. $HOME/include/rstream-${system_os}_common-helper
+. $HOME/include/rstream-${system_os}_nginx-helper
+. $HOME/include/rstream-${system_os}_crtmpd-helper
+. $HOME/include/rstream-${system_os}_daemontools-helper
 . $HOME/etc/rstream.conf
 routeInit
 

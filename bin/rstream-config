@@ -1,0 +1,109 @@
+#!/bin/sh
+######################################################################################
+### rstream-transcoder
+# 
+# license: GPL
+# 
+# authors:
+# - Rudolph Sand aka https://github.com/kelexel
+# 
+# url:
+# - https://github.com/kelexel/rstream
+#
+######################################################################################
+
+
+SERVER_TYPE="crtmpd"
+FFMPEG_ENABLE="1"
+HLS_ENABLE="1"
+
+
+
+clear 
+
+HOME="/home/rstream"
+# User to which everything will be setuidgid to
+# This only checks & creates the default user test on your system
+USER="rstream"
+
+. $HOME/.version
+
+####
+### Load OS Core files
+####
+echo ""
+echo ""
+##
+if [ ! -f $HOME/include/rstream-core ]; then echo "!! invalid rstream setup - invalid HOME ?"; exit 99; fi
+. $HOME/include/rstream-core
+
+####
+### Load OS Core files
+####
+case `uname -s` in
+	FreeBSD) system_os="freebsd9";;
+	*) echo "!! Sorry, but your current Operating System is not supported yet, exiting." exit 2;;
+esac
+echo "########## rstream-transcoder-$TAG for rstream $TAG on $system_os"
+echo ""
+. $HOME/include/rstream-${system_os}_common-helper
+
+####
+### Start the logic
+####
+
+logHeader "* enerting config-helper";
+
+
+
+askServerType(){
+echo ""
+echo "* What type of setup do you want ?"
+echo "1. crtmpserver only"
+echo "2. nginx-rtmp only"
+echo "3. crtmpserver AND nginx-rtmp"
+echo "[1/2/3]"
+read tmp
+
+case $tmp in
+	1) SERVER_TYPE="crtmpd";;
+	2) SERVER_TYPE="nginx";;
+	3) SERVER_TYPE="crtmpd-nginx";;
+	*) askServer;;
+esac
+}
+
+askTranscodingSupport(){
+	echo ""
+	echo "* Do you want to enable transcoding support?"
+	echo "[y/n]"
+	read tmp
+	case $tmp in
+		y|Y) echo "-! enabling ffmpeg"; FFMPEG_ENABLE=1;;
+		n) echo "-! disabling ffmpeg"; FFMPEG_ENABLE=0;;
+		*) askTranscodingSupport;;
+	esac
+}
+
+askHLSSupport(){
+	echo ""
+	echo "* Do you want to enable HTTP Live Streaming (HLS) support?"
+	echo "[y/n]"
+	read tmp
+	case $tmp in
+		y|Y) echo "-! enabling HLS"; HLS_ENABLE=1;;
+		n) echo "-! disabling HLS"; HLS_ENABLE=0;;
+		*) askTranscodingSupport;;
+	esac
+}
+
+if [ -z $SERVER_TYPE ]; then askServerType; fi
+if [ -z $FFMPEG_ENABLE ]; then askTranscodingSupport; fi
+if [ -z $HLS_ENABLE ]; then askHLSSupport; fi
+
+# Some logic ..
+case $SERVER_TYPE in
+	crtmpd) . $HOME/include/rstream-config-crtmpd-helper;;
+esac
+
+

@@ -1,0 +1,47 @@
+#!/bin/sh
+######################################################################################
+### rstream-config-nginx-helper
+# 
+# license: GPL
+# 
+# authors:
+# - Rudolph Sand aka https://github.com/kelexel
+# 
+# url:
+# - https://github.com/kelexel/rstream
+#
+######################################################################################
+
+logHeader "* entering nginx-rtmp config helper"
+
+NGINX_RTMP_FQDN=""
+NGINX_RTMP_IP=""
+NGINX_RTMP_PORT=""
+
+NGINX_RTMP_IP=""
+NGINX_RTMP_PORT=""
+
+CRTMPD_LIVEFLV_IP=""
+CRTMPD_LIVEFLV_PORT=""
+#CRTMPD_RTMP_STREAM="test"
+
+
+askRTMP(){
+	echo "What IP address should nginx-rtmp use to listen to incoming and outgoing RTMP connections [x.x.x.x] ?"
+	read NGINX_RTMP_IP
+
+	echo "What PORT should nginx-rtmp use to listen to incoming and outgoing RTMP connections on $NGINX_RTMP_IP [1935] ?"
+	read NGINX_RTMP_PORT
+	if [ -z $NGINX_RTMP_PORT ]; then NGINX_RTMP_PORT=1935; fi
+
+	echo "** Are these settings correct ?"
+	echo "- nginx-rtmp RTMP IP: $NGINX_RTMP_IP"
+	echo "- nginx-rtmp RTMP PORT: $NGINX_RTMP_PORT"
+	echo "[y/n]"
+	read tmp
+	case $tmp in
+		y|Y) echo "* ok";;
+		*) askRTMP;;
+	esac
+}
+if [ -z $NGINX_RTMP_IP ] || [ -z $NGINX_RTMP_PORT ]; then askRTMP; fi

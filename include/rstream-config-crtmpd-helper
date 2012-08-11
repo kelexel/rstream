@@ -1,0 +1,76 @@
+#!/bin/sh
+######################################################################################
+### rstream-config-crtmpd-helper
+# 
+# license: GPL
+# 
+# authors:
+# - Rudolph Sand aka https://github.com/kelexel
+# 
+# url:
+# - https://github.com/kelexel/rstream
+#
+######################################################################################
+
+logHeader "* entering crtmpd config helper"
+
+CRTMPD_BIN="$HOME/src/crtmpserver-trunk-x86_64-FreeBSD-9.0/crtmpserver"
+#CRTMPD_BIN=""
+CRTMPD_RTMP_IP=""
+CRTMPD_RTMP_PORT=""
+
+CRTMPD_LIVEFLV_IP=""
+CRTMPD_LIVEFLV_PORT=""
+#CRTMPD_RTMP_STREAM="test"
+
+askCrtmpdBin(){
+	echo "Where is your crtmpserver binary ?"
+	read tmp
+	if [ ! -f $tmp ]; then echo "!! cannot find crtmpserver binary in $tmp !!"; askCrtmpdBin;
+	else CRTMPD_BIN=$tmp; fi
+}
+if [ -z $CRTMPD_BIN ]; then askCrtmpdBin; fi
+
+askRTMP(){
+	echo "What IP address should crtmpd use to listen to incoming and outgoing RTMP connections [x.x.x.x] ?"
+	read CRTMPD_RTMP_IP
+
+	echo "What PORT should crtmpd use to listen to incoming and outgoing RTMP connections on $CRTMPD_RTMP_IP [1935] ?"
+	read CRTMPD_RTMP_PORT
+	if [ -z $CRTMPD_RTMP_PORT ]; then CRTMPD_RTMP_PORT=1935; fi
+
+	echo "** Are these settings correct ?"
+	echo "- crtmpd RTMP IP: $CRTMPD_RTMP_IP"
+	echo "- crtmpd RTMP PORT: $CRTMPD_RTMP_PORT"
+	echo "[y/n]"
+	read tmp
+	case $tmp in
+		y|Y) echo "* ok";;
+		*) askRTMP;;
+	esac
+}
+if [ -z $CRTMPD_RTMP_IP ] || [ -z $CRTMPD_RTMP_PORT ]; then askRTMP; fi
+
+askLIVEFLV(){
+	echo "What IP address should crtmpd use to listen to incoming transcoded LIVE FLV connections [$CRTMPD_RTMP_IP] ?"
+	read CRTMPD_LIVEFLV_IP
+	if [ -z $CRTMPD_LIVEFLV_IP ]; then CRTMPD_LIVEFLV_IP=$CRTMPD_RTMP_IP; fi
+
+	echo "What PORT should crtmpd use to listen to incoming transcoded LIVE FLV connections on $CRTMPD_LIVEFLV_IP [21935] ?"
+	if [ ! -z $CRTMPD_RTMP_PORT ]; then echo "! Do not use $CRTMPD_RTMP_PORT !"; fi
+	read CRTMPD_LIVEFLV_PORT
+	if [ -z $CRTMPD_LIVEFLV_PORT ]; then CRTMPD_LIVEFLV_PORT=21935; fi
+
+	echo "** Are these settings correct ?"
+	echo "- crtmpd LIVE-FVL IP: $CRTMPD_LIVEFLV_IP"
+	echo "- crtmpd LIVE-FLV PORT: $CRTMPD_LIVEFLV_PORT"
+	echo "[y/n]"
+	read tmp
+	case $tmp in
+		y|Y) echo "* ok";;
+		*) askLIVEFLV;;
+	esac
+}
+
+
+

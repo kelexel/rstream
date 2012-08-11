@@ -28,8 +28,8 @@ USER="rstream"
 echo ""
 echo ""
 ##
-if [ ! -f $HOME/bin/rstream-core ]; then echo "!! invalid rstream setup - invalid HOME ?"; exit 99; fi
-. $HOME/bin/rstream-core
+if [ ! -f $HOME/include/rstream-core ]; then echo "!! invalid rstream setup - invalid HOME ?"; exit 99; fi
+. $HOME/include/rstream-core
 
 ####
 ### Load OS Core files
@@ -40,7 +40,7 @@ case `uname -s` in
 esac
 echo "########## rstream-transcoder-$TAG for rstream $TAG on $system_os"
 echo ""
-. $HOME/bin/rstream-${system_os}_common-helper
+. $HOME/include/rstream-${system_os}_common-helper
 #. $HOME/bin/rstream-${system_os}_nginx-helper
 #. $HOME/bin/rstream-${system_os}_crtmpd-helper
 #. $HOME/bin/rstream-${system_os}_daemontools-helper
@@ -78,24 +78,24 @@ transcoderMethod1(){
 	# hls_ipad="$HOME/etc/ffmpeg-presets/libx264-ipod640.ffpreset"
 	hls_iphone="libx264-ipod320"
 	hls_ipad="libx264-ipod640"
-
+FFMPEG_HLS=1
 	#ffmpeg_bin=/home/rstream/bin/ffmpeg
-	cmd="$cmd -re -acodec libfaac -ar 44100 -b:a 96k -vcodec libx264 -s 1280x720 -b:v 500k -f flv -metadata streamName=${stream} -f flv $dest_720"
-	cmd="$cmd -re -acodec libfaac -ar 44100 -b:a 96k -vcodec libx264 -s 854x480 -b:v 500k -f flv -metadata streamName=${stream} -f flv $dest_480"
-	cmd="$cmd -re -acodec libfaac -ar 22050 -b:a 96k -vcodec libx264 -s 640x360 -b:v 300k -f flv -metadata streamName=${stream} -f flv $dest_360"
-	cmd="$cmd -re -acodec libfaac -ar 22050 -b:a 48k -vcodec libx264 -s 426x250 -b:v 100k -f flv -metadata streamName=${stream} -f flv $dest_240"
+#	cmd="$cmd -re -acodec libfaac -ar 44100 -b:a 96k -vcodec libx264 -s 1280x720 -b:v 500k -f flv -metadata streamName=${stream} -f flv $dest_720"
+#	cmd="$cmd -re -acodec libfaac -ar 44100 -b:a 96k -vcodec libx264 -s 854x480 -b:v 500k -f flv -metadata streamName=${stream} -f flv $dest_480"
+#	cmd="$cmd -re -acodec libfaac -ar 22050 -b:a 96k -vcodec libx264 -s 640x360 -b:v 300k -f flv -metadata streamName=${stream} -f flv $dest_360"
+#	cmd="$cmd -re -acodec libfaac -ar 22050 -b:a 48k -vcodec libx264 -s 426x250 -b:v 100k -f flv -metadata streamName=${stream} -f flv $dest_240"
 	if [ ! -z $FFMPEG_HLS ] && [ $FFMPEG_HLS -eq 1 ]; then
 		checkDir $HOME/tmp/hls/ipad/$stream -c www 777
 		checkDir $HOME/tmp/hls/iphone/$stream -c www 777
 		checkDir "$hls_dest/$app/iphone" -rc
-		cmd=" -re -an -c:v libx264 -b:v 128k -vpre $hls_iphone -flags -global_header -map 0 -f segment -segment_time 4 -segment_list $hls_dest/$app/$stream/${stream}_iphone.m3u8 -segment_format mpegts $hls_dest/$app/iphone/stream%05d.ts"
+		cmd=" -re -an -c:v libx264 -b:v 128k  -vpre $hls_iphone -flags -global_header -map 0 -f segment -segment_time 4 -segment_list $hls_dest/$app/$stream/${stream}_iphone.m3u8 -segment_format mpegts $hls_dest/$app/iphone/stream%05d.ts"
 		checkDir "$hls_dest/$app/ipad" -rc
-		cmd=" -re -an -c:v libx264 -b:v 256k -vpre $hls_ipad -flags -global_header -map 0 -f segment -segment_time 4 -segment_list $hls_dest/$app/$stream/${stream}_ipad.m3u8 -segment_format mpegts $hls_dest/ipad/$stream/stream%05d.ts"
+	#	cmd=" -re -an -c:v libx264 -b:v 256k -vpre $hls_ipad -flags -global_header -map 0 -f segment -segment_time 4 -segment_list $hls_dest/$app/$stream/${stream}_ipad.m3u8 -segment_format mpegts $hls_dest/ipad/$stream/stream%05d.ts"
 	fi
 	echo ""
 	logHeader "Running $cmd"
 	echo
-	exec $ffmpeg_bin -threads 15 -i "$src live=1" $cmd
+	exec $ffmpeg_bin -i "$src live=1" $cmd
 }
 
 transcoderMethod2(){
@@ -109,8 +109,8 @@ transcoderMethod2(){
 	hls_ipad="libx264-ipod640"
 
 	#ffmpeg_bin=/home/rstream/bin/ffmpeg
-	cmd="$cmd -re -acodec libfaac -ar 44100 -b:a 96k -vcodec libx264 -s 1280x720 -b:v 500k -f flv -f flv $dest_720"
-	cmd="$cmd -re -acodec libfaac -ar 44100 -b:a 96k -vcodec libx264 -s 854x480 -b:v 500k -f flv -f flv $dest_480"
+#	cmd="$cmd -re -acodec libfaac -ar 44100 -b:a 96k -vcodec libx264 -s 1280x720 -b:v 500k -f flv -f flv $dest_720"
+#	cmd="$cmd -re -acodec libfaac -ar 44100 -b:a 96k -vcodec libx264 -s 854x480 -b:v 500k -f flv -f flv $dest_480"
 	cmd="$cmd -re -acodec libfaac -ar 22050 -b:a 96k -vcodec libx264 -s 640x360 -b:v 300k -f flv -f flv $dest_360"
 	cmd="$cmd -re -acodec libfaac -ar 22050 -b:a 48k -vcodec libx264 -s 426x250 -b:v 100k -f flv -f flv $dest_240"
 	if [ ! -z $FFMPEG_HLS ] && [ $FFMPEG_HLS -eq 1 ]; then
@@ -157,7 +157,7 @@ routeTranscoder $1 $2
 #-re -acodec libfaac -ar 22050 -vcodec libx264 -s svga -b:v 500k -f flv "rtmp://localhost/live/test_500" 
 
 #-re -acodec libfaac -ar 22050 -vcodec libx264 -s vga -b 300k -f flv "rtmp://localhost/live/test_300" 
-
+#
 
 #ffmpeg -threads 15 -i "rtmp://localhost/live/test live=1" \
 #-re -acodec libfaac -ar 22050 -vcodec libx264 -s svga -b 500k -f flv "rtmp://localhost/live/test_500" \

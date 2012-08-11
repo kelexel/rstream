@@ -22,7 +22,7 @@ checkUser(){
 	fi
 	if [ `id $1 2>&1 | grep -q 'no such user'; echo $?` -eq 0  ]; then 
 		echo "*+ adding system user \"$1\" with shell \"/sbin/nologin\" and home \"$HOME\" ";
-		pw useradd $1 -s /sbi/nologin -d $2
+		pw useradd $1 -s /usr/sbin/nologin -d $2
 		if [ ! $? -eq 0 ]; then echo "!! error !!"; exit 99; fi
 	else
 		echo "* found system user \"$1\"";
