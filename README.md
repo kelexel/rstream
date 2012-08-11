@@ -46,10 +46,10 @@ What can it do
 * Add required daemons to system startup
 * Generate daemontools service scripts for crtmpd(/log) and ffmpeg(/log)
 * Supported broadcasters:
-	* [Telestream Wirecast](http://www.adobe.com/products/flash-media-encoder.html) (OSX 10.7.x / Windows 7, h254/aac)
-	* [Adobe FlashMediaLiveEncoer](http://www.adobe.com/products/flash-media-encoder.html) (OSX 10.7.x / Windows 7 / Linux, h254/aac)
-	* http://www.osmf.org/configurator/fmp/ (Flash Player 11+, h254/aac)
-	* [Android: OS Broadcaster](https://play.google.com/store/search?q=+OS+Broadcaster&c=apps) (Android 3+, h254/aac)
+	* [Telestream Wirecast](http://www.adobe.com/products/flash-media-encoder.html) (OSX 10.7.x / Windows 7, h264/aac)
+	* [Adobe FlashMediaLiveEncoer](http://www.adobe.com/products/flash-media-encoder.html) (OSX 10.7.x / Windows 7 / Linux, h264/aac)
+	* http://www.osmf.org/configurator/fmp/ (Flash Player 11+, h264/aac)
+	* [Android: OS Broadcaster](https://play.google.com/store/search?q=+OS+Broadcaster&c=apps) (Android 3+, h264/aac)
 * Supported clients:
 	* jwplayer
 	* flowplayer
@@ -61,12 +61,12 @@ What it is
 ---
 
 * For me, a week of random r&d including a heavy dose of trial an error, docs ingesting, google resarch, all possible because of [these people](https://github.com/kelexel/rstream#credits)
-* It uses good old bourne shell - so it just works *out of the box*
+* It uses good old bourne shell - so it just works *out of the box* on *any* *NIX
 * A set of configuration files and script to simplify deploy a full-feature streaming server CDN capable of transcoding a single FLV (h264) sent over the RTMP protocol,
 to multiple bitrate for FLASH-style (RTMP) and iOS-style HTTPLiveStreaming (HLS) compatible browsers.
 * If transcoding is enabled the same broadcaster's stream will be transcoded to 3 different sizes 720p, 480p, 320p FLV (h264/aac) over RTMP
 * IF NGINX_HLS is enabled the same broadcaster's stream will be converted to -whatever-the-current-resolution-currently-sent-by-the-broadcaster- HLS-friendly url available via the preconfigured nginx-rtmp.conf file
-* new 0.2: it is now per OS-type customisable - but still only supports FreeBSD !
+* new 0.2: it is now per OS-type customisable - but currently only supports FreeBSD (although it is structured so you can now make your own OS flavored portage)!
 
 What it is NOT
 ---
@@ -133,8 +133,8 @@ TAG 0.3t
 Todo
 ======
 
-* Put the transcoding ffmpeg scripts on github (!)
-* Decide if HLS should be done by nginx-rtmp or by ffmpeg -via- crtmpd only
+* Put the transcoding ffmpeg scripts on github (!) - update as of 0.3t: a first release of rstream-transcoder is now online
+* Decide if HLS should be done by nginx-rtmp or, instead, by ffmpeg to-and-via crtmpd only
 * HLS transcoding (need more nginx-rtmp/hls tests)
 * Implement nginx-rtmp only OR crtmpd only option
 * Make rstream Linux friendly ? (you just fork it!)
@@ -146,10 +146,10 @@ Requirements
 Server side requirements
 ---
 
-* FreeBSD 9.x - I am currently running this setup in FreeBSD 9.1-prelease jail.
+* FreeBSD 9.x - I am currently running this setup inside a FreeBSD 9.1-prelease jail, and it runs great!
 * nginx (compiled from a recent port tree, with the "nginx-rtmp" module enabled)
 * nginx-rtmp HLS (optional - needs modification of the port's Makefile - see under NGINX_HLS notes)
-* ffmpeg (optional - if transcoding to lower bitrates)
+* ffmpeg (optional - if you want transcoding to lower bitrates)
 * that you backup (if any) your previously existing nginx config files located under /usr/local/etc/nginx/* (!!!)
 
 Broadcaster side requirements
@@ -161,6 +161,7 @@ Client side requirements
 ---
 
 * An RTMP or HLS friendly client
+* An RTMP compatible Flash video player of sort
 
 WARNINGS
 ==========
@@ -264,22 +265,33 @@ Each daemons (crtmpd, nginx, daemontools) can be controlled via rstream
 ~daemontools/bin/rstream -daemontools stop
 ~daemontools/bin/rstream -daemontools start
 ~daemontools/bin/rstream -daemontools restart
+```
 
+But they can also be controlled all at once
+
+```bash
+~rstream/bin/rstream stop
+~rstream/bin/rstream start
+~rstream/bin/rstream restart
 ```
 
 Howto: Wirecast broadcaster to many nginx-rtmp clients (+HLS support)
 ======
 
-This will let you setup a Wirecast to *many* (+hls) Streaming CDN
+This will let you setup a Wirecast to *many* clients (+HLS support) Streaming CDN
 
 On server side
 -----
 
 ```bash
 ~rstream/bin/rstream -setup crtmpd-proxy-to-nginx
+# in the above "crtmpd-proxy-to-nginx" is the name of the "template config file" used for this setup
+# i will be releasing more extra templates so you can choose what kind of streaming CDN you ant (crtmpd only, nginx-rtmp only, crtmpd to nginx...)
 ```
 
 Make tests!
+At this point, everything is setup and configured, but no daemons are running.
+Here is how to controll that everything works as intended to, by starting each daemon one at a time
 
 ```bash
 # Start nginx
@@ -292,8 +304,7 @@ Make tests!
 ~rstream -crtmpd start
 ~rstream -crtmpd status
 
-
-# Once you are sure the service work correctly, you can link them to your OS's daemontools service path by using:
+# !!! Once you are sure that everything works correctly, you can now link all daemontools-type services to your OS's daemontools service path by using:
 ~rstream/bin/rstream -link
 
 # finally restart the whole setup
@@ -324,7 +335,7 @@ Howto: client side tests
 ======
 
 Woops I need to make the flv / hls player code :)
-BUT 
+BUT ....
 
 Testing HLS on iOS devices
 ---
@@ -336,12 +347,14 @@ Testing the raw  FLV / RTMP stream
 
  I can only recommand the "flvplayer.swf" mentioned [here](https://groups.google.com/forum/?fromgroups#!topic/c-rtmp-server/yPkD3PKnpMM[1-25]) and available for download [here](http://dl.dropbox.com/u/2918563/flvplayback.swf)
 
-* Just download  the file and open it with flash player or a browser
-* Use rtmp://<NGINX_RTMP_IP>:<NGINX_RTMP_PORT>/proxy as "Connecting String" field
+* Just download  the file and open it with Flash Player or a Flash Player enabled browser
+* Use rtmp://NGINX_RTMP_IP:NGINX_RTMP_PORT/proxy as "Connecting String" field
 * Hit the "Connect" button
 * Wait a few seconds (2-3s)
-* In the (un-labelled) input field just above the "Connect" button, enter your <NGINX_RTMP_STREAM>
+* In the (un-labelled) input field just above the "Connect" button, enter your NGINX_RTMP_STREAM name
 * Press the Play button
+
+You should be able to see your stream.
 
 Howto: Transcoding, testing "~rstream/bin/stream-transcoder -run m1"
 ======
