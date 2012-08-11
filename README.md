@@ -4,8 +4,6 @@ RStream 0.3t
 Note !!! Note !!! Note !!!
 ----
 
-* The current release uses and relies on both nginx-rtmp AND c++rtmpserver to provide a streaming CDN allowing ONE UNIQUE broadcaster pushing ONE UNIQUE stream  to *many* RTMP and HLS clients !!!!!!!
-
 Content
 ======
 * About
@@ -250,30 +248,21 @@ Howto: Per-daemon control
 Each daemons (crtmpd, nginx, daemontools) can be controlled via rstream
 
 ```bash
-# Exemples
-~rstream/bin/rstream -crtmpd status
-~rstream/bin/rstream -crtmpd stop
-~rstream/bin/rstream -crtmpd start
-~rstream/bin/rstream -crtmpd restart
+# Some shortcut commands..
+~rstream/bin/rstream -crtmpd status | stop | start | restart)
+~rstream/bin/rstream -nginx (status | stop | start | restart)
+~daemontools/bin/rstream -daemontools (status | stop | start | restart)
+# control all daemons at once
+~daemontools/bin/rstream stop | start | restart
 
-~nginx/bin/rstream -crtmpd status
-~nginx/bin/rstream -crtmpd stop
-~nginx/bin/rstream -crtmpd start
-~nginx/bin/rstream -crtmpd restart
+## debug only !
 
-~daemontools/bin/rstream -daemontools status
-~daemontools/bin/rstream -daemontools stop
-~daemontools/bin/rstream -daemontools start
-~daemontools/bin/rstream -daemontools restart
+# deletes all created dir & file structure under ~rstream/ .. take it as a "reset to factory defaults"
+~daemontools/bin/rstream -debug-reset
+# complete a full cleanup / compile / install cycle ! warning, your configuration files will be re-written !
+~daemontools/bin/rstream -debug-cycle
 ```
 
-But they can also be controlled all at once
-
-```bash
-~rstream/bin/rstream stop
-~rstream/bin/rstream start
-~rstream/bin/rstream restart
-```
 
 Howto: Wirecast broadcaster to many nginx-rtmp clients (+HLS support)
 ======
