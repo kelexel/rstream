@@ -84,28 +84,14 @@ debugReset(){
 
 routeInit(){
 	logHeader "- init checks"
-	# check for config file
-	checkFile $HOME/etc/rstream.conf 1
-
 	# check if our main $USER exists
 	checkUser $USER $HOME;
 	# check $HOME strucutre
-	checkDir $HOME/var/log -c
-	checkDir $HOME/var/log/www -c
-	checkDir $HOME/var/log/www/stats -c www 777
-	if [ $CRTMPD_ENABLE ]; then
-		checkDir $HOME/var/log/crtmpd -c $USER
-	fi
-	if [ $NGINX_ENABLE ]; then
-		checkDir $HOME/var/log/nginx -c
-		#checkDir $HOME/var/log/nginx-crtmpd-ffmpeg -c $USER
-	fi
+	checkDir $HOME/var/log -c $USER 755
+	checkDir $HOME/var/etc -c $USER 755
 	checkDir $HOME/shared/media -c $USER
 	checkDir $HOME/shared/www -c $USER 755
 	checkDir $HOME/tmp -c
-	if [ ! -z $HLS_ENABLE ] && [ ! -z $HLS_TYPE ] && [ $HLS_TYPE = "nginx" ]; then checkDir $HOME/tmp/hls/nginx -c www 777; fi
-	if [ ! -z $FFMPEG_HLS ] && [ $FFMPEG_HLS -eq 1 ]; then checkDir $HOME/tmp/hls/ipad -c www 777; fi
-	if [ ! -z $FFMPEG_HLS ] && [ $FFMPEG_HLS -eq 1 ]; then checkDir $HOME/tmp/hls/iphone -c www 777; fi
 }
 
 routeHelp(){
@@ -113,7 +99,9 @@ routeHelp(){
 	echo "-! please consult the documentation: https://github.com/kelexel/rstream";
 }
 
-route(){
+coreRoute(){
+	# check for config file
+	checkFile $HOME/etc/rstream.conf 1
 	if [ -z $1 ]; then routeHelp; exit 1; fi
 	case $1 in
 		stop)
@@ -147,13 +135,17 @@ route(){
 		-debug-cycle) debugCycle;;
 		-debug-reset) debugReset;;
 		-setup|-install)
-			route "stop"
-			if [ ! -z $CRTMPD_ENABLE ] && [ $CRTMPD_ENABLE -eq 1 ]; then
-				crtmpdRouter "setup"
-			fi
-			if [ ! -z $NGINX_ENABLE ] && [ $NGINX_ENABLE -eq 1 ]; then
-				nginxRouter "setup"
-				daemontoolsRouter "setup"
+			if [ ! -f $HOME/etc/rstream.conf ]; then
+				rstream-config
+			else
+				route "stop"
+				if [ ! -z $CRTMPD_ENABLE ] && [ $CRTMPD_ENABLE -eq 1 ]; then
+					crtmpdRouter "setup"
+				fi
+				if [ ! -z $NGINX_ENABLE ] && [ $NGINX_ENABLE -eq 1 ]; then
+					nginxRouter "setup"
+					daemontoolsRouter "setup"
+				fi
 			fi
 		;;
 		*) routeHelp; exit 1;;

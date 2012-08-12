@@ -1,0 +1,7 @@
+#!/bin/sh
+
+FFMPEG_SCRIPT="/home/stream/local/nginx/nginx_rtmp_ffmpeg_transcode.sh"
+
+cd $ROOT
+setuidgid stream $FFMPEG_SCRIPT
+sleep 300

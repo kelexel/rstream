@@ -19,6 +19,7 @@ if [ -z $TAG ]; then echo "!! Error you are not supposed to execute this file di
 ####
 crtmpdSetup(){
 	logHeader "crtmpd setup"
+	checkDir $HOME/var/log/crtmpd -c $USER
 	# check if CRTMPD_BIN is found
 	checkFile $CRTMPD_BIN 1
 	#set CRTMPD_CONF_TPL
@@ -69,15 +70,15 @@ crtmpdSetup(){
 			| sed s,_CRTMPD_BIN_,$CRTMPD_BIN,g \
 			| sed s,_CRTMPD_CONF_,$CRTMPD_CONF,g \
 			| sed s,_USER_,$USER,g \
-			> $HOME/bin/supervise/crtmpd/run
-			chmod 755 $HOME/bin/supervise/crtmpd/run
+			> $HOME/var/supervise/crtmpd/run
+			chmod 755 $HOME/var/supervise/crtmpd/run
 		# generate crtmpd/log/run script
 		echo "*+ generating new crtmpd/log/run script";
 		cat $HOME/include/templates/crtmpd-run-log.tpl \
 			| sed s,_USER_,$USER,g \
 			| sed s,_LOG_DIR_,$HOME/var/log/crtmpd,g \
-			> $HOME/bin/supervise/crtmpd/log/run
-			chmod 755 $HOME/bin/supervise/crtmpd/log/run
+			> $HOME/var/supervise/crtmpd/log/run
+			chmod 755 $HOME/var/supervise/crtmpd/log/run
 
 	#fi
 }

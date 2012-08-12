@@ -1,0 +1,21 @@
+#!/bin/sh
+
+# v0.1
+# crtmpd sample run file for daemontools
+#     
+# author: rudolph sand - http://github.com/kelexel
+#
+# specify "log_dir" and your "multilog_bin" paths
+
+log_dir=/home/stream/var/log/crtmpd
+
+multilog_bin=/usr/local/bin/multilog
+
+multilog_rotate_size="s10000000";
+multilog_rotate_numb="n10";
+
+exec /usr/local/bin/setuidgid stream \
+        $multilog_bin t \
+        $multilog_rotate_size $multilog_rotate_numb \
+        $log_dir
+

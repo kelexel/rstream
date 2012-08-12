@@ -29,6 +29,14 @@ nginxSetup(){
 	if [ ! -z $HLS_ENABLE ] && [ $HLS_ENABLE -eq 1 ] && [ ! `$nginx_bin -V 2>&1 | grep -q hls;  echo $?` -eq 0 ]; then echo "!! nginx was not compiled with nginx-rtmp/hls support , existing."; exit 99; 
 		else if [ ! -z $HLS_ENABLE ] && [ $HLS_ENABLE -eq 1 ]; then echo "* found nginx-rtmp/hls support"; fi
 	fi
+	checkDir $HOME/var/log/nginx -c
+	checkDir $HOME/var/shared/stats -c www 777
+	#checkDir $HOME/var/log/nginx-crtmpd-ffmpeg -c $USER
+
+	if [ ! -z $HLS_ENABLE ] && [ ! -z $HLS_TYPE ] && [ $HLS_TYPE = "nginx" ]; then checkDir $HOME/tmp/hls/nginx -c www 777; fi
+	if [ ! -z $FFMPEG_HLS ] && [ $FFMPEG_HLS -eq 1 ]; then checkDir $HOME/tmp/hls/ipad -c www 777; fi
+	if [ ! -z $FFMPEG_HLS ] && [ $FFMPEG_HLS -eq 1 ]; then checkDir $HOME/tmp/hls/iphone -c www 777; fi
+
 	# set nginx_conf to default FreeBSD nginx port config location
 	LINKED_CONF="/usr/local/etc/nginx/nginx.conf"
 	NGINX_CONF="$HOME/etc/nginx-rtmp.conf"
