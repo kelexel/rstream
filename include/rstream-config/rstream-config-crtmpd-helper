@@ -41,17 +41,9 @@ askRTMP(){
 	read CRTMPD_RTMP_PORT
 	if [ -z $CRTMPD_RTMP_PORT ]; then CRTMPD_RTMP_PORT=1935; fi
 
-	echo -n "Do you want to enable PUSH style PROXY [y/N] ? "
-	read tmp
-	case $tmp in
-		y|Y) CRTMPD_PROXY_ENABLE=1;;
-		*) CRTMPD_PROXY_ENABLE=0;;
-	esac
-
 	echo "** Are these settings correct ?"
 	echo "- crtmpd RTMP IP: $CRTMPD_RTMP_IP"
 	echo "- crtmpd RTMP PORT: $CRTMPD_RTMP_PORT"
-	echo "- crtmpd PROXY PUSH: $CRTMPD_PROXY_ENABLE"
 	echo -n "[y/n] "
 	read tmp
 	case $tmp in
@@ -63,6 +55,7 @@ if [ -z $CRTMPD_RTMP_IP ] || [ -z $CRTMPD_RTMP_PORT ]; then askRTMP; fi
 
 askProxyData(){
 	logHeader "PROXY Push config"
+
 	echo -n "To what rtmp://user:pass@host:port/:app should we push the current stream to ? "
 	read CRTMPD_PROXY_URL
 	if [ -z $CRTMPD_PROXY_URL ]; then askProxyData; fi
@@ -86,6 +79,13 @@ askProxyData(){
 		*) askProxyData;;
 	esac
 }
+echo -n "Do you want to enable PUSH style PROXY [y/N] ? "
+read tmp
+case $tmp in
+	y|Y) CRTMPD_PROXY_ENABLE=1;;
+	*) CRTMPD_PROXY_ENABLE=0;;
+esac
+
 if [ ! -z $CRTMPD_PROXY_ENABLE ] && [ $CRTMPD_PROXY_ENABLE -eq 1 ]; then
 	if [ -z $CRTMPD_PROXY_URL ] || [ -z $CRTMPD_PROXY_LSTREAM ] || [ -z $CRTMPD_PROXY_DSTREAM ]; then askProxyData; fi
 fi

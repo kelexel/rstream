@@ -64,7 +64,40 @@ transcodeInit(){
 	ffmpeg_bin="/usr/local/bin/ffmpeg"
 }
 
-transcoderMethod1(){
+# nginx transcoding - working as of 0.4
+transcoderNginx(){
+	if [ -z $FFMPEG_NGINX_ENABLE ] || [ ! $FFMPEG_NGINX_ENABLE -eq 1 ]; then echo "Error: \"-run nginx\" supplied, but FFMPEG_NGINX_ENABLE is not set to \"1\" in $HOME/etc/rstream.conf, exiting !"; exit 98; fi
+
+	app="r"
+	if [ -z $1 ]; then echo "!! error missing stream name, exiting !!"; exit 99; fi
+	stream=$1
+	src="rtmp://$NGINX_RTMP_IP:$NGINX_RTMP_PORT/$app/$stream"
+	transcodeInit "rtmp" $NGINX_RTMP_IP $NGINX_RTMP_PORT $stream
+
+	checkDir $HOME/tmp/nginx/hls -c www 777;
+
+	echo "#EXTM3U" > $HOME/tmp/nginx/hls/${stream}.m3u8
+	echo "#EXT-X-STREAM-INF:PROGRAM-ID=1, BANDWIDTH=860000" >> $HOME/tmp/nginx/hls/${stream}.m3u8
+	echo "${stream}_72Op.m3u8" >> $HOME/tmp/nginx/hls/${stream}.m3u8
+	echo "#EXT-X-STREAM-INF:PROGRAM-ID=1, BANDWIDTH=512000" >> $HOME/tmp/nginx/hls/${stream}.m3u8
+	echo "${stream}_480p.m3u8" >> $HOME/tmp/nginx/hls/${stream}.m3u8
+	echo "#EXT-X-STREAM-INF:PROGRAM-ID=1, BANDWIDTH=396000" >> $HOME/tmp/nginx/hls/${stream}.m3u8
+	echo "${stream}_360p.m3u8" >> $HOME/tmp/nginx/hls/${stream}.m3u8
+	echo "#EXT-X-STREAM-INF:PROGRAM-ID=1, BANDWIDTH=256000" >> $HOME/tmp/nginx/hls/${stream}.m3u8
+	echo "${stream}_360p.m3u8" >> $HOME/tmp/nginx/hls/${stream}.m3u8
+
+	#ffmpeg_bin=/home/rstream/bin/ffmpeg
+	cmd="$cmd -re -acodec libfaac -ar 44100 -b:a 96k -vcodec libx264 -s 1280x720 -b:v 500k -f flv $dest_720"
+	cmd="$cmd -re -acodec libfaac -ar 44100 -b:a 96k -vcodec libx264 -s 854x480 -b:v 500k -f flv $dest_480"
+	cmd="$cmd -re -acodec libfaac -ar 22050 -b:a 96k -vcodec libx264 -s 640x360 -b:v 300k -f flv $dest_360"
+	cmd="$cmd -re -acodec libfaac -ar 22050 -b:a 48k -vcodec libx264 -s 426x250 -b:v 100k -f flv $dest_240"
+	echo ""
+	logHeader "Running $ffmpeg_bin -verbosity=1 -threads 15 -i \"$src live=1\"  $cmd"
+	echo
+	exec $ffmpeg_bin  -i "$src live=1" $cmd
+}
+
+transcodeCrtmpd(){
 	if [ -z $FFMPEG_CRTMPD_TO_CRTMPD_TRANSCODING ] || [ ! $FFMPEG_CRTMPD_TO_CRTMPD_TRANSCODING -eq 1 ]; then echo "Error: \"-run m1\" supplied, but FFMPEG_CRTMPD_TO_CRTMPD_TRANSCODING is not set to \"1\" in $HOME/etc/rstream.conf, exiting !"; exit 98; fi
 
 	# hls_iphone="$HOME/etc/ffmpeg-presets/libx264-ipod320.ffpreset"
@@ -92,37 +125,7 @@ transcoderMethod1(){
 	exec $ffmpeg_bin -i "$src live=1" $cmd
 }
 
-transcoderMethod2(){
-	if [ -z $FFMPEG_CRTMPD_TO_NGINX_TRANSCODING ] || [ ! $FFMPEG_CRTMPD_TO_NGINX_TRANSCODING -eq 1 ]; then echo "Error: \"-run m2\" supplied, but FFMPEG_CRTMPD_TO_NGINX_TRANSCODING is not set to \"1\" in $HOME/etc/rstream.conf, exiting !"; exit 98; fi
 
-	app="proxy"
-	if [ -z $1 ]; then echo "!! error missing stream name, exiting !!"; exit 99; fi
-	stream=$1
-	src="rtmp://$CRTMPD_RTMP_IP:$CRTMPD_RTMP_PORT/$app/$stream"
-	transcodeInit "rtmp" $NGINX_RTMP_IP $NGINX_RTMP_PORT $stream
-
-	checkDir $HOME/tmp/nginx/hls -c www 777;
-
-	echo "#EXTM3U" > $HOME/tmp/nginx/hls/${stream}.m3u8
-	echo "#EXT-X-STREAM-INF:PROGRAM-ID=1, BANDWIDTH=860000" >> $HOME/tmp/nginx/hls/${stream}.m3u8
-	echo "${stream}_72Op.m3u8" >> $HOME/tmp/nginx/hls/${stream}.m3u8
-	echo "#EXT-X-STREAM-INF:PROGRAM-ID=1, BANDWIDTH=512000" >> $HOME/tmp/nginx/hls/${stream}.m3u8
-	echo "${stream}_480p.m3u8" >> $HOME/tmp/nginx/hls/${stream}.m3u8
-	echo "#EXT-X-STREAM-INF:PROGRAM-ID=1, BANDWIDTH=396000" >> $HOME/tmp/nginx/hls/${stream}.m3u8
-	echo "${stream}_360p.m3u8" >> $HOME/tmp/nginx/hls/${stream}.m3u8
-	echo "#EXT-X-STREAM-INF:PROGRAM-ID=1, BANDWIDTH=256000" >> $HOME/tmp/nginx/hls/${stream}.m3u8
-	echo "${stream}_360p.m3u8" >> $HOME/tmp/nginx/hls/${stream}.m3u8
-
-	#ffmpeg_bin=/home/rstream/bin/ffmpeg
-	cmd="$cmd -re -acodec libfaac -ar 44100 -b:a 96k -vcodec libx264 -s 1280x720 -b:v 500k -f flv $dest_720"
-	cmd="$cmd -re -acodec libfaac -ar 44100 -b:a 96k -vcodec libx264 -s 854x480 -b:v 500k -f flv $dest_480"
-	cmd="$cmd -re -acodec libfaac -ar 22050 -b:a 96k -vcodec libx264 -s 640x360 -b:v 300k -f flv $dest_360"
-	cmd="$cmd -re -acodec libfaac -ar 22050 -b:a 48k -vcodec libx264 -s 426x250 -b:v 100k -f flv $dest_240"
-	echo ""
-	logHeader "Running $ffmpeg_bin -verbosity=1 -threads 15 -i \"$src live=1\"  $cmd"
-	echo
-	exec $ffmpeg_bin  -i "$src live=1" $cmd
-}
 
 transcoderMethod3(){
 	if [ -z $FFMPEG_CRTMPD_TO_NGINX_TRANSCODING ] || [ ! $FFMPEG_CRTMPD_TO_NGINX_TRANSCODING -eq 1 ]; then echo "Error: \"-run m2\" supplied, but FFMPEG_CRTMPD_TO_NGINX_TRANSCODING is not set to \"1\" in $HOME/etc/rstream.conf, exiting !"; exit 98; fi
@@ -168,8 +171,8 @@ routeTranscoder(){
 		-run)
 			if [ -z $2 ]; then routeHelp; exit 99; fi
 			case $2 in
-				m1) transcoderMethod1 $3;; # CRTMPD (RTMP / FLV) > ffmpeg > CRTMPD (tcvp / FLV)
-				m2) transcoderMethod2 $3;; # CRTMPD (RTMP / FLV) > ffmpeg > NGINX (rtmp / FLV)
+				crtmpd) transcoderCrtmpd $3;; # CRTMPD (RTMP / FLV) > ffmpeg > CRTMPD (tcvp / FLV)
+				nginx) transcoderNginx $3;; # CRTMPD (RTMP / FLV) > ffmpeg > NGINX (rtmp / FLV)
 				*) routeHelp;;
 			esac
 		;;

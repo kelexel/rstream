@@ -15,15 +15,30 @@
 logHeader "* entering FFMPEG config helper"
 
 FFMPEG_TRANSCODER_IP=""
+FFMPEG_NGINX_ENABLE=0
+FFMPEG_CRTMPD_ENABLE=0
 
 if [ -z $TAG ]; then echo "!! Error you are not supposed to execute this file directly"; routerHelp; exit 2; fi
 
-askFFMPEGIP(){
+askFfmpegIp(){
 	logHeader "General config"
 	if [ -z $CRTMPD_RTMP_IP ]; then tmp="x.x.x.x"; else tmp=$CRTMPD_RTMP_IP; fi
 	echo -n "What source IP address will ffmpeg use when connecting to transcoding destinations [$tmp] ? "
 	read FFMPEG_TRANSCODER_IP
 	if [ -z $FFMPEG_TRANSCODER_IP ] && [ ! -z $CRTMPD_RTMP_IP ]; then FFMPEG_TRANSCODER_IP=$CRTMPD_RTMP_IP; fi
-	if [ -z $FFMPEG_TRANSCODER_IP ] && [ -z $CRTMPD_RTMP_IP ]; then askFFMPEGIP; fi
+	if [ -z $FFMPEG_TRANSCODER_IP ] && [ -z $CRTMPD_RTMP_IP ]; then askFfmpegIp; fi
 }
-if [ ! -z $FFMPEG_ENABLE ]; then askFFMPEGIP; fi
+if [ ! -z $FFMPEG_ENABLE ]; then askFfmpegIp; fi
+
+askFfmpegNginx(){
+	echo "* Do you want to enable HTTP Live Streaming (HLS) support?"
+	echo -n "[y/n] "
+	read tmp
+	case $tmp in
+		y|Y) echo "-! enabling HLS"; FFMPEG_NGINX_ENABLE=1;;
+		n) echo "-! disabling HLS"; FFMPEG_NGINX_ENABLE=0;;
+		*) askHLSSupport;;
+	esac
+}
+if [ ! -z $FFMPEG_NGINX_ENABLE ]; then askFfmpegNginx; fi
+
