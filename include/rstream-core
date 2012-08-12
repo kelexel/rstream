@@ -39,16 +39,7 @@ linkConf(){
 	fi
 }
 
-## Used to link a daemontools service
-linkService(){
-	if [ ! -h $2/$1 ]; then
-		echo "*+ creating service link for \"$1\" in \"$2\"";
-		ln -s $HOME/bin/supervise/$1 $2/
-		if [ ! $? -eq 0 ]; then echo "!! error !!"; exit 99; fi
-	else
-		echo "* found daemontools service in $2/$1";
-	fi
-}
+
 
 
 
@@ -156,18 +147,14 @@ route(){
 		-debug-cycle) debugCycle;;
 		-debug-reset) debugReset;;
 		-setup|-install)
-			if [ -z $2 ]; then route; exit 99; fi
-			case $2 in
-				crtmpd-proxy-to-nginx)
-					echo "> rstream type \"$2\"";
-					rstream_type="$2";
-					route "stop"
-					nginxRouter "setup"
-					crtmpdRouter "setup"
-					daemontoolsRouter "setup"
-				;;
-				*) routeHelp;;
-			esac
+			route "stop"
+			if [ ! -z $CRTMPD_ENABLE ] && [ $CRTMPD_ENABLE -eq 1 ]; then
+				crtmpdRouter "setup"
+			fi
+			if [ ! -z $NGINX_ENABLE ] && [ $NGINX_ENABLE -eq 1 ]; then
+				nginxRouter "setup"
+				daemontoolsRouter "setup"
+			fi
 		;;
 		*) routeHelp; exit 1;;
 	esac

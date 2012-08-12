@@ -23,11 +23,11 @@ nginxSetup(){
 	checkDependency "nginx"
 	nginx_bin=`which nginx` # should result in /usr/local/bin/nginx
 	# test if nginx was compiled with nginx-rtmp support
-	if [ ! `$nginx_bin -V 2>&1 | grep -q rtmp &&  echo $?` -eq 0 ]; then echo "!! nginx was not compiled with nginx-rtmp support , existing."; exit 99; fi
+	if [ ! `$nginx_bin -V 2>&1 | grep -q rtmp; echo $?` -eq 0 ]; then echo "!! nginx was not compiled with nginx-rtmp support , existing."; exit 99; fi
 	echo "* found nginx-rtmp support";
 	# test if nginx was compiled with nginx-rtmp/hls support
-	if [ $NGINX_HLS -eq 1 ] && [ ! `$nginx_bin -V 2>&1 | grep -q hls &&  echo $?` -eq 0 ]; then echo "!! nginx was not compiled with nginx-rtmp/hls support , existing."; exit 99; 
-		else if [ $NGINX_HLS -eq 1 ]; then echo "* found nginx-rtmp/hls support"; fi
+	if [ ! -z $HLS_ENABLE ] && [ $HLS_ENABLE -eq 1 ] && [ ! `$nginx_bin -V 2>&1 | grep -q hls;  echo $?` -eq 0 ]; then echo "!! nginx was not compiled with nginx-rtmp/hls support , existing."; exit 99; 
+		else if [ ! -z $HLS_ENABLE ] && [ $HLS_ENABLE -eq 1 ]; then echo "* found nginx-rtmp/hls support"; fi
 	fi
 	# set nginx_conf to default FreeBSD nginx port config location
 	LINKED_CONF="/usr/local/etc/nginx/nginx.conf"
@@ -64,6 +64,14 @@ nginxSetup(){
 			| sed s,"#HLS","",g \
 		> $NGINX_CONF.tmp && mv $NGINX_CONF.tmp $NGINX_CONF
 	fi
+	if [ $FFMPEG_ENABLE ]; then
+		echo "*+ enabling HLS in nginx configuration"
+		cat $NGINX_CONF \
+			| sed s,_FFMPEG_TRANSCODER_IP_,$FFMPEG_TRANSCODER_IP,g \
+			| sed s,"#TRANSCODING","",g \
+		> $NGINX_CONF.tmp && mv $NGINX_CONF.tmp $NGINX_CONF
+	fi
+
 }	
 
 ####

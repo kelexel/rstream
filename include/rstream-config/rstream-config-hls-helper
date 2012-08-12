@@ -12,14 +12,13 @@
 #
 ######################################################################################
 
+if [ -z $TAG ]; then echo "!! Error you are not supposed to execute this file directly"; routerHelp; exit 2; fi
+
 logHeader "* entering HLS config helper"
 
-#CRTMPD_BIN="$HOME/src/crtmpserver-trunk-x86_64-FreeBSD-9.0/crtmpserver"
 HLS_WWW="$HOME/tmp/hls/nginx"
 HLS_FQDN=""
 HLS_TYPE="nginx"
-
-if [ -z $TAG ]; then echo "!! Error you are not supposed to execute this file directly"; routerHelp; exit 2; fi
 
 askHLSFQDN(){
 	host=`hostname`
@@ -29,4 +28,3 @@ askHLSFQDN(){
 	else HLS_FQDN=$tmp; fi
 }
 if [ ! -z $NGINX_ENABLE ]; then askHLSFQDN; fi
-

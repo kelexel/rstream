@@ -31,25 +31,25 @@ rtmp {
          }
 #TRANSCODING         application 720p {
 #TRANSCODING             live on;
-#TRANSCODING             allow publish _NGINX_RTMP_IP_;
+#TRANSCODING             allow publish _FFMPEG_TRANSCODER_IP_;
 #TRANSCODING             deny publish all;
 #TRANSCODING             allow play all;
 #TRANSCODING         }
 #TRANSCODING         application 480p {
 #TRANSCODING             live on;
-#TRANSCODING             allow publish _NGINX_RTMP_IP_;
+#TRANSCODING             allow publish _FFMPEG_TRANSCODER_IP_;
 #TRANSCODING             deny publish all;
 #TRANSCODING             allow play all;
 #TRANSCODING         }
 #TRANSCODING         application 360p {
 #TRANSCODING             live on;
-#TRANSCODING             allow publish _NGINX_RTMP_IP_;
+#TRANSCODING             allow publish _FFMPEG_TRANSCODER_IP_;
 #TRANSCODING             deny publish all;
 #TRANSCODING             allow play all;
 #TRANSCODING        }
 #TRANSCODING         application 240p {
 #TRANSCODING             live on;
-#TRANSCODING             allow publish _NGINX_RTMP_IP_;
+#TRANSCODING             allow publish _FFMPEG_TRANSCODER_IP_;
 #TRANSCODING             deny publish all;
 #TRANSCODING             allow play all;
 #TRANSCODING        }

@@ -55,13 +55,24 @@ esac
 echo "########## rstream $TAG for $system_os"
 echo ""
 . $HOME/include/rstream-os/rstream-${system_os}_common-helper
-. $HOME/include/rstream-os/rstream-${system_os}_nginx-helper
-. $HOME/include/rstream-os/rstream-${system_os}_crtmpd-helper
-. $HOME/include/rstream-os/rstream-${system_os}_daemontools-helper
-. $HOME/etc/rstream.conf
-routeInit
 
-route $1 $2
+if [ -f $HOME/etc/rstream.conf ]; then
+	. $HOME/etc/rstream.conf
+
+	if [ ! -z $CRTMPD_ENABLE ] && [ $CRTMPD_ENABLE -eq 1 ]; then
+		. $HOME/include/rstream-os/rstream-${system_os}_crtmpd-helper
+		. $HOME/include/rstream-os/rstream-${system_os}_daemontools-helper
+	fi
+
+	if [ ! -z $NGINX_ENABLE ] && [ $NGINX_ENABLE -eq 1 ]; then
+		. $HOME/include/rstream-os/rstream-${system_os}_nginx-helper
+	fi
+	routeInit
+else
+	. $HOME/include/rstream-config/rstream-config-helper
+fi
+
+	route $1 $2
 
 # nice and clean ..
 echo ""
