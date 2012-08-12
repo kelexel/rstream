@@ -69,13 +69,13 @@ transcoderMethod1(){
 
 	# hls_iphone="$HOME/etc/ffmpeg-presets/libx264-ipod320.ffpreset"
 	# hls_ipad="$HOME/etc/ffmpeg-presets/libx264-ipod640.ffpreset"
-app="proxy"
-stream=$1
-src="rtmp://$CRTMPD_RTMP_IP:$CRTMPD_RTMP_PORT/$app/$stream"
+	app="proxy"
+	stream=$1
+	src="rtmp://$CRTMPD_RTMP_IP:$CRTMPD_RTMP_PORT/$app/$stream"
 
 	hls_iphone="libx264-ipod320"
 	hls_ipad="libx264-ipod640"
-FFMPEG_HLS=1
+	FFMPEG_HLS=1
 	transcodeInit "tcp" $CRTMPD_LIVEFLV_IP $CRTMPD_LIVEFLV_PORT $stream
 	#ffmpeg_bin=/home/rstream/bin/ffmpeg
 	cmd="$cmd -re -acodec libfaac -ar 44100 -b:a 96k -vcodec libx264 -s 1280x720 -b:v 860k -f flv -metadata streamName=${stream} -f flv $dest_720"
@@ -103,15 +103,15 @@ transcoderMethod2(){
 
 	checkDir $HOME/tmp/nginx/hls -c www 777;
 
-echo "#EXTM3U" > $HOME/tmp/nginx/hls/${stream}.m3u8
-echo "#EXT-X-STREAM-INF:PROGRAM-ID=1, BANDWIDTH=860000" >> $HOME/tmp/nginx/hls/${stream}.m3u8
-echo "${stream}_72Op.m3u8" >> $HOME/tmp/nginx/hls/${stream}.m3u8
-echo "#EXT-X-STREAM-INF:PROGRAM-ID=1, BANDWIDTH=512000" >> $HOME/tmp/nginx/hls/${stream}.m3u8
-echo "${stream}_480p.m3u8" >> $HOME/tmp/nginx/hls/${stream}.m3u8
-echo "#EXT-X-STREAM-INF:PROGRAM-ID=1, BANDWIDTH=396000" >> $HOME/tmp/nginx/hls/${stream}.m3u8
-echo "${stream}_360p.m3u8" >> $HOME/tmp/nginx/hls/${stream}.m3u8
-echo "#EXT-X-STREAM-INF:PROGRAM-ID=1, BANDWIDTH=256000" >> $HOME/tmp/nginx/hls/${stream}.m3u8
-echo "${stream}_360p.m3u8" >> $HOME/tmp/nginx/hls/${stream}.m3u8
+	echo "#EXTM3U" > $HOME/tmp/nginx/hls/${stream}.m3u8
+	echo "#EXT-X-STREAM-INF:PROGRAM-ID=1, BANDWIDTH=860000" >> $HOME/tmp/nginx/hls/${stream}.m3u8
+	echo "${stream}_72Op.m3u8" >> $HOME/tmp/nginx/hls/${stream}.m3u8
+	echo "#EXT-X-STREAM-INF:PROGRAM-ID=1, BANDWIDTH=512000" >> $HOME/tmp/nginx/hls/${stream}.m3u8
+	echo "${stream}_480p.m3u8" >> $HOME/tmp/nginx/hls/${stream}.m3u8
+	echo "#EXT-X-STREAM-INF:PROGRAM-ID=1, BANDWIDTH=396000" >> $HOME/tmp/nginx/hls/${stream}.m3u8
+	echo "${stream}_360p.m3u8" >> $HOME/tmp/nginx/hls/${stream}.m3u8
+	echo "#EXT-X-STREAM-INF:PROGRAM-ID=1, BANDWIDTH=256000" >> $HOME/tmp/nginx/hls/${stream}.m3u8
+	echo "${stream}_360p.m3u8" >> $HOME/tmp/nginx/hls/${stream}.m3u8
 
 	#ffmpeg_bin=/home/rstream/bin/ffmpeg
 	cmd="$cmd -re -acodec libfaac -ar 44100 -b:a 96k -vcodec libx264 -s 1280x720 -b:v 500k -f flv $dest_720"
