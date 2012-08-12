@@ -34,7 +34,7 @@ daemontoolsSetup(){
 daemontoolsLinkServices(){
 	if [ ! -h $2/$1 ]; then
 		echo "*+ creating service link for \"$1\" in \"$2\"";
-		ln -s $HOME/bin/supervise/$1 $2/
+		ln -s $HOME/var/supervise/$1 $2/
 		if [ ! $? -eq 0 ]; then echo "!! error !!"; exit 99; fi
 	else
 		echo "* found daemontools service in $2/$1";
@@ -66,7 +66,6 @@ daemontoolsRouter(){
 			daemontoolsRouter "stop"
 			daemontoolsRouter "start"
 		;;
-		link) daemontoolsLinkServices;;
 		*) routeHelp;;
 	esac
 }

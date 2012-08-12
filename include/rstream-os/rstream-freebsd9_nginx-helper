@@ -60,7 +60,7 @@ nginxSetup(){
 		# set nginx_mime_types to default FreeBSD nginx port config location
 		nginx_mime_types="/usr/local/etc/nginx/mime.types"
 		# link mime types
-		linkConf $HOME/etc/nginx-rtmp-mime.types $nginx_mime_types
+		linkConf $HOME/templates/nginx-rtmp-mime.types $nginx_mime_types
 
 		echo "*+ enabling HLS in nginx configuration"
 		cat $NGINX_CONF \
@@ -73,7 +73,7 @@ nginxSetup(){
 		> $NGINX_CONF.tmp && mv $NGINX_CONF.tmp $NGINX_CONF
 	fi
 	if [ $FFMPEG_ENABLE ]; then
-		echo "*+ enabling HLS in nginx configuration"
+		echo "*+ enabling TRANSCODING in nginx configuration"
 		cat $NGINX_CONF \
 			| sed s,_FFMPEG_TRANSCODER_IP_,$FFMPEG_TRANSCODER_IP,g \
 			| sed s,"#TRANSCODING","",g \

@@ -130,6 +130,7 @@ genConf(){
 		cat $CONFIG_FILE \
 			| sed s,_TAG_,$TAG,g \
 			| sed s,_FFMPEG_ENABLE_,$FFMPEG_ENABLE,g \
+			| sed s,_FFMPEG_TRANSCODER_IP_,$FFMPEG_TRANSCODER_IP,g \
 		> $CONFIG_FILE.tmp && mv $CONFIG_FILE.tmp $CONFIG_FILE
 	fi
 }

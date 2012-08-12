@@ -50,7 +50,9 @@ setupServices(){
 	logHeader="services setup"
 	if [ -z $DAEMONTOOLS_SERVICE ] || [ ! -d $DAEMONTOOLS_SERVICE ]; then echo "!! error invalid DAEMONTOOLS_SERVICE \"$DAEMONTOOLS_SERVICE\", existing."; exit 99; fi
 	# testing if link to crtmpd service exists
-	linkService crtmpd $DAEMONTOOLS_SERVICE
+	if [ $ENABLE_CRTMPD ]; then
+			daemontoolsLinkServices crtmpd $DAEMONTOOLS_SERVICE
+	fi
 }
 
 debugCycle(){
@@ -66,11 +68,7 @@ debugReset(){
 	cmd="rm -rf $HOME/tmp"
 	cmd="$cmd && rm -rf $HOME/var"
 	cmd="$cmd && rm -rf $HOME/shared"
-	# cmd="$cmd && rm -f $HOME/etc/rstream.conf"
-	cmd="$cmd && rm -f $HOME/etc/crtmpd-proxy-to-nginx.lua"
-	cmd="$cmd  && rm -f $HOME/etc/nginx-rtmp.conf"
-	cmd="$cmd && rm -f $HOME/bin/supervise/crtmpd/run"
-	cmd="$cmd && rm -f $HOME/bin/supervise/crtmpd/log/run"
+	cmd="$cmd && rm -f $HOME/etc"
 	cmd="$cmd && rm -f $DAEMONTOOLS_SERVICE/crtmpd"
 	echo "-! Are you sure you want to execute:"
 	echo $cmd;
@@ -87,8 +85,8 @@ routeInit(){
 	# check if our main $USER exists
 	checkUser $USER $HOME;
 	# check $HOME strucutre
+	checkDir $HOME/etc -c $USER 755
 	checkDir $HOME/var/log -c $USER 755
-	checkDir $HOME/var/etc -c $USER 755
 	checkDir $HOME/shared/media -c $USER
 	checkDir $HOME/shared/www -c $USER 755
 	checkDir $HOME/tmp -c

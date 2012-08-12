@@ -43,7 +43,7 @@ crtmpdSetup(){
 			| sed s,_CRTMPD_LIVEFLV_PORT_,$CRTMPD_LIVEFLV_PORT,g \
 			| sed s,_PROXY_STREAM_REMOTE_,$PROXY_STREAM_REMOTE,g \
 			> $CRTMPD_CONF
-		cp $HOME/include/templates/crtmpd-users.tpl $HOME/etc/ctrmpd-users.lua
+		cp $HOME/include/templates/crtmpd-users.tpl $HOME/etc/crtmpd-users.lua
 		if [ ! -z $CRTMPD_PROXY_ENABLE ] && [ $CRTMPD_PROXY_ENABLE -eq 1 ]; then
 			echo "*+ enabling PROXY in crtmpd configuration"
 			cat $CRTMPD_CONF \
@@ -63,6 +63,7 @@ crtmpdSetup(){
 
 
 	# generate CRTMPD run script
+	checkDir $HOME/var/supervise/crtmpd/log -c $USER 755
 	#if [ $CRTMPD_REGEN_CONF -eq 1 ]; then echo "-! enforcing regen_conf"; fi
 		# generate crtmpd/run script
 		echo "*+ generating new crtmpd/run script";
