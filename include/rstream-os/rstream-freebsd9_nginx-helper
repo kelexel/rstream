@@ -30,36 +30,40 @@ nginxSetup(){
 		else if [ $NGINX_HLS -eq 1 ]; then echo "* found nginx-rtmp/hls support"; fi
 	fi
 	# set nginx_conf to default FreeBSD nginx port config location
-	nginx_conf="/usr/local/etc/nginx/nginx.conf"
-	# set nginx_conf_dist based on $NGINX_HLS
-	if [ $NGINX_HLS ]; then 
-		nginx_conf_dist=${HOME}/etc/nginx-rtmp-hls.conf-dist
-	else
-		nginx_conf_dist=${HOME}/etc/nginx-rtmp.conf-dist
-	fi
+	LINKED_CONF="/usr/local/etc/nginx/nginx.conf"
+	NGINX_CONF="$HOME/etc/nginx-rtmp.conf"
+	# set NGINX_CONF_TPL based on $NGINX_HLS
+	NGINX_CONF_TPL=${HOME}/include/templates/nginx-conf.tpl
 	if [ $NGINX_REGEN_CONF -eq 1 ]; then echo "-! enforcing NGINX_REGEN_CONF"; fi
-	if [ $NGINX_REGEN_CONF -eq 1 ] || [ ! -f $HOME/etc/nginx-rtmp.conf ]; then
+	if [ $NGINX_REGEN_CONF -eq 1 ] || [ ! -f $NGINX_CONF ]; then
 		echo "*+ generating new nginx conf";
 		# generate local nginx conf
-		cat $nginx_conf_dist \
+		cat $NGINX_CONF_TPL \
 			| sed s,_HOME_,$HOME,g \
 			| sed s,_NGINX_RTMP_IP_,$NGINX_RTMP_IP,g \
 			| sed s,_NGINX_RTMP_PORT_,$NGINX_RTMP_PORT,g \
 			| sed s,_NGINX_RTMP_STREAM_,$NGINX_RTMP_STREAM,g \
-			> $HOME/etc/nginx-rtmp.conf
+			> $NGINX_CONF
 	fi
 	# link nginx conf
-	linkConf $HOME/etc/nginx-rtmp.conf $nginx_conf
+	linkConf $NGINX_CONF $LINKED_CONF
 	# only make the following tests if NGINX_HLS is set to 1
-	if [ $USER_HLS ]; then
+	if [ $HLS_ENABLE ]; then
 		# set nginx_mime_types to default FreeBSD nginx port config location
 		nginx_mime_types="/usr/local/etc/nginx/mime.types"
 		# link mime types
 		linkConf $HOME/etc/nginx-rtmp-mime.types $nginx_mime_types
+
+		echo "*+ enabling HLS in nginx configuration"
+		cat $NGINX_CONF \
+			| sed s,_HLS_ENABLE_,$HLS_ENABLE,g \
+			| sed s,_HLS_FQDN_,$HLS_FQDN,g \
+			| sed s,_HLS_TYPE_,$HLS_TYPE,g \
+			| sed s,_HLS_WWW_,$HLS_WWW,g \
+			| sed s,_HLS_STREAM_,$HLS_STREAM,g \
+			| sed s,"#HLS","",g \
+		> $NGINX_CONF.tmp && mv $NGINX_CONF.tmp $NGINX_CONF
 	fi
-	# enable nginx
-	
-#	 "nginx"
 }	
 
 ####

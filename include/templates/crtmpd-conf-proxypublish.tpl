@@ -30,22 +30,22 @@ configuration=
 					port=_CRTMPD_RTMP_PORT_,
 					protocol="inboundRtmp"
 				},
-   				{	
+				--[[TRANSCODING{
 					ip="_CRTMPD_LIVEFLV_IP_",
 					port=_CRTMPD_LIVEFLV_PORT_,
 					protocol="inboundLiveFlv"
-				},
+				},TRANSCODING]]--
 			},
-			abortOnConnectError=true,
-			targetServers= 
+			abortOnConnectError=false,
+			--[[PROXYtargetServers= 
 			{
 				{
-					targetUri="rtmp://_NGINX_RTMP_IP_:_NGINX_RTMP_PORT_/proxy",
-					targetStreamName="_NGINX_RTMP_STREAM_",
-					localStreamName="_CRTMPD_RTMP_STREAM_",
+					targetUri="_CRTMPD_PROXY_URL_",
+					targetStreamName="_CRTMPD_PROXY_DSTREAM_",
+					localStreamName="_CRTMPD_PROXY_LSTREAM_",
 					--emulateUserAgent="FMLE/3.0 (compatible; FMSc/1.0 http://www.rtmpd.com)"
 				},
-			},
+			},PROXY]]--
 			authentication=
 			{
 				rtmp={

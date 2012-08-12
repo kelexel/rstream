@@ -13,11 +13,9 @@
 ######################################################################################
 
 
-SERVER_TYPE="crtmpd"
+RSTREAM_TYPE="" # crtmpd|nginx|crtmpd-nginx
 FFMPEG_ENABLE="1"
 HLS_ENABLE="1"
-
-
 
 clear 
 
@@ -46,37 +44,38 @@ case `uname -s` in
 esac
 echo "########## rstream-transcoder-$TAG for rstream $TAG on $system_os"
 echo ""
-. $HOME/include/rstream-${system_os}_common-helper
+. $HOME/include/rstream-os/rstream-${system_os}_common-helper
 
 ####
 ### Start the logic
 ####
 
-logHeader "* enerting config-helper";
+logHeader "* loading config-helper";
 
-
-
-askServerType(){
+CONFIG_FILE=$HOME/etc/rstream.conf
+CRTMPD_ENABLE=""
+NGINX_ENABLE=""
+askServers(){
 echo ""
 echo "* What type of setup do you want ?"
 echo "1. crtmpserver only"
 echo "2. nginx-rtmp only"
 echo "3. crtmpserver AND nginx-rtmp"
-echo "[1/2/3]"
+echo -n "[1/2/3] "
 read tmp
 
 case $tmp in
-	1) SERVER_TYPE="crtmpd";;
-	2) SERVER_TYPE="nginx";;
-	3) SERVER_TYPE="crtmpd-nginx";;
-	*) askServer;;
+	1) CRTMPD_ENABLE=1;;
+	2) NGINX_ENABLE=1;;
+	3) CRTMPD_ENABLE=1; NGINX_ENABLE=1;;
+	*) askServers;;
 esac
 }
 
 askTranscodingSupport(){
 	echo ""
 	echo "* Do you want to enable transcoding support?"
-	echo "[y/n]"
+	echo -n "[y/n] "
 	read tmp
 	case $tmp in
 		y|Y) echo "-! enabling ffmpeg"; FFMPEG_ENABLE=1;;
@@ -88,7 +87,7 @@ askTranscodingSupport(){
 askHLSSupport(){
 	echo ""
 	echo "* Do you want to enable HTTP Live Streaming (HLS) support?"
-	echo "[y/n]"
+	echo -n "[y/n] "
 	read tmp
 	case $tmp in
 		y|Y) echo "-! enabling HLS"; HLS_ENABLE=1;;
@@ -97,13 +96,75 @@ askHLSSupport(){
 	esac
 }
 
-if [ -z $SERVER_TYPE ]; then askServerType; fi
+genConf(){
+	backupFile $CONFIG_FILE
+
+	touch $CONFIG_FILE;
+
+	if [ ! -z $CRTMPD_ENABLE ] && [ $CRTMPD_ENABLE -eq 1 ]; then
+		cat  $HOME/include/dist/rstream-conf-crtmpd.tpl >> $CONFIG_FILE 
+		cat $CONFIG_FILE \
+			| sed s,_TAG_,$TAG,g \
+			| sed s,_CRTMPD_ENABLE_,$CRTMPD_ENABLE,g \
+			| sed s,_CRTMPD_REGEN_CONF_,$CRTMPD_REGEN_CONF,g \
+			| sed s,_CRTMPD_RTMP_IP_,$CRTMPD_RTMP_IP,g \
+			| sed s,_CRTMPD_RTMP_PORT_,$CRTMPD_RTMP_PORT,g \
+			| sed s,_CRTMPD_BIN_,$CRTMPD_BIN,g \
+			| sed s,_CRTMPD_LIVEFLV_IP_,$CRTMPD_LIVEFLV_IP,g \
+			| sed s,_CRTMPD_LIVEFLV_PORT_,$CRTMPD_LIVEFLV_PORT,g \
+			| sed s,_CRTMPD_PROXY_ENABLE_,$CRTMPD_PROXY_ENABLE,g \
+			| sed s,_CRTMPD_PROXY_URL_,$CRTMPD_PROXY_URL,g \
+			| sed s,_CRTMPD_PROXY_LSTREAM_,$CRTMPD_PROXY_LSTREAM,g \
+			| sed s,_CRTMPD_PROXY_DSTREAM_,$CRTMPD_PROXY_DSTREAM,g \
+		> $CONFIG_FILE.tmp && mv $CONFIG_FILE.tmp $CONFIG_FILE
+	fi
+
+	if [ ! -z $NGINX_ENABLE ] && [ $NGINX_ENABLE -eq 1 ]; then
+		cat  $HOME/include/dist/rstream-conf-nginx.tpl >> $CONFIG_FILE 
+		cat $CONFIG_FILE \
+			| sed s,_TAG_,$TAG,g \
+			| sed s,_NGINX_ENABLE_,$NGINX_ENABLE,g \
+			| sed s,_NGINX_REGEN_CONF_,$NGINX_REGEN_CONF,g \
+			| sed s,_NGINX_RTMP_IP_,$NGINX_RTMP_IP,g \
+			| sed s,_NGINX_RTMP_PORT_,$NGINX_RTMP_PORT,g \
+			| sed s,_NGINX_RTMP_STREAM_,$NGINX_RTMP_STREAM,g \
+		> $CONFIG_FILE.tmp && mv $CONFIG_FILE.tmp $CONFIG_FILE
+	fi
+
+	if [ ! -z $HLS_ENABLE ] && [ $HLS_ENABLE -eq 1 ]; then
+		cat  $HOME/include/dist/rstream-conf-nginx-hls.tpl >> $CONFIG_FILE 
+		cat $CONFIG_FILE \
+			| sed s,_TAG_,$TAG,g \
+			| sed s,_HLS_ENABLE_,$HLS_ENABLE,g \
+			| sed s,_HLS_FQDN_,$HLS_FQDN,g \
+			| sed s,_HLS_TYPE_,$HLS_TYPE,g \
+			| sed s,_HLS_WWW_,$HLS_WWW,g \
+			| sed s,_HLS_STREAM_,$HLS_STREAM,g \
+			| sed s,_TAG_,$TAG,g \
+		> $CONFIG_FILE.tmp && mv $CONFIG_FILE.tmp $CONFIG_FILE
+	fi
+	if [ ! -z $FFMPEG_ENABLE ] && [ $FFMPEG_ENABLE -eq 1 ]; then
+		cat  $HOME/include/dist/rstream-conf-transcoder.tpl >> $CONFIG_FILE 
+		cat $CONFIG_FILE \
+			| sed s,_TAG_,$TAG,g \
+			| sed s,_FFMPEG_ENABLE_,$FFMPEG_ENABLE,g \
+		> $CONFIG_FILE.tmp && mv $CONFIG_FILE.tmp $CONFIG_FILE
+	fi
+
+
+}
+
+
+if [ -z $CRTMPD_ENABLE ] && [ -z $NGINX_ENABLE ]; then askServers; fi
 if [ -z $FFMPEG_ENABLE ]; then askTranscodingSupport; fi
 if [ -z $HLS_ENABLE ]; then askHLSSupport; fi
 
-# Some logic ..
-case $SERVER_TYPE in
-	crtmpd) . $HOME/include/rstream-config-crtmpd-helper;;
-esac
+if [ ! -z $CRTMPD_ENABLE ] && [ $CRTMPD_ENABLE -eq 1 ]; then . $HOME/include/rstream-config-crtmpd-helper;fi
+if [ ! -z $NGINX_ENABLE ] && [ $NGINX_ENABLE -eq 1 ]; then . $HOME/include/rstream-config-nginx-helper;fi
+if [ ! -z $NGINX_ENABLE ] && [ $NGINX_ENABLE -eq 1 ]; then . $HOME/include/rstream-config-hls-helper;fi
 
+
+genConf
+
+exit 0;
 

@@ -26,8 +26,8 @@ logHeader(){
 linkConf(){
 	# test if $2 is a file, not a symblink
 	if [ ! -h $2 ] && [ -f $2 ]; then
-		echo "*+ backuping file \"$1\" to \"${1}.back\"";
-		mv $2 ${2}.back
+		echo "*+ backuping file \"$1\"";
+		backupFile $1
 		if [ ! $? -eq 0 ]; then echo "!! error !!"; exit 99; fi
 	fi
 	if [ ! -h $2 ]; then
@@ -102,13 +102,17 @@ routeInit(){
 	checkDir $HOME/var/log -c
 	checkDir $HOME/var/log/www -c
 	checkDir $HOME/var/log/www/stats -c www 777
-	checkDir $HOME/var/log/crtmpd -c $USER
-	checkDir $HOME/var/log/nginx -c
-	checkDir $HOME/var/log/nginx-crtmpd-ffmpeg -c $USER
+	if [ $CRTMPD_ENABLE ]; then
+		checkDir $HOME/var/log/crtmpd -c $USER
+	fi
+	if [ $NGINX_ENABLE ]; then
+		checkDir $HOME/var/log/nginx -c
+		#checkDir $HOME/var/log/nginx-crtmpd-ffmpeg -c $USER
+	fi
 	checkDir $HOME/shared/media -c $USER
 	checkDir $HOME/shared/www -c $USER 755
 	checkDir $HOME/tmp -c
-	if [ ! -z $NGINX_HLS ] && [ $NGINX_HLS -eq 1 ]; then checkDir $HOME/tmp/hls -c www 777; fi
+	if [ ! -z $HLS_ENABLE ] && [ ! -z $HLS_TYPE ] && [ $HLS_TYPE = "nginx" ]; then checkDir $HOME/tmp/hls/nginx -c www 777; fi
 	if [ ! -z $FFMPEG_HLS ] && [ $FFMPEG_HLS -eq 1 ]; then checkDir $HOME/tmp/hls/ipad -c www 777; fi
 	if [ ! -z $FFMPEG_HLS ] && [ $FFMPEG_HLS -eq 1 ]; then checkDir $HOME/tmp/hls/iphone -c www 777; fi
 }
@@ -117,7 +121,6 @@ routeHelp(){
 	echo "!! error, no valid argument(s) specified !"
 	echo "-! please consult the documentation: https://github.com/kelexel/rstream";
 }
-
 
 route(){
 	if [ -z $1 ]; then routeHelp; exit 1; fi

@@ -5,6 +5,7 @@ bin/supervise/crtmpd/log/supervise/
 bin/supervise/nginx-rtmp-ffmpeg
 etc/nginx-rtmp.conf
 etc/crtmpd-proxy-to-nginx.lua
+etc/rstream.conf.back*
 etc/rstream.conf
 src
 local

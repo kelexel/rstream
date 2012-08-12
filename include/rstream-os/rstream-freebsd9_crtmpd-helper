@@ -21,26 +21,43 @@ crtmpdSetup(){
 	logHeader "crtmpd setup"
 	# check if CRTMPD_BIN is found
 	checkFile $CRTMPD_BIN 1
-	#set CRTMPD_CONF variable based on $rstream_type
-	if [ ! -f $HOME/etc/${rstream_type}.lua-dist ]; then echo "!! Invalid rstream_type , existing. "; exit 99; fi
-	CRTMPD_CONF="$HOME/etc/${rstream_type}.lua"
+	#set CRTMPD_CONF_TPL
+	CRTMPD_CONF_TPL="$HOME/include/templates/crtmpd-conf-proxypublish.tpl"
+	if [ ! -f $CRTMPD_CONF_TPL ]; then echo "!! Invalid CRTMPD_CONF_TPL , existing. "; exit 99; fi
+	CRTMPD_CONF="$HOME/etc/crtmpd.lua"
 	# cosmetics
 	if [ $CRTMPD_REGEN_CONF -eq 1 ]; then echo "-! enforcing CRTMPD_REGEN_CONF"; fi
 	# generate CRTMPD CONF
 	if [ $CRTMPD_REGEN_CONF -eq 1 ] || [ ! -f $HOME/etc/${rstream_type}.lua ]; then
 		echo "*+ generating new crtmpd conf";
 		# generate local nginx conf
-		cat ${CRTMPD_CONF}-dist \
-			| sed s,_HOME_,$HOME,g \
-			| sed s,_NGINX_RTMP_IP_,$NGINX_RTMP_IP,g \
-			| sed s,_NGINX_RTMP_PORT_,$NGINX_RTMP_PORT,g \
-			| sed s,_NGINX_RTMP_STREAM_,$NGINX_RTMP_STREAM,g \
+		cat $CRTMPD_CONF_TPL | sed s,_HOME_,$HOME,g \
 			| sed s,_CRTMPD_RTMP_IP_,$CRTMPD_RTMP_IP,g \
 			| sed s,_CRTMPD_RTMP_PORT_,$CRTMPD_RTMP_PORT,g \
+			| sed s,_CRTMPD_PROXY_URL_,$CRTMPD_PROXY_URL,g \
+			| sed s,_CRTMPD_PROXY_DSTREAM_,$CRTMPD_PROXY_DSTREAM,g \
+			| sed s,_CRTMPD_PROXY_LSTREAM_,$CRTMPD_PROXY_LSTREAM,g \
 			| sed s,_CRTMPD_LIVEFLV_IP_,$CRTMPD_LIVEFLV_IP,g \
 			| sed s,_CRTMPD_LIVEFLV_PORT_,$CRTMPD_LIVEFLV_PORT,g \
-			| sed s,_CRTMPD_RTMP_STREAM_,$CRTMPD_RTMP_STREAM,g \
-			> $CRTMPD_CONF
+			| sed s,_PROXY_STREAM_REMOTE_,$PROXY_STREAM_REMOTE,g \
+			> $CRTMPD_CONF.proto
+		if [ ! -z $CRTMPD_PROXY_ENABLE ] && [ $CRTMPD_PROXY_ENABLE -eq 1 ]; then
+			echo "*+ enabling PROXY in crtmpd configuration"
+			cat $CRTMPD_CONF.proto \
+				| sed s,"--\[\[PROXY","",g \
+				| sed s,"PROXY\]\]--","",g \
+			> $CRTMPD_CONF.proto2 && mv $CRTMPD_CONF.proto2 $CRTMPD_CONF.proto
+		fi
+		if [ ! -z $FFMPEG_ENABLE ] && [ $FFMPEG_ENABLE -eq 1 ]; then
+			echo "*+ enabling TRANSCODING in crtmpd configuration"
+			cat $CRTMPD_CONF.proto \
+				| sed s,"--\[\[TRANSCODING","",g \
+				| sed s,"TRANSCODING\]\]--","",g \
+			> $CRTMPD_CONF.proto2 && mv $CRTMPD_CONF.proto2 $CRTMPD_CONF.proto
+		fi
+
+		mv $CRTMPD_CONF.proto $CRTMPD_CONF
+		chmod 400 $CRTMPD_CONF
 	fi
 
 
@@ -48,7 +65,7 @@ crtmpdSetup(){
 	#if [ $CRTMPD_REGEN_CONF -eq 1 ]; then echo "-! enforcing regen_conf"; fi
 		# generate crtmpd/run script
 		echo "*+ generating new crtmpd/run script";
-		cat $HOME/bin/supervise/crtmpd/run-dist \
+		cat $HOME/include/templates/crtmpd-run.tpl \
 			| sed s,_CRTMPD_BIN_,$CRTMPD_BIN,g \
 			| sed s,_CRTMPD_CONF_,$CRTMPD_CONF,g \
 			| sed s,_USER_,$USER,g \
@@ -56,7 +73,7 @@ crtmpdSetup(){
 			chmod 755 $HOME/bin/supervise/crtmpd/run
 		# generate crtmpd/log/run script
 		echo "*+ generating new crtmpd/log/run script";
-		cat $HOME/bin/supervise/crtmpd/log/run-dist \
+		cat $HOME/include/templates/crtmpd-run-log.tpl \
 			| sed s,_USER_,$USER,g \
 			| sed s,_LOG_DIR_,$HOME/var/log/crtmpd,g \
 			> $HOME/bin/supervise/crtmpd/log/run

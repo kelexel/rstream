@@ -81,3 +81,12 @@ enableRc(){
 		echo "* found $1 enabled in rc.conf";
 	fi
 }
+
+backupFile(){
+	if [ -f $1 ]; then
+		STAMP=`date -j -f "%a %b %d %T %Z %Y" "\`date\`" "+%s"`
+		mv $1 $1.bak-$STAMP
+	fi
+}
+
+
