@@ -120,6 +120,7 @@ genConf(){
 			| sed s,_HLS_ENABLE_,$HLS_ENABLE,g \
 			| sed s,_HLS_FQDN_,$HLS_FQDN,g \
 			| sed s,_HLS_TYPE_,$HLS_TYPE,g \
+			| sed s,_HLS_PATH_,$HLS_PATH,g \
 			| sed s,_HLS_WWW_,$HLS_WWW,g \
 			| sed s,_HLS_STREAM_,$HLS_STREAM,g \
 			| sed s,_TAG_,$TAG,g \

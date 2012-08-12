@@ -20,9 +20,9 @@ configuration=
 			description="Application for forwarding streams to another RTMP server",
 			protocol="dynamiclinklibrary",
 			mediaFolder="_HOME_/shared/media",
-			--[[alias=[
+			--[[aliases={
 				"proxy", "720p", "480p", "320p",
-			],]]--
+			},]]--
 			acceptors =
 			{
 				{
@@ -37,15 +37,15 @@ configuration=
 				},TRANSCODING]]--
 			},
 			abortOnConnectError=false,
-			--[[PROXYtargetServers= 
+			targetServers= 
 			{
-				{
-					targetUri="_CRTMPD_PROXY_URL_",
+				--[[PROXY{
+					targetUri="_CRTMPD_PROXY_URL_/",
 					targetStreamName="_CRTMPD_PROXY_DSTREAM_",
 					localStreamName="_CRTMPD_PROXY_LSTREAM_",
 					--emulateUserAgent="FMLE/3.0 (compatible; FMSc/1.0 http://www.rtmpd.com)"
-				},
-			},PROXY]]--
+				},PROXY]]--
+			},
 			authentication=
 			{
 				rtmp={
@@ -58,7 +58,7 @@ configuration=
 				},
 			},
 			validateHandshake=false,
-			--default=true,
+			default=false,
 		},
 	},
 }

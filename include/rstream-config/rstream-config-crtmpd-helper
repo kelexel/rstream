@@ -16,8 +16,7 @@ if [ -z $TAG ]; then echo "!! Error you are not supposed to execute this file di
 
 logHeader "* entering crtmpd config helper"
 
-#CRTMPD_BIN="$HOME/src/crtmpserver-trunk-x86_64-FreeBSD-9.0/crtmpserver"
-CRTMPD_BIN=""
+CRTMPD_BIN="/usr/local/bin/crtmpserver"
 CRTMPD_RTMP_IP=""
 CRTMPD_RTMP_PORT=""
 CRTMPD_LIVEFLV_IP=""

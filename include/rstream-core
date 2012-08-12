@@ -17,7 +17,7 @@ if [ -z $TAG ]; then echo "!! Error you are not supposed to execute this file di
 ## Used for log consmetics
 logRoute(){
 	echo "";
-	echo ">> route \"$1/$2\"";
+	echo ">> rstream-core-route \"$1/$2\"";
 }
 logHeader(){
 	echo "** $1";
@@ -50,7 +50,7 @@ setupServices(){
 	logHeader="services setup"
 	if [ -z $DAEMONTOOLS_SERVICE ] || [ ! -d $DAEMONTOOLS_SERVICE ]; then echo "!! error invalid DAEMONTOOLS_SERVICE \"$DAEMONTOOLS_SERVICE\", existing."; exit 99; fi
 	# testing if link to crtmpd service exists
-	if [ $ENABLE_CRTMPD ]; then
+	if [ ! -z $CRTMPD_ENABLE ] && [ $CRTMPD_ENABLE -eq 1 ]; then
 			daemontoolsLinkServices crtmpd $DAEMONTOOLS_SERVICE
 	fi
 }
@@ -68,19 +68,26 @@ debugReset(){
 	cmd="rm -rf $HOME/tmp"
 	cmd="$cmd && rm -rf $HOME/var"
 	cmd="$cmd && rm -rf $HOME/shared"
-	cmd="$cmd && rm -f $HOME/etc"
+	cmd="$cmd && rm -f $HOME/etc/nginx*"
+	cmd="$cmd && rm -f $HOME/etc/crtmpd*"
 	cmd="$cmd && rm -f $DAEMONTOOLS_SERVICE/crtmpd"
 	echo "-! Are you sure you want to execute:"
 	echo $cmd;
 	echo "[y/N]"
 	read debug_confirmation
 	case $debug_confirmation in
-		[yY]) route "stop"; echo ""; echo "* Cleaning up.." `$cmd`;;
+		[yY]) rstream-core-route "stop"; echo ""; echo "* Cleaning up.." `$cmd`;;
 		*) echo "!! User-canceled reset" exit 1;;
 	esac
 }
 
-routeInit(){
+
+routeHelp(){
+	echo "!! error, no valid argument(s) specified !"
+	echo "-! please consult the documentation: https://github.com/kelexel/rstream";
+}
+
+rstream-core-init(){
 	logHeader "- init checks"
 	# check if our main $USER exists
 	checkUser $USER $HOME;
@@ -92,12 +99,7 @@ routeInit(){
 	checkDir $HOME/tmp -c
 }
 
-routeHelp(){
-	echo "!! error, no valid argument(s) specified !"
-	echo "-! please consult the documentation: https://github.com/kelexel/rstream";
-}
-
-coreRoute(){
+rstream-core-route(){
 	# check for config file
 	checkFile $HOME/etc/rstream.conf 1
 	if [ -z $1 ]; then routeHelp; exit 1; fi
@@ -115,8 +117,8 @@ coreRoute(){
 			crtmpdRouter "start"
 		;;
 		restart)
-			route "stop"
-			route "start"
+			rstream-core-route "stop"
+			rstream-core-route "start"
 		;;
 		-link) setupServices;;
 		-crtmp|-crtmpd)
@@ -136,7 +138,7 @@ coreRoute(){
 			if [ ! -f $HOME/etc/rstream.conf ]; then
 				rstream-config
 			else
-				route "stop"
+#				rstream-core-route "stop"
 				if [ ! -z $CRTMPD_ENABLE ] && [ $CRTMPD_ENABLE -eq 1 ]; then
 					crtmpdRouter "setup"
 				fi

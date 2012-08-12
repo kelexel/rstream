@@ -3,6 +3,7 @@
 ## tag: _TAG_
 ######################################################################################
 HLS_ENABLE=_HLS_ENABLE_
-HLS_TYPE="nginx"
+HLS_TYPE="_HLS_TYPE_"
 HLS_WWW="_HLS_WWW_"
+HLS_FILES="_HLS_PATH_"
 HLS_FQDN="_HLS_FQDN_"

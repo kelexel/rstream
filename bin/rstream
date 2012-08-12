@@ -67,12 +67,12 @@ if [ -f $HOME/etc/rstream.conf ]; then
 	if [ ! -z $NGINX_ENABLE ] && [ $NGINX_ENABLE -eq 1 ]; then
 		. $HOME/include/rstream-os/rstream-${system_os}_nginx-helper
 	fi
-	routeInit
-	coreRoute $1 $2
+	rstream-core-init
+	rstream-core-route $1 $2
 
 else
 	. $HOME/include/rstream-config/rstream-config-helper
-	routeInit
+	rstream-core-init
 	rstream-config
 fi
 

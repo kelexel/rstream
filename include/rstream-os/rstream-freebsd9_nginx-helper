@@ -30,12 +30,10 @@ nginxSetup(){
 		else if [ ! -z $HLS_ENABLE ] && [ $HLS_ENABLE -eq 1 ]; then echo "* found nginx-rtmp/hls support"; fi
 	fi
 	checkDir $HOME/var/log/nginx -c
-	checkDir $HOME/var/shared/stats -c www 777
+	checkDir $HOME/shared/www/stats -c www 777
 	#checkDir $HOME/var/log/nginx-crtmpd-ffmpeg -c $USER
 
-	if [ ! -z $HLS_ENABLE ] && [ ! -z $HLS_TYPE ] && [ $HLS_TYPE = "nginx" ]; then checkDir $HOME/tmp/hls/nginx -c www 777; fi
-	if [ ! -z $FFMPEG_HLS ] && [ $FFMPEG_HLS -eq 1 ]; then checkDir $HOME/tmp/hls/ipad -c www 777; fi
-	if [ ! -z $FFMPEG_HLS ] && [ $FFMPEG_HLS -eq 1 ]; then checkDir $HOME/tmp/hls/iphone -c www 777; fi
+	if [ ! -z $HLS_ENABLE ] && [ ! -z $HLS_TYPE ] && [ $HLS_TYPE = "nginx" ]; then checkDir $HOME/tmp/nginx/hls -c www 777; fi
 
 	# set nginx_conf to default FreeBSD nginx port config location
 	LINKED_CONF="/usr/local/etc/nginx/nginx.conf"
@@ -60,7 +58,9 @@ nginxSetup(){
 		# set nginx_mime_types to default FreeBSD nginx port config location
 		nginx_mime_types="/usr/local/etc/nginx/mime.types"
 		# link mime types
-		linkConf $HOME/templates/nginx-rtmp-mime.types $nginx_mime_types
+
+		cp $HOME/include/templates/nginx-rtmp-mime-types.tpl $HOME/etc/nginx-rtmp-mime.types
+		linkConf $HOME/etc/nginx-rtmp-mime.types $nginx_mime_types
 
 		echo "*+ enabling HLS in nginx configuration"
 		cat $NGINX_CONF \
@@ -68,6 +68,7 @@ nginxSetup(){
 			| sed s,_HLS_FQDN_,$HLS_FQDN,g \
 			| sed s,_HLS_TYPE_,$HLS_TYPE,g \
 			| sed s,_HLS_WWW_,$HLS_WWW,g \
+			| sed s,_HLS_PATH_,$HLS_PATH,g \
 			| sed s,_HLS_STREAM_,$HLS_STREAM,g \
 			| sed s,"#HLS","",g \
 		> $NGINX_CONF.tmp && mv $NGINX_CONF.tmp $NGINX_CONF
@@ -99,6 +100,7 @@ nginxRouter(){
 		stop)
 			echo "* stopping svscan"
 			service nginx stop
+			if [ ! -z $HLS_ENABLE ] && [ $HLS_ENABLE -eq 1 ]; then nginxRouter "hls-flush"; fi
 		;;
 		start)
 			echo "* starting svscan"
@@ -111,8 +113,8 @@ nginxRouter(){
 		;;
 		hls-flush)
 			echo "* flushing hls directory"
-			rm -f $HOME/tmp/hls/*.ts
-			rm -f $HOME/tmp/hls/*.m3u8
+			rm -f $HOME/tmp/nginx/hls/*.ts
+			rm -f $HOME/tmp/nginx/hls/*.m3u8
 		;;
 		*) 
 			routeHelp

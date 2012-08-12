@@ -45,15 +45,10 @@ echo ""
 #. $HOME/bin/rstream-${system_os}_crtmpd-helper
 #. $HOME/bin/rstream-${system_os}_daemontools-helper
 . $HOME/etc/rstream.conf
-routeInit
-
-app="proxy"
-stream=$CRTMPD_RTMP_STREAM
-src="rtmp://$CRTMPD_RTMP_IP:$CRTMPD_RTMP_PORT/$app/$stream"
-app="proxy"
+rstream-core-init
 
 
-hls_dest="/home/rstream/tmp/hls"
+
 
 transcodeInit(){
 	proto=$1
@@ -61,68 +56,107 @@ transcodeInit(){
 	dest_port=$3
 	stream=$4
 	# a bit of logic ..
-	dest_720="$proto://${dest_host}:${dest_port}/720p/$stream"
-	dest_480="$proto://${dest_host}:${dest_port}/480p/$stream"
-	dest_360="$proto://${dest_host}:${dest_port}/360p/$stream"
-	dest_240="$proto://${dest_host}:${dest_port}/240p/$stream"
+	dest_720="$proto://${dest_host}:${dest_port}/r/${stream}_720p"
+	dest_480="$proto://${dest_host}:${dest_port}/r/${stream}_480p"
+	dest_360="$proto://${dest_host}:${dest_port}/r/${stream}_360p"
+	dest_240="$proto://${dest_host}:${dest_port}/r/${stream}_240p"
 
 	ffmpeg_bin="/usr/local/bin/ffmpeg"
 }
 
 transcoderMethod1(){
 	if [ -z $FFMPEG_CRTMPD_TO_CRTMPD_TRANSCODING ] || [ ! $FFMPEG_CRTMPD_TO_CRTMPD_TRANSCODING -eq 1 ]; then echo "Error: \"-run m1\" supplied, but FFMPEG_CRTMPD_TO_CRTMPD_TRANSCODING is not set to \"1\" in $HOME/etc/rstream.conf, exiting !"; exit 98; fi
-	transcodeInit "tcp" $CRTMPD_LIVEFLV_IP $CRTMPD_LIVEFLV_PORT $NGINX_RTMP_STREAM
 
-	stream=$NGINX_RTMP_STREAM
 	# hls_iphone="$HOME/etc/ffmpeg-presets/libx264-ipod320.ffpreset"
 	# hls_ipad="$HOME/etc/ffmpeg-presets/libx264-ipod640.ffpreset"
+app="proxy"
+stream=$1
+src="rtmp://$CRTMPD_RTMP_IP:$CRTMPD_RTMP_PORT/$app/$stream"
+
 	hls_iphone="libx264-ipod320"
 	hls_ipad="libx264-ipod640"
 FFMPEG_HLS=1
+	transcodeInit "tcp" $CRTMPD_LIVEFLV_IP $CRTMPD_LIVEFLV_PORT $stream
 	#ffmpeg_bin=/home/rstream/bin/ffmpeg
-#	cmd="$cmd -re -acodec libfaac -ar 44100 -b:a 96k -vcodec libx264 -s 1280x720 -b:v 500k -f flv -metadata streamName=${stream} -f flv $dest_720"
-#	cmd="$cmd -re -acodec libfaac -ar 44100 -b:a 96k -vcodec libx264 -s 854x480 -b:v 500k -f flv -metadata streamName=${stream} -f flv $dest_480"
-#	cmd="$cmd -re -acodec libfaac -ar 22050 -b:a 96k -vcodec libx264 -s 640x360 -b:v 300k -f flv -metadata streamName=${stream} -f flv $dest_360"
-#	cmd="$cmd -re -acodec libfaac -ar 22050 -b:a 48k -vcodec libx264 -s 426x250 -b:v 100k -f flv -metadata streamName=${stream} -f flv $dest_240"
+	cmd="$cmd -re -acodec libfaac -ar 44100 -b:a 96k -vcodec libx264 -s 1280x720 -b:v 860k -f flv -metadata streamName=${stream} -f flv $dest_720"
+	cmd="$cmd -re -acodec libfaac -ar 44100 -b:a 96k -vcodec libx264 -s 854x480 -b:v 512k -f flv -metadata streamName=${stream} -f flv $dest_480"
+	cmd="$cmd -re -acodec libfaac -ar 22050 -b:a 96k -vcodec libx264 -s 640x360 -b:v 396k -f flv -metadata streamName=${stream} -f flv $dest_360"
+	cmd="$cmd -re -acodec libfaac -ar 22050 -b:a 48k -vcodec libx264 -s 426x250 -b:v 256k -f flv -metadata streamName=${stream} -f flv $dest_240"
 	if [ ! -z $FFMPEG_HLS ] && [ $FFMPEG_HLS -eq 1 ]; then
-		checkDir $HOME/tmp/hls/ipad/$stream -c www 777
-		checkDir $HOME/tmp/hls/iphone/$stream -c www 777
-		checkDir "$hls_dest/$app/iphone" -rc
-		cmd=" -re -an -c:v libx264 -b:v 128k  -vpre $hls_iphone -flags -global_header -map 0 -f segment -segment_time 4 -segment_list $hls_dest/$app/$stream/${stream}_iphone.m3u8 -segment_format mpegts $hls_dest/$app/iphone/stream%05d.ts"
-		checkDir "$hls_dest/$app/ipad" -rc
-	#	cmd=" -re -an -c:v libx264 -b:v 256k -vpre $hls_ipad -flags -global_header -map 0 -f segment -segment_time 4 -segment_list $hls_dest/$app/$stream/${stream}_ipad.m3u8 -segment_format mpegts $hls_dest/ipad/$stream/stream%05d.ts"
+	#	cmd=" -re -an -c:v libx264 -b:v 128k  -vpre $hls_iphone -flags -global_header -map 0 -f segment -segment_time 4 -segment_list $HLS_PATH/$app/$stream/${stream}_iphone.m3u8 -segment_format mpegts $HLS_PATH/$app/iphone/stream%05d.ts"
+	#	cmd=" -re -an -c:v libx264 -b:v 256k -vpre $hls_ipad -flags -global_header -map 0 -f segment -segment_time 4 -segment_list $HLS_PATH/$app/$stream/${stream}_ipad.m3u8 -segment_format mpegts $HLS_PATH/ipad/$stream/stream%05d.ts"
 	fi
 	echo ""
-	logHeader "Running $cmd"
+	logHeader "Running $ffmpeg_bin -threads 15 -i \"$src live=1\"  $cmd"
 	echo
 	exec $ffmpeg_bin -i "$src live=1" $cmd
 }
 
 transcoderMethod2(){
 	if [ -z $FFMPEG_CRTMPD_TO_NGINX_TRANSCODING ] || [ ! $FFMPEG_CRTMPD_TO_NGINX_TRANSCODING -eq 1 ]; then echo "Error: \"-run m2\" supplied, but FFMPEG_CRTMPD_TO_NGINX_TRANSCODING is not set to \"1\" in $HOME/etc/rstream.conf, exiting !"; exit 98; fi
-	transcodeInit "rtmp" $NGINX_RTMP_IP $NGINX_RTMP_PORT $NGINX_RTMP_STREAM
 
-	stream=$NGINX_RTMP_STREAM
+	app="proxy"
+	if [ -z $1 ]; then echo "!! error missing stream name, exiting !!"; exit 99; fi
+	stream=$1
+	src="rtmp://$CRTMPD_RTMP_IP:$CRTMPD_RTMP_PORT/$app/$stream"
+	transcodeInit "rtmp" $NGINX_RTMP_IP $NGINX_RTMP_PORT $stream
+
+	checkDir $HOME/tmp/nginx/hls -c www 777;
+
+echo "#EXTM3U" > $HOME/tmp/nginx/hls/${stream}.m3u8
+echo "#EXT-X-STREAM-INF:PROGRAM-ID=1, BANDWIDTH=860000" >> $HOME/tmp/nginx/hls/${stream}.m3u8
+echo "${stream}_72Op.m3u8" >> $HOME/tmp/nginx/hls/${stream}.m3u8
+echo "#EXT-X-STREAM-INF:PROGRAM-ID=1, BANDWIDTH=512000" >> $HOME/tmp/nginx/hls/${stream}.m3u8
+echo "${stream}_480p.m3u8" >> $HOME/tmp/nginx/hls/${stream}.m3u8
+echo "#EXT-X-STREAM-INF:PROGRAM-ID=1, BANDWIDTH=396000" >> $HOME/tmp/nginx/hls/${stream}.m3u8
+echo "${stream}_360p.m3u8" >> $HOME/tmp/nginx/hls/${stream}.m3u8
+echo "#EXT-X-STREAM-INF:PROGRAM-ID=1, BANDWIDTH=256000" >> $HOME/tmp/nginx/hls/${stream}.m3u8
+echo "${stream}_360p.m3u8" >> $HOME/tmp/nginx/hls/${stream}.m3u8
+
+	#ffmpeg_bin=/home/rstream/bin/ffmpeg
+	cmd="$cmd -re -acodec libfaac -ar 44100 -b:a 96k -vcodec libx264 -s 1280x720 -b:v 500k -f flv $dest_720"
+	cmd="$cmd -re -acodec libfaac -ar 44100 -b:a 96k -vcodec libx264 -s 854x480 -b:v 500k -f flv $dest_480"
+	cmd="$cmd -re -acodec libfaac -ar 22050 -b:a 96k -vcodec libx264 -s 640x360 -b:v 300k -f flv $dest_360"
+	cmd="$cmd -re -acodec libfaac -ar 22050 -b:a 48k -vcodec libx264 -s 426x250 -b:v 100k -f flv $dest_240"
+	echo ""
+	logHeader "Running $ffmpeg_bin -verbosity=1 -threads 15 -i \"$src live=1\"  $cmd"
+	echo
+	exec $ffmpeg_bin  -i "$src live=1" $cmd
+}
+
+transcoderMethod3(){
+	if [ -z $FFMPEG_CRTMPD_TO_NGINX_TRANSCODING ] || [ ! $FFMPEG_CRTMPD_TO_NGINX_TRANSCODING -eq 1 ]; then echo "Error: \"-run m2\" supplied, but FFMPEG_CRTMPD_TO_NGINX_TRANSCODING is not set to \"1\" in $HOME/etc/rstream.conf, exiting !"; exit 98; fi
+
+app="proxy"
+stream=$1
+src="rtmp://$CRTMPD_RTMP_IP:$CRTMPD_RTMP_PORT/$app/$stream"
+HLS_PATH="$HOME/tmp/ffmpeg/hls"
+echo $HLS_PATH/iphone;
+checkDir "$HLS_PATH/iphone" -c www 777
+checkDir "$HLS_PATH/ipad" -c www 777
+
 	# hls_iphone="$HOME/etc/ffmpeg-presets/libx264-ipod320.ffpreset"
 	# hls_ipad="$HOME/etc/ffmpeg-presets/libx264-ipod640.ffpreset"
 	hls_iphone="libx264-ipod320"
 	hls_ipad="libx264-ipod640"
+	transcodeInit "rtmp" $NGINX_RTMP_IP $NGINX_RTMP_PORT $stream
 
 	#ffmpeg_bin=/home/rstream/bin/ffmpeg
-#	cmd="$cmd -re -acodec libfaac -ar 44100 -b:a 96k -vcodec libx264 -s 1280x720 -b:v 500k -f flv -f flv $dest_720"
-#	cmd="$cmd -re -acodec libfaac -ar 44100 -b:a 96k -vcodec libx264 -s 854x480 -b:v 500k -f flv -f flv $dest_480"
-	cmd="$cmd -re -acodec libfaac -ar 22050 -b:a 96k -vcodec libx264 -s 640x360 -b:v 300k -f flv -f flv $dest_360"
-	cmd="$cmd -re -acodec libfaac -ar 22050 -b:a 48k -vcodec libx264 -s 426x250 -b:v 100k -f flv -f flv $dest_240"
-	if [ ! -z $FFMPEG_HLS ] && [ $FFMPEG_HLS -eq 1 ]; then
-		checkDir $HOME/tmp/hls/ipad/$stream -c www 777
-		checkDir $HOME/tmp/hls/iphone/$stream -c www 777
-		checkDir "$hls_dest/$app/iphone" -rc
-		cmd=" -re -an -c:v libx264 -b:v 128k -vpre $hls_iphone -flags -global_header -map 0 -f segment -segment_time 4 -segment_list $hls_dest/$app/$stream/${stream}_iphone.m3u8 -segment_format mpegts $hls_dest/$app/iphone/stream%05d.ts"
-		checkDir "$hls_dest/$app/ipad" -rc
-		cmd=" -re -an -c:v libx264 -b:v 256k -vpre $hls_ipad -flags -global_header -map 0 -f segment -segment_time 4 -segment_list $hls_dest/$app/$stream/${stream}_ipad.m3u8 -segment_format mpegts $hls_dest/ipad/$stream/stream%05d.ts"
-	fi
+#	cmd="$cmd -re -acodec libfaac -ar 44100 -b:a 96k -vcodec libx264 -s 1280x720 -b:v 500k -f flv $dest_720"
+#	cmd="$cmd -re -acodec libfaac -ar 44100 -b:a 96k -vcodec libx264 -s 854x480 -b:v 500k -f flv $dest_480"
+#	cmd="$cmd -re -acodec libfaac -ar 22050 -b:a 96k -vcodec libx264 -s 640x360 -b:v 300k -f flv $dest_360"
+#	cmd="$cmd -re -acodec libfaac -ar 22050 -b:a 48k -vcodec libx264 -s 426x250 -b:v 100k -f flv $dest_240"
+##	if [ ! -z $FFMPEG_HLS ] && [ $FFMPEG_HLS -eq 1 ]; then
+##		checkDir $HOME/tmp/hls/ipad/$stream -c www 777
+##		checkDir $HOME/tmp/hls/iphone/$stream -c www 777
+##		checkDir "$HLS_PATH/$app/iphone" -rc
+#		cmd=" -re -an -c:v libx264 -b:v 128k -f segment -segment_time 4 -segment_list $HLS_PATH/$app/$stream/${stream}_iphone.m3u8 -segment_format mpegts $HLS_PATH/iphone/stream%05d.ts"
+	cmd="$cmd -re -acodec libfaac -ar 22050 -b:a 96k -vcodec libx264 -s 640x360 -b:v 300k -f segment -segment_time 4 -segment_list $HLS_PATH/iphone/${stream}_iphone.m3u8 -segment_format mpegts $HLS_PATH/iphone/stream%05d.ts"
+##		checkDir "$HLS_PATH/$app/ipad" -rc
+##		cmd=" -re -an -c:v libx264 -b:v 256k -vpre $hls_ipad -flags -global_header -map 0 -f segment -segment_time 4 -segment_list $HLS_PATH/$app/$stream/${stream}_ipad.m3u8 -segment_format mpegts $HLS_PATH/ipad/$stream/stream%05d.ts"
+##	fi
 	echo ""
-	logHeader "Running $cmd"
+	logHeader "Running $ffmpeg_bin -threads 15 -i \"$src live=1\"  $cmd"
 	echo
 	exec $ffmpeg_bin -threads 15 -i "$src live=1" $cmd
 }
@@ -134,8 +168,8 @@ routeTranscoder(){
 		-run)
 			if [ -z $2 ]; then routeHelp; exit 99; fi
 			case $2 in
-				m1) transcoderMethod1;; # CRTMPD (RTMP / FLV) > ffmpeg > CRTMPD (tcvp / FLV)
-				m2) transcoderMethod2;; # CRTMPD (RTMP / FLV) > ffmpeg > NGINX (rtmp / FLV)
+				m1) transcoderMethod1 $3;; # CRTMPD (RTMP / FLV) > ffmpeg > CRTMPD (tcvp / FLV)
+				m2) transcoderMethod2 $3;; # CRTMPD (RTMP / FLV) > ffmpeg > NGINX (rtmp / FLV)
 				*) routeHelp;;
 			esac
 		;;
@@ -143,8 +177,8 @@ routeTranscoder(){
 }
 
 
-routeTranscoder $1 $2
-#checkDir $hls_dest/$app/$stream -rc
+routeTranscoder $1 $2 $3
+#checkDir $HLS_PATH/$app/$stream -rc
 
 # From https://groups.google.com/forum/#!topic/c-rtmp-server/bzsV61wJGHg[1-25]
 #ffmpeg -i "rtmp://localhost:1935/live/mystream live=1" -fpre "/usr/share/ffmpeg/libx264-ipod640.ffpreset" -vcodec libx264 -acodec aac -ac 2 -ar 44100 -ab 127k -strict experimental -f flv "rtmp://localhost:1935/live/mystream_recode live=1"
