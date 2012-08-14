@@ -73,6 +73,9 @@ What it is
 * It is now multiple-broadcasters-friendly ! (that was a silly limitation in pre 0.5)
 * It is now multi-concurent-streams-per-single-broadcaster-friendly ! (assuming you patch crtmpd with the [crtmpd-r779-transparentStream.patch](http://pastebin.com/EmNs2U9M) I wrote)
 
+What it is NOT
+---
+
 * It is not pefect, 0.1 was written in roughly 6hours, 0.2 was  released few (sleepless) hours later, and I'm now preparing to push to 0.5 with *major* code refactoring. You should really only use this if you know what you are doing, and mostly, if you are doing on a vanilla server (i.e.: without prior specific config/files/data on it)
 * It is NOT-YET production-stress-tested 
 * It is NOT-YET Linux-friendly (just fork it!)
@@ -88,10 +91,14 @@ At the time I'm writing these lines, two great projects exist in the Open-Source
 
 Each has it's own pros and cons:
 
+On nginx side
+
 * nginx-rtmp has no built-in auth / management modules. It's up to you to write your own returning HTTP codes as allow/deny commands to nginx.
 * nginx-rtmp does HLS out of the box, and does it pretty well ! (assuming you compile it with HLS support)
 * nginx-rtmp IS BROKEN WITH WIRECAST (the original reason why I created rstream)
 * nginx-rtmp is based on nginx (!), and what better than nginx to serve HLS files ?
+
+On crtmpd side
 
 * crtmpd has a built-in auth system
 * crtmpd supports RTMP and *many* other protocols
