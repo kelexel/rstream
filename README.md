@@ -350,7 +350,8 @@ If ffmpeg starts transcoding, you can now proceed to client testing.
 # rtmp://NGINX_RTMP_IP:NGINX_RTMP_PORT/r/NGINX_RTMP_STREAM_480
 # rtmp://NGINX_RTMP_IP:NGINX_RTMP_PORT/r/NGINX_RTMP_STREAM_360
 # rtmp://NGINX_RTMP_IP:NGINX_RTMP_PORT/r/NGINX_RTMP_STREAM_240
-``
+```
+
 Howto: Using Wirecast as a broadcaster
 ----
 
