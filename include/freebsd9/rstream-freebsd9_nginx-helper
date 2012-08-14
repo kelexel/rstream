@@ -12,7 +12,7 @@
 #
 #######################################################################################
 
-if [ -z $TAG ]; then echo "!! Error you are not supposed to execute this file directly"; routerHelp; exit 2; fi
+if [ -z $TAG ]; then echo "!! Error you are not supposed to execute this file directly"; exit 2; fi
 
 ####
 ### Nginx setup
@@ -29,7 +29,7 @@ nginxSetup(){
 	if [ ! -z $HLS_ENABLE ] && [ $HLS_ENABLE -eq 1 ] && [ ! `$nginx_bin -V 2>&1 | grep -q hls;  echo $?` -eq 0 ]; then echo "!! nginx was not compiled with nginx-rtmp/hls support , existing."; exit 99; 
 		else if [ ! -z $HLS_ENABLE ] && [ $HLS_ENABLE -eq 1 ]; then echo "* found nginx-rtmp/hls support"; fi
 	fi
-	checkDir $HOME/var/log/nginx -c
+	checkDir $HOME/var/log/nginx -c www 755
 	checkDir $HOME/shared/www/stats -c www 777
 	#checkDir $HOME/var/log/nginx-crtmpd-ffmpeg -c $USER
 
@@ -51,13 +51,12 @@ nginxSetup(){
 			| sed s,_NGINX_RTMP_STREAM_,$NGINX_RTMP_STREAM,g \
 			> $NGINX_CONF
 	fi
+	
+	# copy mime types
+	cp $HOME/include/templates/nginx-rtmp-mime-types.tpl $HOME/etc/nginx-rtmp-mime.types
 
 	# only make the following tests if NGINX_HLS is set to 1
 	if [ $HLS_ENABLE ]; then
-		# set nginx_mime_types to default FreeBSD nginx port config location
-		nginx_mime_types="/usr/local/etc/nginx/mime.types"
-		# copy mime types
-		cp $HOME/include/templates/nginx-rtmp-mime-types.tpl $HOME/etc/nginx-rtmp-mime.types
 
 		echo "*+ enabling HLS in nginx configuration"
 		cat $NGINX_CONF \
@@ -94,7 +93,7 @@ nginxSetup(){
 	# generate nginx/log/run script
 	echo "*+ generating new nginx/log/run script";
 	cat $HOME/include/templates/nginx-run-log.tpl \
-		| sed s,_USER_,'nobody',g \
+		| sed s,_USER_,'www',g \
 		| sed s,_LOG_DIR_,$HOME/var/log/nginx,g \
 		> $HOME/var/supervise/nginx/log/run
 		chmod 755 $HOME/var/supervise/nginx/log/run
@@ -102,7 +101,7 @@ nginxSetup(){
 ####
 ### CRTMPD router
 ####
-nginxRouter(){
+nginx-router(){
 	if [ -z $1 ]; then routeHelp; exit 1; fi
 	logRoute "nginx" $1 
 	if [ -z $NGINX_ENABLE ] || [ ! $NGINX_ENABLE -eq 1 ]; then break; fi
@@ -114,21 +113,24 @@ nginxRouter(){
 		status|stat)
 			echo "* checking if nginx is running"
 			svstat $DAEMONTOOLS_SERVICE/nginx
+			svstat $DAEMONTOOLS_SERVICE/nginx/log
 		;;
 		stop)
 			echo "* stopping nginx"
 			svc -d $DAEMONTOOLS_SERVICE/nginx
-			if [ ! -z $HLS_ENABLE ] && [ $HLS_ENABLE -eq 1 ]; then nginxRouter "hls-flush"; fi
+			svc -d $DAEMONTOOLS_SERVICE/nginx/log
+			if [ ! -z $HLS_ENABLE ] && [ $HLS_ENABLE -eq 1 ]; then nginx-router "hls-flush"; fi
 		;;
 		start)
 			echo "* starting nginx"
 			svc -u $DAEMONTOOLS_SERVICE/nginx
+			svc -u $DAEMONTOOLS_SERVICE/nginx/log
 			sleep 5
-			nginxRouter "status"
+			nginx-router "status"
 		;;
 		restart)
-			nginxRouter "stop"
-			nginxRouter "start"
+			nginx-router "stop"
+			nginx-router "start"
 		;;
 		hls-flush)
 			echo "* flushing hls directory"

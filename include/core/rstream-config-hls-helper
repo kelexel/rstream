@@ -12,17 +12,15 @@
 #
 ######################################################################################
 
-if [ -z $TAG ]; then echo "!! Error you are not supposed to execute this file directly"; routerHelp; exit 2; fi
+if [ -z $TAG ]; then echo "!! Error you are not supposed to execute this file directly"; exit 2; fi
 if [ ! -f $NGINX_BIN ]; then echo "!! error, nginx not found, exiting !!"; exit 99; fi 
 
 logSection "* entering HLS config helper"
 
-HLS_ENABLE=""
 HLS_WWW="$HOME/shared/www"
 HLS_FQDN=""
 HLS_TYPE="nginx"
 HLS_PATH="$HOME/tmp/nginx"
-
 askHLSSupport(){
 	echo -n "* Do you want to enable HTTP Live Streaming (HLS) ezez support ? [y/N]"
 	read tmp
@@ -39,7 +37,9 @@ askHLSFQDN(){
 	if [ -z $tmp ]; then HLS_FQDN="htt://$host/hls/nginx";
 	else HLS_FQDN=$tmp; fi
 }
-if [ ! -z $NGINX_ENABLE ] && [ $NGINX_ENABLE -eq 1 ] && [ -z $HLS_ENABLE ] && [ $HLS_ENABLE -eq 1 ]; then
+if [ ! -z $NGINX_ENABLE ] && [ $NGINX_ENABLE -eq 1 ]; then
 	askHLSSupport;
-	askHLSFQDN;
+#	askHLSFQDN;
+else
+	echo "-! Skipping HLS configuration (not supported without nginx)"
 fi

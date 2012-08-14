@@ -22,14 +22,17 @@ USER="rstream"
 
 . $HOME/.version
 
+# set DAEMONTOOLS_SERVICE based on default port service path
+DAEMONTOOLS_SERVICE="/var/service"
+
 ####
 ### Load OS Core files
 ####
 echo ""
 echo ""
 ##
-if [ ! -f $HOME/include/rstream-core ]; then echo "!! invalid rstream setup - invalid HOME ?"; exit 99; fi
-. $HOME/include/rstream-core
+if [ ! -f $HOME/include/core/rstream-core ]; then echo "!! invalid rstream setup - invalid HOME ?"; exit 99; fi
+. $HOME/include/core/rstream-core
 
 ####
 ### Load OS Core files
@@ -40,11 +43,12 @@ case `uname -s` in
 esac
 echo "########## rstream-transcoder-$TAG for rstream $TAG on $system_os"
 echo ""
-. $HOME/include/rstream-os/rstream-${system_os}_common-helper
-#. $HOME/bin/rstream-${system_os}_nginx-helper
-#. $HOME/bin/rstream-${system_os}_crtmpd-helper
-#. $HOME/bin/rstream-${system_os}_daemontools-helper
+. $HOME/include/${system_os}/rstream-${system_os}_common-helper
 . $HOME/etc/rstream.conf
+. $HOME/include/${system_os}/rstream-${system_os}_crtmpd-helper
+. $HOME/include/${system_os}/rstream-${system_os}_daemontools-helper
+. $HOME/include/${system_os}/rstream-${system_os}_nginx-helper
+. $HOME/include/${system_os}/rstream-${system_os}_ffmpeg-helper
 rstream-core-init
 
 
@@ -73,28 +77,6 @@ transcoderNginx(){
 	dest_app="r"
 	if [ -z $1 ]; then echo "!! error missing stream name, exiting !!"; exit 99; fi
 	stream=$1
-
-	if [ ! -z $2 ] && [ $2 = "-link" ]; then
-		echo "*+ generating new ffmpeg/run script";
-		checkDir $HOME/tmp/ffmpeg -c rstream 700
-		checkDir $HOME/var/log/ffmpeg -c rstream 700
-		checkDir $HOME/var/supervise/ffmpeg-nginx-${stream}/log -c rstream 755
-		cat $HOME/include/templates/ffmpeg-run.tpl \
-			| sed s,_HOME_,$HOME,g \
-			| sed s,_USER_,$USER,g \
-			| sed s,_STREAM_,$stream,g \
-			| sed s,_DAEMON_,'nginx',g \
-			> $HOME/var/supervise/ffmpeg-nginx-${stream}/run
-			chmod 755 $HOME/var/supervise/ffmpeg-nginx-${stream}/run
-		echo "*+ generating new ffmpeg/run/log script";
-		cat $HOME/include/templates/ffmpeg-run-log.tpl \
-			| sed s,_HOME_,$HOME,g \
-			| sed s,_USER_,$USER,g \
-			> $HOME/var/supervise/ffmpeg-nginx-${stream}/log/run
-			chmod 755 $HOME/var/supervise/ffmpeg-nginx-${stream}/log/run
-			exit 0;
-	fi
-
 
 	src="rtmp://$NGINX_RTMP_IP:$NGINX_RTMP_PORT/$app/$stream"
 	transcodeInit "rtmp" $NGINX_RTMP_IP $NGINX_RTMP_PORT $dest_app $stream
@@ -135,26 +117,26 @@ transcoderCrtmpd(){
 	stream=$1
 
 
-	if [ ! -z $2 ] && [ $2 = "-i" ]; then
-		echo "*+ generating new ffmpeg/run script";
-		checkDir $HOME/tmp/ffmpeg -c rstream 700
-		checkDir $HOME/var/log/ffmpeg -c rstream 700
-		checkDir $HOME/var/supervise/ffmpeg-nginx-${stream}/log -c rstream 755
-		cat $HOME/include/templates/ffmpeg-run.tpl \
-			| sed s,_HOME_,$HOME,g \
-			| sed s,_USER_,$USER,g \
-			| sed s,_STREAM_,$stream,g \
-			| sed s,_DAEMON_,'nginx',g \
-			> $HOME/var/supervise/ffmpeg-nginx-${stream}/run
-			chmod 755 $HOME/var/supervise/ffmpeg-nginx-${stream}/run
-		echo "*+ generating new ffmpeg/run/log script";
-		cat $HOME/include/templates/ffmpeg-run-log.tpl \
-			| sed s,_HOME_,$HOME,g \
-			| sed s,_USER_,$USER,g \
-			> $HOME/var/supervise/ffmpeg-nginx-${stream}/log/run
-			chmod 755 $HOME/var/supervise/ffmpeg-nginx-${stream}/log/run
-			exit 0;
-	fi
+#	if [ ! -z $2 ] && [ $2 = "-i" ]; then
+#		echo "*+ generating new ffmpeg/run script";
+#		checkDir $HOME/tmp/ffmpeg -c rstream 700
+#		checkDir $HOME/var/log/ffmpeg -c rstream 700
+#		checkDir $HOME/var/supervise/ffmpeg-nginx-${stream}/log -c rstream 755
+#		cat $HOME/include/templates/ffmpeg-run.tpl \
+#			| sed s,_HOME_,$HOME,g \
+#			| sed s,_USER_,$USER,g \
+#			| sed s,_STREAM_,$stream,g \
+#			| sed s,_DAEMON_,'nginx',g \
+#			> $HOME/var/supervise/ffmpeg-nginx-${stream}/run
+#			chmod 755 $HOME/var/supervise/ffmpeg-nginx-${stream}/run
+#		echo "*+ generating new ffmpeg/run/log script";
+#		cat $HOME/include/templates/ffmpeg-run-log.tpl \
+#			| sed s,_HOME_,$HOME,g \
+#			| sed s,_USER_,$USER,g \
+#			> $HOME/var/supervise/ffmpeg-nginx-${stream}/log/run
+#			chmod 755 $HOME/var/supervise/ffmpeg-nginx-${stream}/log/run
+#			exit 0;
+#	fi
 
 	src="rtmp://$CRTMPD_RTMP_IP:$CRTMPD_RTMP_PORT/$app/$stream"
 
@@ -222,16 +204,21 @@ routeTranscoder(){
 		-run)
 			if [ -z $2 ]; then routeHelp; exit 99; fi
 			case $2 in
-				crtmpd) transcoderCrtmpd $3 $4;; # CRTMPD (RTMP / FLV) > ffmpeg > CRTMPD (tcvp / FLV)
-				nginx) transcoderNginx $3 $4;; # CRTMPD (RTMP / FLV) > ffmpeg > NGINX (rtmp / FLV)
+				crtmpd) transcoderCrtmpd $3;; # CRTMPD (RTMP / FLV) > ffmpeg > CRTMPD (tcvp / FLV)
+				nginx) transcoderNginx $3;; # CRTMPD (RTMP / FLV) > ffmpeg > NGINX (rtmp / FLV)
 				*) routeHelp;;
 			esac
 		;;
+		-service-create) ffmpeg-router "create" $3;;
+		-service-link) ffmpeg-router "link" $3;;
 	esac
 }
 
 
 routeTranscoder $1 $2 $3 $4
+
+#### Below lies the graveyard of my ffmpeg tests..
+
 #checkDir $HLS_PATH/$app/$stream -rc
 
 # From https://groups.google.com/forum/#!topic/c-rtmp-server/bzsV61wJGHg[1-25]

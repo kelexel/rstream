@@ -47,8 +47,8 @@ clear
 echo ""
 echo ""
 ##
-if [ ! -f $HOME/include/rstream-core ]; then echo "!! invalid rstream setup - invalid HOME ?"; exit 99; fi
-. $HOME/include/rstream-core
+if [ ! -f $HOME/include/core/rstream-core ]; then echo "!! invalid rstream setup - invalid HOME ?"; exit 99; fi
+. $HOME/include/core/rstream-core
 
 ####
 ### Load OS Core files
@@ -59,18 +59,19 @@ case `uname -s` in
 esac
 echo "########## rstream $TAG for $system_os"
 echo ""
-. $HOME/include/rstream-os/rstream-${system_os}_common-helper
+. $HOME/include/${system_os}/rstream-${system_os}_common-helper
 
 rstream-init(){
 	if [ -f $HOME/etc/rstream.conf ]; then
 		. $HOME/etc/rstream.conf
-		. $HOME/include/rstream-os/rstream-${system_os}_crtmpd-helper
-		. $HOME/include/rstream-os/rstream-${system_os}_daemontools-helper
-		. $HOME/include/rstream-os/rstream-${system_os}_nginx-helper
+		. $HOME/include/${system_os}/rstream-${system_os}_crtmpd-helper
+		. $HOME/include/${system_os}/rstream-${system_os}_daemontools-helper
+		. $HOME/include/${system_os}/rstream-${system_os}_nginx-helper
+		. $HOME/include/${system_os}/rstream-${system_os}_ffmpeg-helper
 		rstream-core-init
-		rstream-core-route $1 $2
+		rstream-router $1 $2
 	else
-		. $HOME/include/rstream-config/rstream-config-helper
+		. $HOME/include/core/rstream-config-helper
 		rstream-core-init
 		rstream-config
 		echo ""

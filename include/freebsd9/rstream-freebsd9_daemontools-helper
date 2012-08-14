@@ -12,7 +12,7 @@
 #
 ######################################################################################
 
-if [ -z $TAG ]; then echo "!! Error you are not suppoesd to execute this file directly"; routerHelp; exit 2; fi
+if [ -z $TAG ]; then echo "!! Error you are not supposed to execute this file directly"; exit 2; fi
 
 ####
 ### daemontools Setup
@@ -44,7 +44,7 @@ daemontoolsLinkServices(){
 ####
 ### daemontools Router
 ####
-daemontoolsRouter(){
+daemontools-router(){
 	if [ -z $1 ]; then routeHelp; exit 1; fi
 	logRoute "daemontools" $1 
 	case $1 in
@@ -62,11 +62,12 @@ daemontoolsRouter(){
 		start)
 			echo "* starting svscan"
 			service svscan start
-			daemontoolsRouter "status"
+			echo "** Sleeping 5 seconds..."
+			sleep 5
 		;;
 		restart)
-			daemontoolsRouter "stop"
-			daemontoolsRouter "start"
+			daemontools-router "stop"
+			daemontools-router "start"
 		;;
 		*) routeHelp;;
 	esac

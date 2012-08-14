@@ -12,7 +12,7 @@
 #
 ######################################################################################
 
-if [ -z $TAG ]; then echo "!! Error you are not supposed to execute this file directly"; routeHelp; exit 2; fi
+if [ -z $TAG ]; then echo "!! Error you are not supposed to execute this file directly"; exit 2; fi
 
 ## Used for log consmetics
 logRoute(){
@@ -80,12 +80,14 @@ debugReset(){
 	cmd="$cmd && rm -f $HOME/etc/nginx*"
 	cmd="$cmd && rm -f $HOME/etc/crtmpd*"
 	cmd="$cmd && rm -f $DAEMONTOOLS_SERVICE/crtmpd"
-	echo "-! Are you sure you want to execute:"
+	cmd="$cmd && rm -f $DAEMONTOOLS_SERVICE/nginx"
+	cmd="$cmd && rm -f $DAEMONTOOLS_SERVICE/ffmpeg-*"
+	echo -n "-! Are you sure you want to execute: [y/N] "
 	echo $cmd;
-	echo "[y/N]"
+	echo -n "[y/N] "
 	read debug_confirmation
 	case $debug_confirmation in
-		[yY]) rstream-core-route "stop"; echo ""; echo "* Cleaning up.." `$cmd`;;
+		[yY]) rstream-router "stop"; echo ""; echo "* Cleaning up.." `$cmd`;;
 		*) echo "!! User-canceled reset" exit 1;;
 	esac
 }
@@ -108,13 +110,13 @@ rstream-core-init(){
 	checkDir $HOME/tmp -c
 }
 
-rstream-core-route(){
+rstream-router(){
 	# check for config file
-	checkFile $HOME/etc/rstream.conf 1
+	#checkFile $HOME/etc/rstream.conf 1
 	if [ -z $1 ]; then routeHelp; exit 1; fi
 	case $1 in
 		stop)
-			daemontoolsRouter "stop"
+			daemontools-router "stop"
 			killall -u $USER
 			killall -TERM readproctitle supervise multilog crtmpserver
 		;;
@@ -122,29 +124,29 @@ rstream-core-route(){
 			checkServiceEnabled crtmpd -nn
 			checkServiceEnabled nginx -nn
 			checkServiceEnabled svscan -y
-			daemontoolsRouter "start"
-			rstream-core-route "status"
+			daemontools-router "start"
+			rstream-router "status"
 		;;
 		restart)
-			rstream-core-route "stop"
-			rstream-core-route "start"
+			rstream-router "stop"
+			rstream-router "start"
 		;;
 		stat|status)
-			daemontoolsRouter "status";
-			if [ ! -z $CRTMPD_ENABLE ] && [ $CRTMPD_ENABLE -eq 1 ]; then crtmpdRouter "status"; fi
-			if [ ! -z $NGINX_ENABLE ] && [ $NGINX_ENABLE -eq 1 ]; then nginxRouter "status"; fi
+			daemontools-router "status";
+			if [ ! -z $CRTMPD_ENABLE ] && [ $CRTMPD_ENABLE -eq 1 ]; then crtmpd-router "status"; fi
+			if [ ! -z $NGINX_ENABLE ] && [ $NGINX_ENABLE -eq 1 ]; then nginx-router "status"; fi
 		;;
 		-link) setupServices;;
 		-crtmp|-crtmpd)
 			if [ -z $2 ]; then route; exit 99; fi
-			crtmpdRouter $2
+			crtmpd-router $2
 		;;
 		-nginx)
 			if [ -z $2 ]; then route; exit 99; fi
-			nginxRouter $2
+			nginx-router $2
 		;;
 		-daemontools|svscan)
-			daemontoolsRouter $2
+			daemontools-router $2
 		;;
 		-debug-cycle) debugCycle;;
 		-debug-reset) debugReset;;
@@ -160,13 +162,13 @@ rstream-core-route(){
 			if [ ! -f $HOME/etc/rstream.conf ]; then
 				rstream-config
 			else
-#				rstream-core-route "stop"
+#				rstream-router "stop"
 				if [ ! -z $CRTMPD_ENABLE ] && [ $CRTMPD_ENABLE -eq 1 ]; then
-					crtmpdRouter "setup"
+					crtmpd-router "setup"
 				fi
 				if [ ! -z $NGINX_ENABLE ] && [ $NGINX_ENABLE -eq 1 ]; then
-					nginxRouter "setup"
-					daemontoolsRouter "setup"
+					nginx-router "setup"
+					daemontools-router "setup"
 				fi
 			fi
 		;;
