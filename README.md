@@ -23,7 +23,7 @@ Content
 	* [Server side requirements](https://github.com/kelexel/rstream#server-side-requirements)
 	* [Broadcaster side requirements](https://github.com/kelexel/rstream#broadcaster-side-requirements)
 	* [Client side requirements](https://github.com/kelexel/rstream#client-side-requirements)
-* [Warnings](https://github.com/kelexel/rstream#warnings)
+* [Disclaimer](https://github.com/kelexel/rstream#displaimer)
 * Howtos
 	* [Howto: Per daemon control](https://github.com/kelexel/rstream#howto-per-daemon-control)
 	* [Howto: Ssrver-side tests](https://github.com/kelexel/rstream#howto-server-side-tests)
@@ -208,8 +208,11 @@ Client side requirements
 * An RTMP or HLS friendly client
 * An RTMP compatible Flash video player of sort
 
-WARNINGS
+Disclaimer
 ==========
+
+I am not affiliated to either crtmpd or nginx-rtmp, nor am I trying to prove one being superior to the other.
+I just have a *need* which requires me to use them in a *secific* way
 
 If you have an existing nginx installation please backup your WHOLE NGINX configuration BEFORE running rstream !
 More precisely the following files:
@@ -217,9 +220,9 @@ More precisely the following files:
 * /usr/local/etc/nginx/nginx.conf
 * /usr/local/etc/nginx/mime.types (if used in your actual setup)
 
-By using this software you agree to the possibility of breaking something or loosing all your data (j/k).
+By using this software you agree to the possibility of breaking something or loosing all your data.
 
-You understand that *rstream-transcode* is higly experimental and that piping it's output to a log file might be a VERY BAD IDEA.
+You understand that *rstream-transcode* is higly experimental and that pipe'ing it's output to a log file might be a VERY BAD IDEA.
 
 Installation
 ======
