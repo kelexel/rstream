@@ -73,6 +73,7 @@ nginxSetup(){
 		echo "*+ enabling TRANSCODING in nginx configuration"
 		FFMPEG_NGINX_TRANSCODING=1
 		cat $NGINX_CONF \
+			| sed s,_FFMPEG_BIN_,$FFMPEG_BIN,g \
 			| sed s,_FFMPEG_TRANSCODER_IP_,$FFMPEG_TRANSCODER_IP,g \
 			| sed s,_FFMPEG_NGINX_TRANSCODING_,$FFMPEG_NGINX_TRANSCODING,g \
 			| sed s,"#TRANSCODING","",g \
