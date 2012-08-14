@@ -27,11 +27,11 @@ Content
 * [Warnings](https://github.com/kelexel/rstream#warnings)
 * Howtos
 	* [Howto: Per daemon control](https://github.com/kelexel/rstream#howto-per-daemon-control)
-	* [Howto: Make server side tests](https://github.com/kelexel/rstream#howto-make-server-side-test)
-	* [Using Wirecast as a broadcaster](https://github.com/kelexel/rstream#howto-using-wirecast-as-a-broadcaster)
-	* [Howto: Connecting using a Wirecast broadcaster)](https://github.com/kelexel/rstream#howto-connecting-using-wirecast-as-a-broadcaster)
-	* [Howto: Client side tests](https://github.com/kelexel/rstream#howto-client-side-tests)
-	* [NEW 0.3t - Howto: Transcoding, testing *rstream-transcoder -run m1*](https://github.com/kelexel/rstream#howto-transcoding-testing-rstreambinstream-transcoder--run-m1)
+	* [Howto: Sserver-side tests](https://github.com/kelexel/rstream#howto-server-side-tests)
+	* [Howto: Client-side tests](https://github.com/kelexel/rstream#howto-client-side-tests)
+	* [Howto: Client-side HLS tests on iOS](https://github.com/kelexel/rstream#howto-client-side-hls-tests-on-ios)
+	* [Howto: Transcoding](https://github.com/kelexel/rstream#howto-transcoding)
+	* [Howto: Using Wirecast as a broadcaster](https://github.com/kelexel/rstream#howto-using-wirecast-as-a-broadcaster)
 * [Credits](https://github.com/kelexel/rstream#credits)
 * [Final notes](https://github.com/kelexel/rstream#final-notes)
 
@@ -283,7 +283,7 @@ Each daemons (crtmpd, nginx, daemontools) can be controlled via rstream
 ```
 
 
-Howto: Make server-side test!
+Howto: Server-side test!
 ----
 
 At this point, everything is setup and configured, but no daemons are running.
@@ -304,7 +304,7 @@ Here is how to control that everything works as intended to, by starting each da
 ~rstream/bin/rstream start
 ```
 
-Howto: testing the raw  FLV / RTMP stream
+Howto: Client-side tests
 ---
 
  I can only recommand the "flvplayer.swf" mentioned [here](https://groups.google.com/forum/?fromgroups#!topic/c-rtmp-server/yPkD3PKnpMM[1-25]) and available for download [here](http://dl.dropbox.com/u/2918563/flvplayback.swf)
@@ -318,7 +318,7 @@ Howto: testing the raw  FLV / RTMP stream
 
 You should be able to see your stream.
 
-Howto: Make client HLS tests on an iOS device
+Howto: client-side HLS tests on an iOS device
 ---
 
 * Open this URL in Mobile Safari : http://<NGINX_RTMP_FQDN>/hls/<NGINX_RTMP_STREAM>.m3u8
