@@ -55,7 +55,7 @@ crtmpdSetup(){
 				| sed s,"PROXY\]\]--","",g \
 			> $CRTMPD_CONF.tmp && mv $CRTMPD_CONF.tmp $CRTMPD_CONF
 
-			if [ -z $CRTMPD_PROXY_TRANSPARENT ] && [ $CRTMPD_PROXY_TRANSPARENT -eq 1 ]; then
+			if [ ! -z $CRTMPD_PROXY_TRANSPARENT ] && [ $CRTMPD_PROXY_TRANSPARENT -eq 1 ]; then
 				cat $CRTMPD_CONF \
 					| sed s,"--PROXY-TRANSPARENT ","",g \
 				> $CRTMPD_CONF.tmp && mv $CRTMPD_CONF.tmp $CRTMPD_CONF
@@ -115,7 +115,6 @@ crtmpdRouter(){
 		;;
 		status|stat)
 			echo "* checking if crtmpd service is running"
-			service svscan status
 			svstat $DAEMONTOOLS_SERVICE/crtmpd
 			svstat $DAEMONTOOLS_SERVICE/crtmpd/log
 		;;

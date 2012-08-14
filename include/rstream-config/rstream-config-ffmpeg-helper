@@ -59,7 +59,7 @@ askTranscoderType(){
 
 	if [ ! -z $NGINX_ENABLE ] && [ $NGINX_ENABLE -eq 1 ]; then
 		echo 
-		echo -n "** nginx is enabled, do you want to transcode *all* streams pushed to \"rtmp://$NGINX_RTMP_IP:$NGINX_RTMP_PORT/r/<streamname>\" ? [y/N] "
+		echo -n "** nginx is enabled, do you want to transcode *all* streams pushed to \"rtmp://$NGINX_RTMP_IP:$NGINX_RTMP_PORT/proxy/<streamname>\" ? [y/N] "
 		read tmp
 		case $tmp in
 			y|Y) echo "-! enabling ffmpeg-transcoding (240p, 360p, 480p, 720p)  for nginx"; FFMPEG_NGINX_ENABLE=1;;

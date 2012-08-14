@@ -128,7 +128,7 @@ rstream-core-route(){
 			rstream-core-route "stop"
 			rstream-core-route "start"
 		;;
-		stat)
+		stat|status)
 			daemontoolsRouter "status";
 			if [ ! -z $CRTMPD_ENABLE ] && [ $CRTMPD_ENABLE -eq 1 ]; then crtmpdRouter "status"; fi
 			if [ ! -z $NGINX_ENABLE ] && [ $NGINX_ENABLE -eq 1 ]; then nginxRouter "status"; fi

@@ -38,7 +38,7 @@ configuration=
 					targetUri="_CRTMPD_PROXY_URL_",
 					--PROXY-REGULAR targetStreamName="_CRTMPD_PROXY_DSTREAM_",
 					--PROXY-REGULAR localStreamName="_CRTMPD_PROXY_LSTREAM_",
-					--PROXY-TRANSPARENT autoMapStreams=true,
+					--PROXY-TRANSPARENT transparentStream=true,
 					--emulateUserAgent="FMLE/3.0 (compatible; FMSc/1.0 http://www.rtmpd.com)"
 				},PROXY]]--
 			},

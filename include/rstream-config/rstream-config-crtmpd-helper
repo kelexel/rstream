@@ -59,13 +59,13 @@ if [ -z $CRTMPD_RTMP_IP ] || [ -z $CRTMPD_RTMP_PORT ]; then askRTMP; fi
 askProxyData(){
 	logSection "PROXY Push config"
 
-	if [ ! -z $NGINX_ENABLE ] && [ $NGINX_ENABLE -eq 1 ]; then rtmp_host="rtmp://$CRTMPD_RTMP_IP:1935/r"
+	if [ ! -z $NGINX_ENABLE ] && [ $NGINX_ENABLE -eq 1 ]; then rtmp_host="rtmp://$CRTMPD_RTMP_IP:1935/proxy"
 	else rtmp_host="rtmp://user:pass@host:port/app"; fi
 	echo -n "To what rtmp address should we push the current stream to [$rtmp_host] ? "
 	read CRTMPD_PROXY_URL
 	if [ -z $CRTMPD_PROXY_URL ]; then CRTMPD_PROXY_URL=$rtmp_host; fi
 
-	echo -n "Do you want to enable proxy transparentStream mode ? (implies you patched crtmpd !) ? [y/N] "
+	echo -n "Do you want to enable proxy transparentStream mode ? (implies you patched crtmpd with r779-transparentStream-patch !) ? [y/N] "
 	read CRTMPD_PROXY_TRANSPARENT
 	case $tmp in
 		y|Y) CRTMPD_PROXY_TRANSPARENT=1;;

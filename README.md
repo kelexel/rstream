@@ -5,7 +5,7 @@ RStream 0.5
 
 Content
 ======
-* About
+* Preamble
 	* [What can it do](https://github.com/kelexel/rstream#what-can-it-do)
 	* [What it is](https://github.com/kelexel/rstream#what-it-is)
 	* [What it is NOT](https://github.com/kelexel/rstream#what-it-is-not)
