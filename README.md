@@ -1,8 +1,7 @@
 RStream 0.5
 ===========
 
-Note !!! Note !!! Note !!!
-----
+ *thin as air* Streaming CDN tools
 
 Content
 ======
