@@ -2,8 +2,9 @@
 user  www;
 worker_processes  1;
 
-# required by daemontools !
-daemon off;
+# required by daemontools, but already passed by the run script
+# daemon off;
+
 error_log stderr;
 
 events {

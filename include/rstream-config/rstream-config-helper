@@ -89,7 +89,7 @@ genConf(){
 		cat  $HOME/include/templates/rstream-conf-nginx.tpl >> $CONFIG_FILE 
 		cat $CONFIG_FILE \
 			| sed s,_TAG_,$TAG,g \
-			| sed s,_NGINX_BIN,$NGINX_BIN,g \
+			| sed s,_NGINX_BIN_,$NGINX_BIN,g \
 			| sed s,_NGINX_ENABLE_,$NGINX_ENABLE,g \
 			| sed s,_NGINX_REGEN_CONF_,$NGINX_REGEN_CONF,g \
 			| sed s,_NGINX_RTMP_IP_,$NGINX_RTMP_IP,g \

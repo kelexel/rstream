@@ -11,7 +11,6 @@
 # - https://github.com/kelexel/rstream
 #
 ######################################################################################
-
 if [ -z $TAG ]; then echo "!! Error you are not supposed to execute this file directly"; routerHelp; exit 2; fi
 if [ ! -f $NGINX_BIN ]; then echo "!! error, nginx not found, exiting !!"; exit 99; fi 
 

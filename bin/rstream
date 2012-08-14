@@ -73,6 +73,10 @@ rstream-init(){
 		. $HOME/include/rstream-config/rstream-config-helper
 		rstream-core-init
 		rstream-config
+		echo ""
+		echo ""
+		echo "** Configuration was saved to $HOME/etc/rstream.conf"
+		echo "*** Performing -setup"
 		rstream-init "-setup"
 	fi
 }

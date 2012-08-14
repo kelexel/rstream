@@ -26,8 +26,7 @@ askTranscodingSupport(){
 	read tmp
 	case $tmp in
 		y|Y) echo "-! enabling ffmpeg"; FFMPEG_ENABLE=1;;
-		n) echo "-! disabling ffmpeg"; FFMPEG_ENABLE=0;;
-		*) askTranscodingSupport;;
+		*) echo "-! disabling ffmpeg"; FFMPEG_ENABLE=0;;
 	esac
 }
 if [ -z $FFMPEG_ENABLE ]; then askTranscodingSupport; fi
@@ -63,8 +62,7 @@ askTranscoderType(){
 		read tmp
 		case $tmp in
 			y|Y) echo "-! enabling ffmpeg-transcoding (240p, 360p, 480p, 720p)  for nginx"; FFMPEG_NGINX_ENABLE=1;;
-			n) echo "-! disabling ffmpeg-transcoding for nginx"; FFMPEG_NGINX_ENABLE=0;;
-			*) askTranscoderType;;
+			*) echo "-! disabling ffmpeg-transcoding for nginx"; FFMPEG_NGINX_ENABLE=0;;
 		esac
 	fi
 }

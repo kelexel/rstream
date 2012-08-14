@@ -123,6 +123,7 @@ rstream-core-route(){
 			checkServiceEnabled nginx -nn
 			checkServiceEnabled svscan -y
 			daemontoolsRouter "start"
+			rstream-core-route "status"
 		;;
 		restart)
 			rstream-core-route "stop"
