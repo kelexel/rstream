@@ -25,10 +25,10 @@ Content
 	* [Broadcaster side requirements](https://github.com/kelexel/rstream#broadcaster-side-requirements)
 	* [Client side requirements](https://github.com/kelexel/rstream#client-side-requirements)
 * [Warnings](https://github.com/kelexel/rstream#warnings)
-* Configurations
-	* [Configuration type "crtmpd-proxy-to-nginx"](https://github.com/kelexel/rstream#configuration-type-crtmpd-proxy-to-nginx)
 * Howtos
-	*[Howto: Per daemon control](https://github.com/kelexel/rstream#howto-per-daemon-control)
+	* [Howto: Per daemon control](https://github.com/kelexel/rstream#howto-per-daemon-control)
+	* [Howto: Make server side tests](https://github.com/kelexel/rstream#howto-make-server-side-test)
+	* [Using Wirecast as a broadcaster](https://github.com/kelexel/rstream#howto-using-wirecast-as-a-broadcaster)
 	* [Howto: Connecting using a Wirecast broadcaster)](https://github.com/kelexel/rstream#howto-connecting-using-wirecast-as-a-broadcaster)
 	* [Howto: Client side tests](https://github.com/kelexel/rstream#howto-client-side-tests)
 	* [NEW 0.3t - Howto: Transcoding, testing *rstream-transcoder -run m1*](https://github.com/kelexel/rstream#howto-transcoding-testing-rstreambinstream-transcoder--run-m1)
@@ -283,14 +283,6 @@ Each daemons (crtmpd, nginx, daemontools) can be controlled via rstream
 ```
 
 
-Howto: Wirecast broadcaster to many nginx-rtmp clients (+HLS support)
-======
-
-This will let you setup a Wirecast to *many* clients (+HLS support) Streaming CDN
-
-```bash
-```
-
 Howto: Make server-side test!
 ----
 
@@ -312,25 +304,6 @@ Here is how to control that everything works as intended to, by starting each da
 ~rstream/bin/rstream start
 ```
 
-Howto: Connecting using Wirecast as a broadcaster
-----
-
-Download and install Wirecast(pro) demo from http://www.telestream.net/wirecast/overview.htm
-
-Go to Broadcast settings (on OSX, CMD+Y)
-Create a new broadcast profile profile containing:
-
-* Input the matching url (yes the /proxy is required and fixed): rtmp://<CRTMPD_RTMP_IP>:<CRTMPD_RTMP_PORT>/proxy
-* Set authentication settings with username "broadcast", password "n3rox". The user list is located in $HOME/etc/crtmpd-users.lua
-* Set User Agent to FMLE/3.0
-* Set stream name to <CRTMPD_RTMP_STREAM>
-
-
-Howto: Make client side tests on an iOS device
----
-
-* Open this URL in Mobile Safari : http://<NGINX_RTMP_FQDN>/hls/<NGINX_RTMP_STREAM>.m3u8
-
 Howto: testing the raw  FLV / RTMP stream
 ---
 
@@ -344,6 +317,24 @@ Howto: testing the raw  FLV / RTMP stream
 * Press the Play button
 
 You should be able to see your stream.
+
+Howto: Make client HLS tests on an iOS device
+---
+
+* Open this URL in Mobile Safari : http://<NGINX_RTMP_FQDN>/hls/<NGINX_RTMP_STREAM>.m3u8
+
+Howto: Using Wirecast as a broadcaster
+----
+
+Download and install Wirecast(pro) demo from http://www.telestream.net/wirecast/overview.htm
+
+Go to Broadcast settings (on OSX, CMD+Y)
+Create a new broadcast profile profile containing:
+
+* Input the matching url (yes the /proxy is required and fixed): rtmp://<CRTMPD_RTMP_IP>:<CRTMPD_RTMP_PORT>/proxy
+* Set authentication settings with username "broadcast", password "n3rox". The user list is located in $HOME/etc/crtmpd-users.lua
+* Set User Agent to FMLE/3.0
+* Set stream name to <CRTMPD_RTMP_STREAM>
 
 Howto: Transcoding
 ======
