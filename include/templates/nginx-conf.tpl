@@ -19,10 +19,7 @@ rtmp {
             publish_time_fix on;
             application proxy {  
             live on;
-            # Not working on FreeBSD as of 08/08/2012
-            # exec /usr/local/etc/nginx/nginx_rtmp_transcode.sh;
-            # exec /usr/local/bin/ffmpeg -re -i rtmp://_NGINX_RTMP_FQDN_:_NGINX_RTMP_PORT_/proxy/_NGINX_RTMP_STREAM_ -vcodec flv -acodec copy -s 32x32 -f flv rtmp://_NGINX_RTMP_FQDN_:_NGINX_RTMP_PORT_/720p/_NGINX_RTMP_STREAM_;
-            # exec /home/stream/tmp/test.sh;
+#TRANSCODING            exec /usr/local/bin/ffmpeg -threads 15 -i rtmp://_NGINX_RTMP_IP_:_NGINX_RTMP_PORT_/proxy/${name} -re -acodec libfaac -ar 44100 -b:a 96k -vcodec libx264 -s 1280x720 -b:v 500k -metadata streamName=${name}_720p -f flv rtmp://_NGINX_RTMP_IP_:_NGINX_RTMP_PORT_/r/${name}_720p -re -acodec libfaac -ar 44100 -b:a 96k -vcodec libx264 -s 854x480 -b:v 500k -metadata streamName=${name}_720p -f flv rtmp://_NGINX_RTMP_IP_:_NGINX_RTMP_PORT_/r/${name}_480p -re -acodec libfaac -ar 22050 -b:a 96k -vcodec libx264 -s 640x360 -b:v 300k -metadata streamName=${name}_720p -f flv rtmp://_NGINX_RTMP_IP_:_NGINX_RTMP_PORT_/r/${name}_360p -re -acodec libfaac -ar 22050 -b:a 48k -vcodec libx264 -s 426x250 -b:v 100k -metadata streamName=${name}_720p -f flv rtmp://_NGINX_RTMP_IP_:_NGINX_RTMP_PORT_/r/${name}_240p;
             allow publish _NGINX_RTMP_IP_;
             deny publish all;
             allow play all;
