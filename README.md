@@ -343,7 +343,7 @@ Run the transcoder using
 Wait a few seconds...
 If nothing happens after more than 10secs, chances are something is wrong with your sources settings, causing ffmpeg to wait until it's connection timeout
 
-If ffmpeg starts transcoding, you can now proceed to client testing.
+If ffmpeg starts transcoding, you can now proceed to client testing using the following streams url:
 
 ```bash
 # rtmp://NGINX_RTMP_IP:NGINX_RTMP_PORT/r/NGINX_RTMP_STREAM_720
