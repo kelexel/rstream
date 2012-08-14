@@ -95,12 +95,12 @@ transcoderNginx(){
 	echo "${stream}_360p.m3u8" >> $HOME/tmp/nginx/hls/${stream}.m3u8
 
 	#ffmpeg_bin=/home/rstream/bin/ffmpeg
-	cmd="$cmd -re -acodec libfaac -ar 44100 -b:a 96k -vcodec libx264 -s 1280x720 -b:v 500k -f flv $dest_720"
+	cmd="$cmd -re -acodec libfaac -ar 44100 -b:a 96k -vcodec libx264 -s 1280x720 -b:v 500k -metadata streamName=${stream}_720p -f flv $dest_720"
 	cmd="$cmd -re -acodec libfaac -ar 44100 -b:a 96k -vcodec libx264 -s 854x480 -b:v 500k -f flv $dest_480"
 	cmd="$cmd -re -acodec libfaac -ar 22050 -b:a 96k -vcodec libx264 -s 640x360 -b:v 300k -f flv $dest_360"
 	cmd="$cmd -re -acodec libfaac -ar 22050 -b:a 48k -vcodec libx264 -s 426x250 -b:v 100k -f flv $dest_240"
 	echo ""
-	logHeader "Running $ffmpeg_bin -loglevel 1 -verbosity 1 -threads 15 -i \"$src live=1\"  $cmd"
+	logHeader "Running $ffmpeg_bin -loglevel 1 -verbosity 1 -threads 15 -nice 10 -i \"$src live=1\"  $cmd"
 	echo
 	exec $ffmpeg_bin  -i "$src live=1" $cmd
 }
@@ -142,10 +142,10 @@ transcoderCrtmpd(){
 
 	transcodeInit "tcp" $CRTMPD_LIVEFLV_IP $CRTMPD_LIVEFLV_PORT $stream
 	#ffmpeg_bin=/home/rstream/bin/ffmpeg
-	cmd="$cmd -re -acodec libfaac -ar 44100 -b:a 96k -vcodec libx264 -s 1280x720 -b:v 860k -f flv -metadata streamName=${stream}_720 -f flv $dest_720"
-	cmd="$cmd -re -acodec libfaac -ar 44100 -b:a 96k -vcodec libx264 -s 854x480 -b:v 512k -f flv -metadata streamName=${stream}_480 -f flv $dest_480"
-	cmd="$cmd -re -acodec libfaac -ar 22050 -b:a 96k -vcodec libx264 -s 640x360 -b:v 396k -f flv -metadata streamName=${stream}_360 -f flv $dest_360"
-	cmd="$cmd -re -acodec libfaac -ar 22050 -b:a 48k -vcodec libx264 -s 426x250 -b:v 256k -f flv -metadata streamName=${stream}_240 -f flv $dest_240"
+	cmd="$cmd -re -acodec libfaac -ar 44100 -b:a 96k -vcodec libx264 -s 1280x720 -b:v 860k -f flv -metadata streamName=${stream}_720p -f flv $dest_720"
+	cmd="$cmd -re -acodec libfaac -ar 44100 -b:a 96k -vcodec libx264 -s 854x480 -b:v 512k -f flv -metadata streamName=${stream}_480p -f flv $dest_480"
+	cmd="$cmd -re -acodec libfaac -ar 22050 -b:a 96k -vcodec libx264 -s 640x360 -b:v 396k -f flv -metadata streamName=${stream}_360p -f flv $dest_360"
+	cmd="$cmd -re -acodec libfaac -ar 22050 -b:a 48k -vcodec libx264 -s 426x250 -b:v 256k -f flv -metadata streamName=${stream}_240p -f flv $dest_240"
 	#if [ ! -z $FFMPEG_HLS ] && [ $FFMPEG_HLS -eq 1 ]; then
 	#	hls_iphone="libx264-ipod320"
 	#	hls_ipad="libx264-ipod640"

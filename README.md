@@ -46,7 +46,7 @@ What can it do
 * (new) Multi bitrate HLS streams
 * Keep all scripts, configs files, recorded media files, HLS-streams to a single chroot-style location (default to ~rstream)
 * Uses daemontools to control *all* needed services
-* Generates necessary daemontools scripts for crtmpd(/log) nginx(/log) and ffmpeg(/log) transcoders
+* Generates necessary daemontools scripts for crtmpd(/log) nginx(/log) and ffmpeg(/log) 
 * Supported broadcasters:
 	* [Telestream Wirecast](http://www.adobe.com/products/flash-media-encoder.html) (OSX 10.7.x / Windows 7, h264/aac)
 	* [Adobe FlashMediaLiveEncoer](http://www.adobe.com/products/flash-media-encoder.html) (OSX 10.7.x / Windows 7 / Linux, h264/aac)
@@ -118,9 +118,8 @@ Notes on HLS
 Notes on Transcoding
 ---
 
-* ffmpeg is required by rstream-transcoder
+* ffmpeg is required for transcoding
 * Transcoding only works on nginx for now (as of restream-0.5), but I'm working on it for crtmpd
-* rstream-transcoder needs an actual *streamname*, it will not auto-transcode all streams pushed to the rtmpd (-yet-)
 
 Changelog
 ======
@@ -172,11 +171,11 @@ TAG 0.5
 ---
 * added rstream-config-helper, invoke it on first run
 * added nginx startup & control via daemontools 
-* added rstream-transcoder -run <method> <stream> -link
 * added crtmpd new config files
 * added crtmpd transparentStream support in proxypublish
 * added nginx new config files
 * added massive directory re-structuring
+* removed rstream-transcoder (for now)
 
 Todo
 ======
@@ -331,19 +330,8 @@ Howto: Transcoding
 Transcoding for nginx
 ---
 
-This method will let you transcode one FLV (h264/aac) stream pushed to nginx_rtmp_port:nginx_rtmp_ip/proxy/my_stream to four FLV (h254/aac) streams to nginx_rtmp_port:nginx_rtmp_ip/r/my_stream_<bitrate> (notice the "/r" in the destination, this is the default "app" name used by rstream and accessible to clients)
-
-Run the transcoder using
-
-```bash
-# replace "my_stream" by your stream name
-~rstream/bin/rstream-transcoder -run nginx my_stream
-```
-
-Wait a few seconds...
-If nothing happens after more than 10secs, chances are something is wrong with your sources settings, causing ffmpeg to wait until it's connection timeout
-
-If ffmpeg starts transcoding, you can now proceed to client testing using the following streams url:
+Transcoding in nginx-rtmp is now controlled via nginx itself (prior version needed a separate script).
+Any stream pushed to the app "r" will be transcoded as HLS and H264 streams automagically to the following URLs:
 
 ```bash
 # rtmp://NGINX_RTMP_IP:NGINX_RTMP_PORT/r/NGINX_RTMP_STREAM_720p
