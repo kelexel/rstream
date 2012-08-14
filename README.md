@@ -1,4 +1,4 @@
-RStream 0.3t
+RStream 0.5
 ===========
 
 Note !!! Note !!! Note !!!
@@ -11,11 +11,14 @@ Content
 	* [What it is](https://github.com/kelexel/rstream#what-it-is)
 	* [What it is NOT](https://github.com/kelexel/rstream#what-it-is-not)
 	* [Why crmptd + nginx-rtmp at the same time ?!](https://github.com/kelexel/rstream#why-crmptd--nginx-rtmp-at-the-same-time-)
+	* [Notes on HLS](https://github.com/kelexel/rstream#notes-on-hls)
+	* [Notes on Transcoding](https://github.com/kelexel/rstream#notes-on-transcoding)
 * Changelog
 	* [TAG 0.1](https://github.com/kelexel/rstream#tag-01)
 	* [TAG 0.2](https://github.com/kelexel/rstream#tag-02)
 	* [TAG 0.3](https://github.com/kelexel/rstream#tag-03)
 	* [TAG 0.3t](https://github.com/kelexel/rstream#tag-03t)
+	* [TAG 0.5](https://github.com/kelexel/rstream#tag-05)
 * [Todo](https://github.com/kelexel/rstream#todo)
 * Requirements
 	* [Server side requirements](https://github.com/kelexel/rstream#server-side-requirements)
@@ -25,8 +28,8 @@ Content
 * Configurations
 	* [Configuration type "crtmpd-proxy-to-nginx"](https://github.com/kelexel/rstream#configuration-type-crtmpd-proxy-to-nginx)
 * Howtos
-	* [Howto: Per-daemon control](https://github.com/kelexel/rstream#howto-per-daemon-control)
-	* [Howto: Wirecast broadcaster to many nginx-rtmp clients (+HLS support)](https://github.com/kelexel/rstream#howto-wirecast-broadcaster-to-many-nginx-rtmp-clients-hls-support)
+	*[Howto: Per daemon control](https://github.com/kelexel/rstream#howto-per-daemon-control)
+	* [Howto: Connecting using a Wirecast broadcaster)](https://github.com/kelexel/rstream#howto-connecting-using-wirecast-as-a-broadcaster)
 	* [Howto: Client side tests](https://github.com/kelexel/rstream#howto-client-side-tests)
 	* [NEW 0.3t - Howto: Transcoding, testing *rstream-transcoder -run m1*](https://github.com/kelexel/rstream#howto-transcoding-testing-rstreambinstream-transcoder--run-m1)
 * [Credits](https://github.com/kelexel/rstream#credits)
@@ -69,7 +72,6 @@ What it is
 * It is per OS customizable - you can easily port rstream to *any* os, assuming you create your own ~/rstream/include/system-os/* files
 * It is now multiple-broadcasters-friendly ! (that was a silly limitation in pre 0.5)
 * It is now multi-concurent-streams-per-single-broadcaster-friendly ! (assuming you patch crtmpd with the [crtmpd-r779-transparentStream.patch](http://pastebin.com/EmNs2U9M) I wrote)
----
 
 * It is not pefect, 0.1 was written in roughly 6hours, 0.2 was  released few (sleepless) hours later, and I'm now preparing to push to 0.5 with *major* code refactoring. You should really only use this if you know what you are doing, and mostly, if you are doing on a vanilla server (i.e.: without prior specific config/files/data on it)
 * It is NOT-YET production-stress-tested 
@@ -184,9 +186,10 @@ Server side requirements
 
 * FreeBSD 9.x - I am currently running this setup inside a FreeBSD 9.1-prelease jail, and it runs great!
 * nginx (compiled from a recent port tree, with the "nginx-rtmp" module enabled)
-* nginx-rtmp HLS (optional - needs modification of the port's Makefile + r779-transparentStream.patch)
+* nginx-rtmp HLS (optional - needs modification of the port's Makefile)
+* crtmpd binary distribution, or a custom compiled binary (i.e.: with + r779-transparentStream.patch)
 * ffmpeg (optional - if you want transcoding to lower bitrates)
-* that you backup (if any) your previously existing nginx config files located under /usr/local/etc/nginx/* (!!!)
+* backup (if any) your previously existing nginx config files located under /usr/local/etc/nginx/* (!!!)
 
 Broadcaster side requirements
 ---
@@ -251,16 +254,6 @@ Answer the questions..
 If all goes well, rstream will issue a *~rstream/bin/rstream -setup* and generate the appropriate configuration files itself
 
 
-Configuration type "crtmpd-proxy-to-nginx+HLS+Transcoding"
-======
-
-To use rstream YOU MUST MANUALY CREATE an ~rstream/etc/rstream.conf file.
-Here is the content of a default ~rstream/etc/rstream.conf template for rstream \"crtmpd-proxy-to-nginx\" type (all fields are mendatory):
-
-```bash
-
-```
-
 Howto: Per-daemon control
 ======
 
@@ -312,7 +305,6 @@ Here is how to control that everything works as intended to, by starting each da
 ~rstream/bin/rstream start
 ```
 
-
 Howto: Connecting using Wirecast as a broadcaster
 ----
 
@@ -327,18 +319,12 @@ Create a new broadcast profile profile containing:
 * Set stream name to <CRTMPD_RTMP_STREAM>
 
 
-Howto: Make client side tests
-======
-
-Woops I need to make the flv / hls player code :)
-BUT ....
-
-Testing HLS on iOS devices
+Howto: Make client side tests on an iOS device
 ---
 
 * Open this URL in Mobile Safari : http://<NGINX_RTMP_FQDN>/hls/<NGINX_RTMP_STREAM>.m3u8
 
-Testing the raw  FLV / RTMP stream
+Howto: testing the raw  FLV / RTMP stream
 ---
 
  I can only recommand the "flvplayer.swf" mentioned [here](https://groups.google.com/forum/?fromgroups#!topic/c-rtmp-server/yPkD3PKnpMM[1-25]) and available for download [here](http://dl.dropbox.com/u/2918563/flvplayback.swf)
@@ -355,7 +341,7 @@ You should be able to see your stream.
 Howto: Transcoding
 ======
 
-*working* - Transcoding for nginx
+Transcoding for nginx
 ---
 
 This method will let you transcode one FLV (h264/aac) stream pushed to nginx_rtmp_port:nginx_rtmp_ip/proxy/my_stream to four FLV (h254/aac) streams to nginx_rtmp_port:nginx_rtmp_ip/r/my_stream_<bitrate> (notice the "/r" in the destination, this is the default "app" name used by rstream and accessible to clients)
