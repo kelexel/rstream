@@ -17,10 +17,14 @@ if [ -z $TAG ]; then echo "!! Error you are not supposed to execute this file di
 ## Used for log consmetics
 logRoute(){
 	echo "";
-	echo ">> rstream-core-route \"$1/$2\"";
+	echo ">> route \"$1/$2\"";
 }
 logHeader(){
 	echo "** $1";
+}
+logSection(){
+	echo "";
+	echo ">> $1"
 }
 ## Used to link configuration file $1 to path $2 (and backups $2 if it is a file)
 linkConf(){
@@ -48,11 +52,16 @@ linkConf(){
 ####
 setupServices(){
 	logHeader="services setup"
+	OLD_IFS=$IFS;
+IFS="
+"
 	if [ -z $DAEMONTOOLS_SERVICE ] || [ ! -d $DAEMONTOOLS_SERVICE ]; then echo "!! error invalid DAEMONTOOLS_SERVICE \"$DAEMONTOOLS_SERVICE\", existing."; exit 99; fi
 	# testing if link to crtmpd service exists
-	if [ ! -z $CRTMPD_ENABLE ] && [ $CRTMPD_ENABLE -eq 1 ]; then
-			daemontoolsLinkServices crtmpd $DAEMONTOOLS_SERVICE
-	fi
+	for i in `ls -1 $HOME/var/supervise`; do
+			daemontoolsLinkServices $i $DAEMONTOOLS_SERVICE
+	done
+#	if [ ! -z $CRTMPD_ENABLE ] && [ $CRTMPD_ENABLE -eq 1 ]; then
+#	fi
 }
 
 debugCycle(){
@@ -105,20 +114,24 @@ rstream-core-route(){
 	if [ -z $1 ]; then routeHelp; exit 1; fi
 	case $1 in
 		stop)
-			nginxRouter "stop"
-			crtmpdRouter "stop"
 			daemontoolsRouter "stop"
 			killall -u $USER
 			killall -TERM readproctitle supervise multilog crtmpserver
 		;;
 		start)
-			nginxRouter "start"
+			checkServiceEnabled crtmpd -nn
+			checkServiceEnabled nginx -nn
+			checkServiceEnabled svscan -y
 			daemontoolsRouter "start"
-			crtmpdRouter "start"
 		;;
 		restart)
 			rstream-core-route "stop"
 			rstream-core-route "start"
+		;;
+		stat)
+			daemontoolsRouter "status";
+			if [ ! -z $CRTMPD_ENABLE ] && [ $CRTMPD_ENABLE -eq 1 ]; then crtmpdRouter "status"; fi
+			if [ ! -z $NGINX_ENABLE ] && [ $NGINX_ENABLE -eq 1 ]; then nginxRouter "status"; fi
 		;;
 		-link) setupServices;;
 		-crtmp|-crtmpd)
@@ -134,6 +147,14 @@ rstream-core-route(){
 		;;
 		-debug-cycle) debugCycle;;
 		-debug-reset) debugReset;;
+		-config)
+			if [ -f $HOME/etc/rstream.conf ]; then 
+				echo "Woops found an already existing $HOME/etc/rstream.conf - backuping"
+				backupFile $HOME/etc/rstream.conf;
+				rstream-init
+			fi
+
+		;;
 		-setup|-install)
 			if [ ! -f $HOME/etc/rstream.conf ]; then
 				rstream-config

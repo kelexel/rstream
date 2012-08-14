@@ -45,40 +45,21 @@ rstream-config(){
 		*) askServers;;
 	esac
 	}
+
+	setHostIp
+
 	if [ -z $CRTMPD_ENABLE ] && [ -z $NGINX_ENABLE ]; then askServers; fi
-	if [ -z $FFMPEG_ENABLE ]; then askTranscodingSupport; fi
-	if [ -z $HLS_ENABLE ]; then askHLSSupport; fi
 
 	if [ ! -z $CRTMPD_ENABLE ] && [ $CRTMPD_ENABLE -eq 1 ]; then . $HOME/include/rstream-config/rstream-config-crtmpd-helper;fi
 	if [ ! -z $NGINX_ENABLE ] && [ $NGINX_ENABLE -eq 1 ]; then . $HOME/include/rstream-config/rstream-config-nginx-helper;fi
-	if [ ! -z $NGINX_ENABLE ] && [ $NGINX_ENABLE -eq 1 ]; then . $HOME/include/rstream-config/rstream-config-hls-helper;fi
-	if [ ! -z $FFMPEG_ENABLE ] && [ $FFMPEG_ENABLE -eq 1 ]; then . $HOME/include/rstream-config/rstream-config-ffmpeg-helper;fi
+	# hls only works with nginx for now.
+	. $HOME/include/rstream-config/rstream-config-hls-helper
+	. $HOME/include/rstream-config/rstream-config-ffmpeg-helper
 
 
 	genConf	
 }
 
-askTranscodingSupport(){
-	echo "* Do you want to enable transcoding support?"
-	echo -n "[y/n] "
-	read tmp
-	case $tmp in
-		y|Y) echo "-! enabling ffmpeg"; FFMPEG_ENABLE=1;;
-		n) echo "-! disabling ffmpeg"; FFMPEG_ENABLE=0;;
-		*) askTranscodingSupport;;
-	esac
-}
-
-askHLSSupport(){
-	echo "* Do you want to enable HTTP Live Streaming (HLS) support?"
-	echo -n "[y/n] "
-	read tmp
-	case $tmp in
-		y|Y) echo "-! enabling HLS"; HLS_ENABLE=1;;
-		n) echo "-! disabling HLS"; HLS_ENABLE=0;;
-		*) askHLSSupport;;
-	esac
-}
 
 genConf(){
 	backupFile $CONFIG_FILE
@@ -89,11 +70,11 @@ genConf(){
 		cat  $HOME/include/templates/rstream-conf-crtmpd.tpl >> $CONFIG_FILE 
 		cat $CONFIG_FILE \
 			| sed s,_TAG_,$TAG,g \
+			| sed s,_CRTMPD_BIN_,$CRTMPD_BIN,g \
 			| sed s,_CRTMPD_ENABLE_,$CRTMPD_ENABLE,g \
 			| sed s,_CRTMPD_REGEN_CONF_,$CRTMPD_REGEN_CONF,g \
 			| sed s,_CRTMPD_RTMP_IP_,$CRTMPD_RTMP_IP,g \
 			| sed s,_CRTMPD_RTMP_PORT_,$CRTMPD_RTMP_PORT,g \
-			| sed s,_CRTMPD_BIN_,$CRTMPD_BIN,g \
 			| sed s,_CRTMPD_LIVEFLV_IP_,$CRTMPD_LIVEFLV_IP,g \
 			| sed s,_CRTMPD_LIVEFLV_PORT_,$CRTMPD_LIVEFLV_PORT,g \
 			| sed s,_CRTMPD_PROXY_ENABLE_,$CRTMPD_PROXY_ENABLE,g \
@@ -107,6 +88,7 @@ genConf(){
 		cat  $HOME/include/templates/rstream-conf-nginx.tpl >> $CONFIG_FILE 
 		cat $CONFIG_FILE \
 			| sed s,_TAG_,$TAG,g \
+			| sed s,_NGINX_BIN,$NGINX_BIN,g \
 			| sed s,_NGINX_ENABLE_,$NGINX_ENABLE,g \
 			| sed s,_NGINX_REGEN_CONF_,$NGINX_REGEN_CONF,g \
 			| sed s,_NGINX_RTMP_IP_,$NGINX_RTMP_IP,g \

@@ -12,13 +12,25 @@
 #
 ######################################################################################
 
-logHeader "* entering FFMPEG config helper"
+if [ -z $TAG ]; then echo "!! Error you are not supposed to execute this file directly"; routerHelp; exit 2; fi
+if [ ! -f $FFMPEG_BIN ]; then echo "!! error, ffmpeg not found, exiting !!"; exit 99; fi 
 
 FFMPEG_TRANSCODER_IP=""
 FFMPEG_NGINX_ENABLE=0
 FFMPEG_CRTMPD_ENABLE=0
 
-if [ -z $TAG ]; then echo "!! Error you are not supposed to execute this file directly"; routerHelp; exit 2; fi
+logSection "* entering FFMPEG config helper"
+
+askTranscodingSupport(){
+	echo -n "* Do you want to enable transcoding support [y|N] ? "
+	read tmp
+	case $tmp in
+		y|Y) echo "-! enabling ffmpeg"; FFMPEG_ENABLE=1;;
+		n) echo "-! disabling ffmpeg"; FFMPEG_ENABLE=0;;
+		*) askTranscodingSupport;;
+	esac
+}
+if [ -z $FFMPEG_ENABLE ]; then askTranscodingSupport; fi
 
 askFfmpegIp(){
 	logHeader "General config"
@@ -28,17 +40,33 @@ askFfmpegIp(){
 	if [ -z $FFMPEG_TRANSCODER_IP ] && [ ! -z $CRTMPD_RTMP_IP ]; then FFMPEG_TRANSCODER_IP=$CRTMPD_RTMP_IP; fi
 	if [ -z $FFMPEG_TRANSCODER_IP ] && [ -z $CRTMPD_RTMP_IP ]; then askFfmpegIp; fi
 }
-if [ ! -z $FFMPEG_ENABLE ]; then askFfmpegIp; fi
+if [ ! -z $FFMPEG_ENABLE ] && [ $FFMPEG_ENABLE -eq 1 ]; then askFfmpegIp; fi
 
-askFfmpegNginx(){
-	echo "* Do you want to enable HTTP Live Streaming (HLS) support?"
-	echo -n "[y/n] "
-	read tmp
-	case $tmp in
-		y|Y) echo "-! enabling HLS"; FFMPEG_NGINX_ENABLE=1;;
-		n) echo "-! disabling HLS"; FFMPEG_NGINX_ENABLE=0;;
-		*) askHLSSupport;;
-	esac
+askTranscoderType(){
+#	if [ ! -z $CRTMPD_ENABLE ] && [ $CRTMPD_ENABLE -eq 1 ]; then
+#		echo 
+#		echo -n "** crtmpd is enabled, do you want to transcode *all* streams pushed to \"rtmp://$CRTMPD_RTMP_IP:$CRTMPD_RTMP_PORT/r/<streamname>\" ? [y/N] "
+#		read tmp
+#		case $tmp in
+#			y|Y) echo "-! enabling ffmpeg-transcoding (240p, 360p, 480p, 720p) for crtmpd"; FFMPEG_CRTMPD_ENABLE=1;;
+#			n) echo "-! disabling ffmpeg-transcoding for crtmpd"; FFMPEG_CRTMPD_ENABLE=0;;
+#			*) askTranscoderType;;
+#		esac
+#		if [ ! -z $FFMPEG_CRTMPD_ENABLE ] && [ $FFMPEG_CRTMPD_ENABLE -eq 1 ]; then
+#			if [ -z $CRTMPD_LIVEFLV_IP ] || [ -z $CRTMPD_LIVEFLV_PORT ]; then askLIVEFLV; fi
+#		fi
+#	fi
+
+	if [ ! -z $NGINX_ENABLE ] && [ $NGINX_ENABLE -eq 1 ]; then
+		echo 
+		echo -n "** nginx is enabled, do you want to transcode *all* streams pushed to \"rtmp://$NGINX_RTMP_IP:$NGINX_RTMP_PORT/r/<streamname>\" ? [y/N] "
+		read tmp
+		case $tmp in
+			y|Y) echo "-! enabling ffmpeg-transcoding (240p, 360p, 480p, 720p)  for nginx"; FFMPEG_NGINX_ENABLE=1;;
+			n) echo "-! disabling ffmpeg-transcoding for nginx"; FFMPEG_NGINX_ENABLE=0;;
+			*) askTranscoderType;;
+		esac
+	fi
 }
-if [ ! -z $FFMPEG_NGINX_ENABLE ]; then askFfmpegNginx; fi
+if [ ! -z $FFMPEG_ENABLE ] && [ $FFMPEG_ENABLE -eq 1 ]; then askTranscoderType; fi
 

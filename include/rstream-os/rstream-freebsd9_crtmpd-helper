@@ -22,8 +22,12 @@ crtmpdSetup(){
 	checkDir $HOME/var/log/crtmpd -c $USER
 	# check if CRTMPD_BIN is found
 	checkFile $CRTMPD_BIN 1
-	#set CRTMPD_CONF_TPL
-	CRTMPD_CONF_TPL="$HOME/include/templates/crtmpd-conf-proxypublish.tpl"
+	#set CRTMPD_CONF_TPL, if NGNIX_ENABLE=1 we must use proxypublish instead of flvplayer !
+	if [ -z $NGINX_ENABLE ] || [ ! $NGINX_ENABLE -eq 1 ]; then
+		CRTMPD_CONF_TPL="$HOME/include/templates/crtmpd-conf-flvplayback.tpl"
+	else
+		CRTMPD_CONF_TPL="$HOME/include/templates/crtmpd-conf-proxypublish.tpl"
+	fi
 	if [ ! -f $CRTMPD_CONF_TPL ]; then echo "!! Invalid CRTMPD_CONF_TPL , existing. "; exit 99; fi
 	CRTMPD_CONF="$HOME/etc/crtmpd.lua"
 	# cosmetics
@@ -50,8 +54,19 @@ crtmpdSetup(){
 				| sed s,"--\[\[PROXY","",g \
 				| sed s,"PROXY\]\]--","",g \
 			> $CRTMPD_CONF.tmp && mv $CRTMPD_CONF.tmp $CRTMPD_CONF
+
+			if [ -z $CRTMPD_PROXY_TRANSPARENT ] && [ $CRTMPD_PROXY_TRANSPARENT -eq 1 ]; then
+				cat $CRTMPD_CONF \
+					| sed s,"--PROXY-TRANSPARENT ","",g \
+				> $CRTMPD_CONF.tmp && mv $CRTMPD_CONF.tmp $CRTMPD_CONF
+			else
+				cat $CRTMPD_CONF \
+					| sed s,"--PROXY-REGULAR ","",g \
+				> $CRTMPD_CONF.tmp && mv $CRTMPD_CONF.tmp $CRTMPD_CONF
+			fi
+
 		fi
-		if [ ! -z $FFMPEG_ENABLE ] && [ $FFMPEG_ENABLE -eq 1 ]; then
+		if [ ! -z $FFMPEG_CRTMPD_ENABLE ] && [ $FFMPEG_CRTMPD_ENABLE -eq 1 ]; then
 			echo "*+ enabling TRANSCODING in crtmpd configuration"
 			cat $CRTMPD_CONF \
 				| sed s,"--\[\[TRANSCODING","",g \
@@ -59,8 +74,11 @@ crtmpdSetup(){
 			> $CRTMPD_CONF.tmp && mv $CRTMPD_CONF.tmp $CRTMPD_CONF
 		fi
 		chmod 400 $CRTMPD_CONF
+		chown $USER:$USER $CRTMPD_CONF
 	fi
 
+
+	checkServiceEnabled crtmpd -n
 
 	# generate CRTMPD run script
 	checkDir $HOME/var/supervise/crtmpd/log -c $USER 755
@@ -80,8 +98,6 @@ crtmpdSetup(){
 			| sed s,_LOG_DIR_,$HOME/var/log/crtmpd,g \
 			> $HOME/var/supervise/crtmpd/log/run
 			chmod 755 $HOME/var/supervise/crtmpd/log/run
-
-	#fi
 }
 
 ####
@@ -90,6 +106,8 @@ crtmpdSetup(){
 crtmpdRouter(){
 	if [ -z $1 ]; then routeHelp; exit 1; fi
 	logRoute "crtmpd" $1 
+	if [ -z $CRTMPD_ENABLE ] && [ $CRTMPD_ENABLE -eq 0 ]; then return; fi
+
 	if [ -z $DAEMONTOOLS_SERVICE ] || [ ! -d $DAEMONTOOLS_SERVICE ]; then echo "!! error invalid DAEMONTOOLS_SERVICE \"$DAEMONTOOLS_SERVICE\", existing."; exit 99; fi
 	case $1 in
 		setup)
@@ -105,10 +123,7 @@ crtmpdRouter(){
 			echo "* stopping crtmpd service"
 			svc -d $DAEMONTOOLS_SERVICE/crtmpd
 			svc -d $DAEMONTOOLS_SERVICE/crtmpd/log
-			echo "* killing remaining $USER processes"
-			killall -TERM supervise
-			killall -TERM multilog 
-			killall -TERM crtmpserver
+			crtmpdRouter "status"
 		;;
 		start)
 			echo "* starting crtmpd service"
@@ -121,6 +136,10 @@ crtmpdRouter(){
 		restart)
 			crtmpdRouter "stop"
 			crtmpdRouter "start"
+		;;
+		test)
+			echo "* testing crtmpd, hit ctrl+c to abort"
+			$HOME/var/supervise/crtmpd/run
 		;;
 		*)
 			routeHelp

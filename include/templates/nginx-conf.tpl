@@ -2,9 +2,9 @@
 user  www;
 worker_processes  1;
 
-error_log  _HOME_/var/log/nginx/error.log notice;
-#error_log  _HOME_/varlog/error.log  notice;
-#error_log  _HOME_/varlog/error.log  info;
+# required by daemontools !
+daemon off;
+error_log stderr;
 
 events {
     worker_connections  1024;
@@ -23,16 +23,16 @@ rtmp {
             # exec /usr/local/bin/ffmpeg -re -i rtmp://_NGINX_RTMP_FQDN_:_NGINX_RTMP_PORT_/proxy/_NGINX_RTMP_STREAM_ -vcodec flv -acodec copy -s 32x32 -f flv rtmp://_NGINX_RTMP_FQDN_:_NGINX_RTMP_PORT_/720p/_NGINX_RTMP_STREAM_;
             # exec /home/stream/tmp/test.sh;
             allow publish _NGINX_RTMP_IP_;
-            # deny publish all;
+            deny publish all;
             allow play all;
          }
          application r {
-#TRANSCODING             live on;
-#TRANSCODING#HLS            hls on;
-#TRANSCODING#HLS            hls_path _HLS_PATH_/hls;
-#TRANSCODING#HLS            hls_fragment 5s;
+             live on;
+#HLS            hls on;
+#HLS            hls_path _HLS_PATH_/hls;
+#HLS            hls_fragment 5s;
 #TRANSCODING             allow publish _FFMPEG_TRANSCODER_IP_;
-#TRANSCODING             deny publish all;
+            deny publish all;
             allow play all;
         }
     }

@@ -71,6 +71,18 @@ checkDependency(){
 	echo "* found port $1";
 }
 
+checkServiceEnabled(){
+	test=`fgrep -q "${1}_enable=\"YES\"" /etc/rc.conf; echo $?`;
+	if [ -z $2 ]; then
+		if [ $test -eq 0 ]; then echo "$1 was found in system startup scripts"	;
+		else echo "*! $1 was found in system startup scripts, exiting"; exit 99; fi
+	else	
+		if [ $2 = "-n" ] && [ $test -eq 0 ]; then echo "-!"; echo "-! WARNNING, $1 was found in system startup scripts, pleas enable it!"; echo "-!";  fi
+		if [ $2 = "-nn" ] && [ $test -eq 0 ]; then echo "-! WARNNING, $1 was found in system startup scripts, please enable it, exiting"; exit 99; fi
+		if [ $2 = "-y" ] && [ $test -eq 1 ]; then echo "-!";  echo "-! WARNNING, $1 was found in system startup scripts, please remove it!"; echo "-!";  fi
+		if [ $2 = "-yy" ] && [ $test -eq 1 ]; then echo "-! WARNNING, $1 was found in system startup scripts, please remote it, exiting"; exit 99; fi
+	fi
+}
 ## Used to check if a given port is enabled in the system's rc.conf
 enableRc(){
 	if [ `grep -q "${1}_enable=\"YES\"" /etc/rc.conf && echo $?` -eq 1 ]; then
@@ -81,6 +93,12 @@ enableRc(){
 		echo "* found $1 enabled in rc.conf";
 	fi
 }
+
+setHostIp(){
+	HOST_IP=`ifconfig 2>&1 | grep -E 'inet.[0-9]' | grep -v '127.0.0.1' | awk '{ print \$2}'`;
+	echo "*+ setting HOST_IP to $HOST_IP"
+}
+
 
 backupFile(){
 	if [ -f $1 ]; then

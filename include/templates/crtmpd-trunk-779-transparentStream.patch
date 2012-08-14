@@ -1,0 +1,38 @@
+--- sources/applications/proxypublish/src/proxypublishapplication.cpp   2012-08-13 19:18:19.000000000 +0000
++++ sources/applications/proxypublish/src/proxypublishapplication.cpp.new       2012-08-13 20:00:04.000000000 +0000
+@@ -281,17 +281,26 @@
+        FATAL("RTMP protocol not supported");
+        return false;
+ #else
+-       //1. Filter the stream
+-       if (target.HasKey("localStreamName")) {
+-               if (((string) target["localStreamName"]) != pStream->GetName()) {
+-                       if (pStream->GetName().find(((string) target["localStreamName"]) + "?") != 0) {
+-                               FINEST("Stream name not matching. Wanted: %s(?); Got: %s",
+-                                               STR(target["localStreamName"]),
+-                                               STR(pStream->GetName()));
+-                               return true;
+-                       }
+-               }
+-       }
++        // Check if transparentStream=true, if so use the current stream name as both localStreamName and targetStreamName
++        if (!target.HasKey("transparentStream") || !target["transparentStream"]) {
++            //1. Filter the stream
++            if (target.HasKey("localStreamName")) {
++                    if (((string) target["localStreamName"]) != pStream->GetName()) {
++                            if (pStream->GetName().find(((string) target["localStreamName"]) + "?") != 0) {
++                                    FINEST("Stream name not matching. Wanted: %s(?); Got: %s",
++                                                    STR(target["localStreamName"]),
++                                                    STR(pStream->GetName()));
++                                    return true;
++                            }
++                    }
++            }
++        }
++        // Else, if transparentStream is set to true, if so use the current stream name as both localStreamName and targetStreamName
++        else {
++                // set target["localStreamName"] based on the current streamName, so that targetStream will refflect it
++                target["localStreamName"] = pStream->GetName();
++                WARN("TransparentStream mode enabled, using `%s` as localStreamName and targetStreamName", STR(target["localStreamName"]));
++        }
+

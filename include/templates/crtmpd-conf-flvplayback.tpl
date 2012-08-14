@@ -16,12 +16,12 @@ configuration=
 	{
 		rootDirectory="applications",
 		{
-			name="proxypublish",
-			description="Application for forwarding streams to another RTMP server",
+			description="FLV Playback Sample",
+			name="flvplayback",
 			protocol="dynamiclinklibrary",
 			mediaFolder="_HOME_/shared/media",
 			aliases={
-				"proxy", "broadcast",
+				"proxy", "r",
 			},
 			acceptors =
 			{
@@ -30,15 +30,19 @@ configuration=
 					port=_CRTMPD_RTMP_PORT_,
 					protocol="inboundRtmp"
 				},
+				--[[TRANSCODING{
+					ip="_CRTMPD_LIVEFLV_IP_",
+					port=_CRTMPD_LIVEFLV_PORT_,
+					protocol="inboundLiveFlv"
+				},TRANSCODING]]--
 			},
 			abortOnConnectError=false,
 			targetServers= 
 			{
 				--[[PROXY{
 					targetUri="_CRTMPD_PROXY_URL_",
-					--PROXY-REGULAR targetStreamName="_CRTMPD_PROXY_DSTREAM_",
-					--PROXY-REGULAR localStreamName="_CRTMPD_PROXY_LSTREAM_",
-					--PROXY-TRANSPARENT autoMapStreams=true,
+					targetStreamName="_CRTMPD_PROXY_DSTREAM_",
+					localStreamName="_CRTMPD_PROXY_LSTREAM_",
 					--emulateUserAgent="FMLE/3.0 (compatible; FMSc/1.0 http://www.rtmpd.com)"
 				},PROXY]]--
 			},

@@ -18,6 +18,11 @@ HOME="/home/rstream"
 # This only checks & creates the default user test on your system
 USER="rstream"
 
+NGINX_BIN=`which nginx`
+CRTMPD_BIN=`which crtmpserver`
+FFMPEG_BIN=`which ffmpeg`
+# Set the following to 1 if you patched crtmpd with crtmpd-r779-transparentStream.patch found here http://pastebin.com/EmNs2U9M
+CRTMPD_TRANSPARENT_STREAM=1
 
 #########################
 #########################
@@ -56,25 +61,23 @@ echo "########## rstream $TAG for $system_os"
 echo ""
 . $HOME/include/rstream-os/rstream-${system_os}_common-helper
 
-if [ -f $HOME/etc/rstream.conf ]; then
-	. $HOME/etc/rstream.conf
-
-	if [ ! -z $CRTMPD_ENABLE ] && [ $CRTMPD_ENABLE -eq 1 ]; then
+rstream-init(){
+	if [ -f $HOME/etc/rstream.conf ]; then
+		. $HOME/etc/rstream.conf
 		. $HOME/include/rstream-os/rstream-${system_os}_crtmpd-helper
 		. $HOME/include/rstream-os/rstream-${system_os}_daemontools-helper
-	fi
-
-	if [ ! -z $NGINX_ENABLE ] && [ $NGINX_ENABLE -eq 1 ]; then
 		. $HOME/include/rstream-os/rstream-${system_os}_nginx-helper
+		rstream-core-init
+		rstream-core-route $1 $2
+	else
+		. $HOME/include/rstream-config/rstream-config-helper
+		rstream-core-init
+		rstream-config
+		rstream-init "-setup"
 	fi
-	rstream-core-init
-	rstream-core-route $1 $2
+}
 
-else
-	. $HOME/include/rstream-config/rstream-config-helper
-	rstream-core-init
-	rstream-config
-fi
+rstream-init $1 $2
 
 # nice and clean ..
 echo ""
