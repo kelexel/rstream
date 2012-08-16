@@ -40,7 +40,7 @@ What can it do
 
 Setup a fully featured Streaming CDN with HTTPLiveStream + RTMP + Transcoding based on [crtmpdserver](http://www.rtmpd.com/), [nginx-rtmp](https://github.com/arut/nginx-rtmp-module), and [ffmpeg](https://github.com/FFmpeg/FFmpeg):
 
-* Let you install crtmpd, ffmpeg, or BOTH (for proxy mode !)
+* Let you configure already installed crtmpd, ffmpeg, or BOTH (for proxy mode !)
 * Sandboxes all components (temporary files, HLS streams, config files, log files ...)
 * Create nginx-rtmp config files
 * Create crtmpd conf files
