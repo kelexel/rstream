@@ -12,18 +12,16 @@
 #
 ######################################################################################
 
-
-clear 
-
 HOME="/home/rstream"
 # User to which everything will be setuidgid to
 # This only checks & creates the default user test on your system
 USER="rstream"
 
+DAEMONTOOLS_SERVICE="/var/service"
+
 . $HOME/.version
 
 # set DAEMONTOOLS_SERVICE based on default port service path
-DAEMONTOOLS_SERVICE="/var/service"
 
 ####
 ### Load OS Core files
@@ -52,149 +50,135 @@ echo ""
 rstream-core-init
 
 
-
-
-transcodeInit(){
+genStreamDestinations(){
 	proto=$1
 	dest_host=$2
 	dest_port=$3
 	dest_app=$4
 	stream=$5
 	# a bit of logic ..
-	dest_720="$proto://${dest_host}:${dest_port}/r/${stream}_720p"
-	dest_480="$proto://${dest_host}:${dest_port}/r/${stream}_480p"
-	dest_360="$proto://${dest_host}:${dest_port}/r/${stream}_360p"
-	dest_240="$proto://${dest_host}:${dest_port}/r/${stream}_240p"
-
-	ffmpeg_bin="/usr/local/bin/ffmpeg"
+	dest_720="$proto://${dest_host}:${dest_port}/${dest_app}/${stream}_720p"
+	dest_480="$proto://${dest_host}:${dest_port}/${dest_app}/${stream}_480p"
+	dest_360="$proto://${dest_host}:${dest_port}/${dest_app}/${stream}_360p"
+	dest_240="$proto://${dest_host}:${dest_port}/${dest_app}/${stream}_240p"
 }
 
-# nginx transcoding - working as of 0.4
-transcoderNginx(){
-	if [ -z $FFMPEG_NGINX_ENABLE ] || [ ! $FFMPEG_NGINX_ENABLE -eq 1 ]; then echo "Error: \"-run nginx <streamname>\" supplied, but FFMPEG_NGINX_ENABLE is not set to \"1\" in $HOME/etc/rstream.conf, exiting !"; exit 98; fi
+genPlaylistSingle(){
+	if [ -z $1 ] || [ -z $2 ]; then echo "!! invalid stream or bitrate in genPlaylistSingle"; exit 88; fi 
+	playlist=${1}_${2}.m3u8
+	echo ""
+	echo ""
+	echo "*+ generating new ${1}_${2}.m3u8 playlist";
+	echo ""
+	echo ""
+	echo "#EXTM3U" > $playlist
+	echo "#EXT-X-TARGETDURATION:5" >> $playlist
+#	echo "#EXT-X-MEDIA-SEQUENCE:0" >> $playlist
+	echo "#EXT-X-ALLOW-CACHE:0" >> $laylist
+	echo "#EXTINF:5," >> $playlist
+	echo "${1}_${2}00000.ts" >> $playlist
+	echo "${1}_${2}00001.ts" >> $playlist
+	echo "${1}_${2}00002.ts" >> $playlist
+	echo "${1}_${2}00003.ts" >> $playlist
+	echo "${1}_${2}00004.ts" >> $playlist
+	echo "${1}_${2}00005.ts" >> $playlist
+	echo "${1}_${2}00006.ts" >> $playlist
+	echo "${1}_${2}00007.ts" >> $playlist
+	echo "${1}_${2}00008.ts" >> $playlist
+	echo "${1}_${2}00009.ts" >> $playlist
+}
 
+genPlaylistMulti()
+{
+	echo ""
+	echo ""
+	echo "*+ generating new multi-bitrate ${1}.m3u8 playlist";
+	echo ""
+	echo ""
+	playlist=${1}.m3u8
+	echo "#EXTM3U" > $playlist
+	echo "#EXT-X-1-INF:PROGRAM-ID=1, BANDWIDTH=860000" >> $playlist
+	echo "${1}_72Op.m3u8" >> $playlist
+	echo "#EXT-X-1-INF:PROGRAM-ID=1, BANDWIDTH=512000" >> $playlist
+	echo "${1}_480p.m3u8" >> $playlist
+	echo "#EXT-X-1-INF:PROGRAM-ID=1, BANDWIDTH=396000" >> $playlist
+	echo "${1}_360p.m3u8" >> $playlist
+	echo "#EXT-X-1-INF:PROGRAM-ID=1, BANDWIDTH=256000" >> $playlist
+	echo "${1}_360p.m3u8" >> $playlist
+}
+
+transcoderNginxHLS(){
+	if [ -z $FFMPEG_NGINX_ENABLE ] || [ ! $FFMPEG_NGINX_ENABLE -eq 1 ]; then echo "Error: \"-run nginx <streamname>\" supplied, but FFMPEG_NGINX_ENABLE is not set to \"1\" in $HOME/etc/rstream.conf, exiting !"; exit 98; fi
+	app="proxy"
+	if [ -z $1 ]; then echo "!! error missing stream name, exiting !!"; exit 99; fi
+	stream=$1
+	
+	src="rtmp://$NGINX_RTMP_IP:$NGINX_RTMP_PORT/$app/$stream"
+
+	checkDir $HOME/tmp/ffmpeg/hls -c www 777
+	cd $HOME/tmp/ffmpeg/hls
+	genPlaylistSingle $stream "720p"
+	genPlaylistSingle $stream "480p"
+	genPlaylistSingle $stream "360p"
+	genPlaylistSingle $stream "240p"
+
+	(sleep 15 && genPlaylistMulti $HOME/tmp/ffmpeg/hls/$stream) &
+
+	# Please improve or modify these to your liking !
+#	cmd="$cmd -re -acodec libfaac -ar 44000 -b:a 96k -vcodec libx264 -s 1280x720 -b:v 512k -vpre libx264-ipod640 -flags -global_header -map 0 -f segment -segment_time 10 -segment_list_size 0 -segment_list ${stream}_720p.m3u8 -segment_format mpegts ${stream}_720p%05d.ts"
+	cmd="$cmd -re -acodec libfaac -ar 44000 -b:a 96k -vcodec libx264 -s 1280x720 -b:v 512k -vpre libx264-ipod640 -flags -global_header -map 0 -f segment -segment_time 10 -segment_list_size 10 -segment_wrap 10 -segment_format mpegts ${stream}_720p%05d.ts"
+	cmd="$cmd -re -acodec libfaac -ar 44000 -b:a 96k -vcodec libx264 -s 1280x720 -b:v 512k -vpre libx264-ipod640 -flags -global_header -map 0 -f segment -segment_time 10 -segment_list_size 10 -segment_wrap 10 -segment_format mpegts ${stream}_480p%05d.ts"
+	cmd="$cmd -re -acodec libfaac -ar 44000 -b:a 96k -vcodec libx264 -s 426x250  -b:v 256k -vpre libx264-ipod320 -flags -global_header -map 0 -f segment -segment_time 10 -segment_list_size 10 -segment_wrap 10 -segment_format mpegts ${stream}_360p%05d.ts"
+	cmd="$cmd -re -acodec libfaac -ar 44000 -b:a 48k -vcodec libx264 -s 426x250  -b:v 128k -vpre libx264-ipod320 -flags -global_header -map 0 -f segment -segment_time 10 -segment_list_size 10 -segment_wrap 10 -segment_format mpegts ${stream}_240p%05d.ts"
+	logHeader "Running enconding args: $cmd"
+	exec $FFMPEG_BIN  -loglevel info -threads 15  -i "$src live=1" $cmd
+
+}
+# nginx transcoding - working as of 0.4
+transcoderNginxH264(){
+	if [ -z $FFMPEG_NGINX_ENABLE ] || [ ! $FFMPEG_NGINX_ENABLE -eq 1 ]; then echo "Error: \"-run nginx <streamname>\" supplied, but FFMPEG_NGINX_ENABLE is not set to \"1\" in $HOME/etc/rstream.conf, exiting !"; exit 98; fi
 	app="proxy"
 	dest_app="r"
 	if [ -z $1 ]; then echo "!! error missing stream name, exiting !!"; exit 99; fi
 	stream=$1
 
 	src="rtmp://$NGINX_RTMP_IP:$NGINX_RTMP_PORT/$app/$stream"
-	transcodeInit "rtmp" $NGINX_RTMP_IP $NGINX_RTMP_PORT $dest_app $stream
+	genStreamDestinations "rtmp" $NGINX_RTMP_IP $NGINX_RTMP_PORT $dest_app $stream h264
 
-	checkDir $HOME/tmp/nginx/hls -c www 777;
+	# if hls is enabled and set to nginx, create the multi-bitrate playlist 10 secs after the stream started to aboid "iOS stuck on black screen"
+	if [ ! -z $HLS_ENABLE ] && [ $HLS_ENABLE -eq 1 ] && [ ! -z $HLS_TYPE ] && [ $HLS_TYPE = "nginx" ]; then
+		checkDir $HOME/tmp/nginx/hls -c www 777;
+		(sleep 10 && genPlaylistMulti $HLS_PATH/hls/$stream) &
+	fi
 
-	echo "*+ generating new ${stream}.m3u8 playlist";
-	echo "#EXTM3U" > $HOME/tmp/nginx/hls/${stream}.m3u8
-	echo "#EXT-X-STREAM-INF:PROGRAM-ID=1, BANDWIDTH=860000" >> $HOME/tmp/nginx/hls/${stream}.m3u8
-	echo "${stream}_72Op.m3u8" >> $HOME/tmp/nginx/hls/${stream}.m3u8
-	echo "#EXT-X-STREAM-INF:PROGRAM-ID=1, BANDWIDTH=512000" >> $HOME/tmp/nginx/hls/${stream}.m3u8
-	echo "${stream}_480p.m3u8" >> $HOME/tmp/nginx/hls/${stream}.m3u8
-	echo "#EXT-X-STREAM-INF:PROGRAM-ID=1, BANDWIDTH=396000" >> $HOME/tmp/nginx/hls/${stream}.m3u8
-	echo "${stream}_360p.m3u8" >> $HOME/tmp/nginx/hls/${stream}.m3u8
-	echo "#EXT-X-STREAM-INF:PROGRAM-ID=1, BANDWIDTH=256000" >> $HOME/tmp/nginx/hls/${stream}.m3u8
-	echo "${stream}_360p.m3u8" >> $HOME/tmp/nginx/hls/${stream}.m3u8
+	cmd="$cmd -re -acodec libfaac -ar 44100 -b:a 96k -vcodec libx264 -s 1280x720 -b:v 512k -metadata streamName=${stream}_720p -f flv $dest_720"
+	cmd="$cmd -re -acodec libfaac -ar 44100 -b:a 96k -vcodec libx264 -s 854x480 -b:v 512k -metadata streamName=${stream}_480p -f flv $dest_480"
+	cmd="$cmd -re -acodec libfaac -ar 22050 -b:a 96k -vcodec libx264 -s 640x360 -b:v 256k -metadata streamName=${stream}_360p  -f flv $dest_360"
+	cmd="$cmd -re -acodec libfaac -ar 22050 -b:a 48k -vcodec libx264 -s 426x250 -b:v 128k -metadata streamName=${stream}_240p  -f flv $dest_240"
 
-	#ffmpeg_bin=/home/rstream/bin/ffmpeg
-	cmd="$cmd -re -acodec libfaac -ar 44100 -b:a 96k -vcodec libx264 -s 1280x720 -b:v 500k -metadata streamName=${stream}_720p -f flv $dest_720"
-	cmd="$cmd -re -acodec libfaac -ar 44100 -b:a 96k -vcodec libx264 -s 854x480 -b:v 500k -f flv $dest_480"
-	cmd="$cmd -re -acodec libfaac -ar 22050 -b:a 96k -vcodec libx264 -s 640x360 -b:v 300k -f flv $dest_360"
-	cmd="$cmd -re -acodec libfaac -ar 22050 -b:a 48k -vcodec libx264 -s 426x250 -b:v 100k -f flv $dest_240"
-	echo ""
-	logHeader "Running $ffmpeg_bin -loglevel 1 -verbosity 1 -threads 15 -nice 10 -i \"$src live=1\"  $cmd"
-	echo
-	exec $ffmpeg_bin  -i "$src live=1" $cmd
+	logHeader "Running enconding args: $cmd"
+	echo "FFMPEB_BIN: $FFMPEG_BIN"
+	exec $FFMPEG_BIN -loglevel warning -threads 15  -i "$src live=1" $cmd
 }
 
 transcoderCrtmpd(){
 	if [ -z $FFMPEG_CRTMPD_ENABLE ] || [ ! $FFMPEG_CRTMPD_ENABLE -eq 1 ]; then echo "Error: \"-run crtmpd <streamname>\" supplied, but FFMPEG_CRTMPD_ENABLE is not set to \"1\" in $HOME/etc/rstream.conf, exiting !"; exit 98; fi
-
-	# hls_iphone="$HOME/etc/ffmpeg-presets/libx264-ipod320.ffpreset"
-	# hls_ipad="$HOME/etc/ffmpeg-presets/libx264-ipod640.ffpreset"
 	if [ -z $1 ]; then echo "!! error missing stream name, exiting !!"; exit 99; fi
 
 	app="proxy"
 	dest_app="r"
 	stream=$1
-
-
-#	if [ ! -z $2 ] && [ $2 = "-i" ]; then
-#		echo "*+ generating new ffmpeg/run script";
-#		checkDir $HOME/tmp/ffmpeg -c rstream 700
-#		checkDir $HOME/var/log/ffmpeg -c rstream 700
-#		checkDir $HOME/var/supervise/ffmpeg-nginx-${stream}/log -c rstream 755
-#		cat $HOME/include/templates/ffmpeg-run.tpl \
-#			| sed s,_HOME_,$HOME,g \
-#			| sed s,_USER_,$USER,g \
-#			| sed s,_STREAM_,$stream,g \
-#			| sed s,_DAEMON_,'nginx',g \
-#			> $HOME/var/supervise/ffmpeg-nginx-${stream}/run
-#			chmod 755 $HOME/var/supervise/ffmpeg-nginx-${stream}/run
-#		echo "*+ generating new ffmpeg/run/log script";
-#		cat $HOME/include/templates/ffmpeg-run-log.tpl \
-#			| sed s,_HOME_,$HOME,g \
-#			| sed s,_USER_,$USER,g \
-#			> $HOME/var/supervise/ffmpeg-nginx-${stream}/log/run
-#			chmod 755 $HOME/var/supervise/ffmpeg-nginx-${stream}/log/run
-#			exit 0;
-#	fi
-
 	src="rtmp://$CRTMPD_RTMP_IP:$CRTMPD_RTMP_PORT/$app/$stream"
 
-	transcodeInit "tcp" $CRTMPD_LIVEFLV_IP $CRTMPD_LIVEFLV_PORT $stream
-	#ffmpeg_bin=/home/rstream/bin/ffmpeg
+	genStreamDestinations "tcp" $CRTMPD_LIVEFLV_IP $CRTMPD_LIVEFLV_PORT $stream
 	cmd="$cmd -re -acodec libfaac -ar 44100 -b:a 96k -vcodec libx264 -s 1280x720 -b:v 860k -f flv -metadata streamName=${stream}_720p -f flv $dest_720"
 	cmd="$cmd -re -acodec libfaac -ar 44100 -b:a 96k -vcodec libx264 -s 854x480 -b:v 512k -f flv -metadata streamName=${stream}_480p -f flv $dest_480"
 	cmd="$cmd -re -acodec libfaac -ar 22050 -b:a 96k -vcodec libx264 -s 640x360 -b:v 396k -f flv -metadata streamName=${stream}_360p -f flv $dest_360"
 	cmd="$cmd -re -acodec libfaac -ar 22050 -b:a 48k -vcodec libx264 -s 426x250 -b:v 256k -f flv -metadata streamName=${stream}_240p -f flv $dest_240"
-	#if [ ! -z $FFMPEG_HLS ] && [ $FFMPEG_HLS -eq 1 ]; then
-	#	hls_iphone="libx264-ipod320"
-	#	hls_ipad="libx264-ipod640"
-	#	cmd=" -re -an -c:v libx264 -b:v 128k  -vpre $hls_iphone -flags -global_header -map 0 -f segment -segment_time 4 -segment_list $HLS_PATH/$app/$stream/${stream}_iphone.m3u8 -segment_format mpegts $HLS_PATH/$app/iphone/stream%05d.ts"
-	#	cmd=" -re -an -c:v libx264 -b:v 256k -vpre $hls_ipad -flags -global_header -map 0 -f segment -segment_time 4 -segment_list $HLS_PATH/$app/$stream/${stream}_ipad.m3u8 -segment_format mpegts $HLS_PATH/ipad/$stream/stream%05d.ts"
-	#fi
 	echo ""
-	logHeader "Running $ffmpeg_bin -threads 15 -i \"$src live=1\"  $cmd"
+	logHeader "Running $FFMPEG_BIN -threads 15 -i \"$src live=1\"  $cmd"
 	echo
-	exec $ffmpeg_bin -i "$src live=1" $cmd
-}
-
-
-
-transcoderMethod3(){
-	if [ -z $FFMPEG_CRTMPD_TO_NGINX_TRANSCODING ] || [ ! $FFMPEG_CRTMPD_TO_NGINX_TRANSCODING -eq 1 ]; then echo "Error: \"-run m2\" supplied, but FFMPEG_CRTMPD_TO_NGINX_TRANSCODING is not set to \"1\" in $HOME/etc/rstream.conf, exiting !"; exit 98; fi
-
-app="proxy"
-stream=$1
-src="rtmp://$CRTMPD_RTMP_IP:$CRTMPD_RTMP_PORT/$app/$stream"
-HLS_PATH="$HOME/tmp/ffmpeg/hls"
-echo $HLS_PATH/iphone;
-checkDir "$HLS_PATH/iphone" -c www 777
-checkDir "$HLS_PATH/ipad" -c www 777
-
-	# hls_iphone="$HOME/etc/ffmpeg-presets/libx264-ipod320.ffpreset"
-	# hls_ipad="$HOME/etc/ffmpeg-presets/libx264-ipod640.ffpreset"
-	hls_iphone="libx264-ipod320"
-	hls_ipad="libx264-ipod640"
-	transcodeInit "rtmp" $NGINX_RTMP_IP $NGINX_RTMP_PORT $stream
-
-	#ffmpeg_bin=/home/rstream/bin/ffmpeg
-#	cmd="$cmd -re -acodec libfaac -ar 44100 -b:a 96k -vcodec libx264 -s 1280x720 -b:v 500k -f flv $dest_720"
-#	cmd="$cmd -re -acodec libfaac -ar 44100 -b:a 96k -vcodec libx264 -s 854x480 -b:v 500k -f flv $dest_480"
-#	cmd="$cmd -re -acodec libfaac -ar 22050 -b:a 96k -vcodec libx264 -s 640x360 -b:v 300k -f flv $dest_360"
-#	cmd="$cmd -re -acodec libfaac -ar 22050 -b:a 48k -vcodec libx264 -s 426x250 -b:v 100k -f flv $dest_240"
-##	if [ ! -z $FFMPEG_HLS ] && [ $FFMPEG_HLS -eq 1 ]; then
-##		checkDir $HOME/tmp/hls/ipad/$stream -c www 777
-##		checkDir $HOME/tmp/hls/iphone/$stream -c www 777
-##		checkDir "$HLS_PATH/$app/iphone" -rc
-#		cmd=" -re -an -c:v libx264 -b:v 128k -f segment -segment_time 4 -segment_list $HLS_PATH/$app/$stream/${stream}_iphone.m3u8 -segment_format mpegts $HLS_PATH/iphone/stream%05d.ts"
-	cmd="$cmd -re -acodec libfaac -ar 22050 -b:a 96k -vcodec libx264 -s 640x360 -b:v 300k -f segment -segment_time 4 -segment_list $HLS_PATH/iphone/${stream}_iphone.m3u8 -segment_format mpegts $HLS_PATH/iphone/stream%05d.ts"
-##		checkDir "$HLS_PATH/$app/ipad" -rc
-##		cmd=" -re -an -c:v libx264 -b:v 256k -vpre $hls_ipad -flags -global_header -map 0 -f segment -segment_time 4 -segment_list $HLS_PATH/$app/$stream/${stream}_ipad.m3u8 -segment_format mpegts $HLS_PATH/ipad/$stream/stream%05d.ts"
-##	fi
-	echo ""
-	logHeader "Running $ffmpeg_bin -threads 15 -i \"$src live=1\"  $cmd"
-	echo
-	exec $ffmpeg_bin -threads 15 -i "$src live=1" $cmd
+	exec $FFMPEG_BIN -i "$src live=1" $cmd
 }
 
 routeTranscoder(){
@@ -205,7 +189,8 @@ routeTranscoder(){
 			if [ -z $2 ]; then routeHelp; exit 99; fi
 			case $2 in
 				crtmpd) transcoderCrtmpd $3;; # CRTMPD (RTMP / FLV) > ffmpeg > CRTMPD (tcvp / FLV)
-				nginx) transcoderNginx $3;; # CRTMPD (RTMP / FLV) > ffmpeg > NGINX (rtmp / FLV)
+				nginx) transcoderNginxH264 $3;; # CRTMPD (RTMP / FLV) > ffmpeg > NGINX (rtmp / FLV)
+				hls) transcoderNginxHLS $3;; # CRTMPD (RTMP / FLV) > ffmpeg > NGINX (rtmp / FLV)
 				*) routeHelp;;
 			esac
 		;;
@@ -240,6 +225,7 @@ routeTranscoder $1 $2 $3 $4
 #-re -acodec libfaac -ar 22050 -vcodec libx264 -s qvga -b 150k -f flv "rtmp://localhost/live/test_150" \
 #-re -acodec libfaac -ar 22050 -vcodec libx264 -s qqvga -b 50k -f flv "rtmp://localhost/live/test_50"
 
+#	cmd="$cmd -re -vcodec libvpx -s 1280x720 -filter:v yadif -g 120 -level 216 -profile:v 0 -qmax 42 -qmin 10 -rc_buf_aggressivity 0.95 -vb 1M -acodec libvorbis -aq 90 -ac 1 -metadata streamName=${stream}_720p_vp8 -f webm $dest_720"
 
 
 # -f flv "rtmp://live.justin.tv/app/$STREAM_KEY flashver=FMLE/3.0\20(compatible;\20FMSc/1.0)"  

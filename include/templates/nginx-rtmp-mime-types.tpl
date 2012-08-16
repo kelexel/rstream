@@ -5,7 +5,7 @@ types {
 
     text/html                             html htm shtml;
     text/css                              css;
-    text/xml                              xml;
+    text/xml                              xml xsl;
     image/gif                             gif;
     image/jpeg                            jpeg jpg;
     application/x-javascript              js;

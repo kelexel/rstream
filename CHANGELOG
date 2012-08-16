@@ -1,0 +1,60 @@
+TAG 0.1
+---
+
+* initial release, Freebsd9 only
+* added "-proxy"
+* added "-debug-reset"
+
+TAG 0.2
+---
+
+* updated to new modulable script structure
+* added per OS-Type helpers
+* created rstream-core containing cross-OS logic
+* added nginx-rtmpd-hls.conf-dist
+* updated nginx-rtmpd.conf-dist
+* removed "-proxy"
+* added "-setup crtmpd-proxy-to-nginx"
+* added "-nginx (start|stop|status|setup)"
+* added "-crtmpd (start|stop|status|setup)"
+
+TAG 0.3
+---
+
+* added global "start|stop|restart" switches
+* added rstream-firewall.dist 0.1 - Firewalls ONE or SEVERAL IPs on a SINGLE ETHERNET ADAPTER *BSD System !
+* enabled auth for broadcasters connecting to rtmp://<CRTMPD_RTMP_IP>:<CRTMPD_RTMP_PORT>/proxy default
+* added auth default credentials in $HOME/etc/crtmpd-users.lua (username: "broadcast", password: "n3rox")
+* added prerequisists to transcoding
+
+TAG 0.3t
+---
+* enhancements and fixes for transcoding compatibility
+* added ffmpeg source presets in $HOME/etc/ffmpeg 
+* added rstream-transcoder -run <method> <stream>
+* highly experimental ffmpeg-transcoding using:
+	* "~rstream/bin/rstream-transcoder -run m1" == CRTMPD (RTMP / FLV) > ffmpeg > CRTMPD (tcvp / FLV)
+	* "~rstream/bin/rstream-transcoder -run m2" == CRTMPD (RTMP / FLV) > ffmpeg > NGINX (rtmp / FLV)
+* added "-debug-cycle", cleans, reinstalls, configures and restarts rstream
+
+TAG 0.4
+---
+* not released, lots of tests and trials, major code refactoring
+
+TAG 0.5
+---
+* added rstream-config-helper, invoke it on first run
+* added nginx startup & control via daemontools 
+* added crtmpd new config files
+* added crtmpd transparentStream support in proxypublish
+* added nginx new config files
+* added massive directory re-structuring
+* removed rstream-transcoder (for now)
+
+TAG 0.6
+---
+* added new rstream-transcoder (!)
+* ffmpeg will now produce 8x streams via nginx-rtmp (4x for RTMP via rstream-transcoder, 4x for HLS via nginx-rtmp)
+* transcoding now triggered via nginx-rtmp's "exec" function
+* nginx-rtmp can now accept direct Wirecast connections (thank you arut!)
+* please read HLS and TRANSCODING notes

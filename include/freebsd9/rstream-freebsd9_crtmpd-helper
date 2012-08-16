@@ -77,7 +77,7 @@ crtmpdSetup(){
 		chown $USER:$USER $CRTMPD_CONF
 	fi
 
-
+	# ensure that crtmps is not set in system startup
 	checkServiceEnabled crtmpd -n
 
 	# generate CRTMPD run script

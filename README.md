@@ -1,7 +1,7 @@
-RStream 0.5
+RStream 0.6
 ===========
 
- *thin as air* Streaming CDN tools
+ *thin as air* Streaming CDN toolkit
 
 Content
 ======
@@ -10,14 +10,12 @@ Content
 	* [What it is](https://github.com/kelexel/rstream#what-it-is)
 	* [What it is NOT](https://github.com/kelexel/rstream#what-it-is-not)
 	* [Why crmptd + nginx-rtmp at the same time ?!](https://github.com/kelexel/rstream#why-crmptd--nginx-rtmp-at-the-same-time-)
+	* [Notes on crtmpd](https://github.com/kelexel/rstream#Notes-on-crtmpd)
+	* [Notes on nginx-rtmp](https://github.com/kelexel/rstream#Notes-on-nginx-rtmp)
 	* [Notes on HLS](https://github.com/kelexel/rstream#notes-on-hls)
 	* [Notes on Transcoding](https://github.com/kelexel/rstream#notes-on-transcoding)
 * Changelog
-	* [TAG 0.1](https://github.com/kelexel/rstream#tag-01)
-	* [TAG 0.2](https://github.com/kelexel/rstream#tag-02)
-	* [TAG 0.3](https://github.com/kelexel/rstream#tag-03)
-	* [TAG 0.3t](https://github.com/kelexel/rstream#tag-03t)
-	* [TAG 0.5](https://github.com/kelexel/rstream#tag-05)
+	See CHANGELOG
 * [Todo](https://github.com/kelexel/rstream#todo)
 * Requirements
 	* [Server side requirements](https://github.com/kelexel/rstream#server-side-requirements)
@@ -40,32 +38,44 @@ Preamble
 What can it do
 ---
 
-* Setup a fully featured Streaming CDN with HTTPLiveStream + RTMP + Transcoding based on [crtmpdserver](http://www.rtmpd.com/), [nginx-rtmp](https://github.com/arut/nginx-rtmp-module), and [ffmpeg](https://github.com/FFmpeg/FFmpeg)
-* (new) Supports multiple transcoding methods (nginx-to-nginx, crtmpd-to-nginx, crtmpd-to-crtmpd) to provide multiple bitrate (240p, 340p, 480p, 720p) streams from one single RTMP feed
-* (new) Includes a built-in configuration wizard
-* (new) Multi bitrate HLS streams
-* Keep all scripts, configs files, recorded media files, HLS-streams to a single chroot-style location (default to ~rstream)
-* Uses daemontools to control *all* needed services
+Setup a fully featured Streaming CDN with HTTPLiveStream + RTMP + Transcoding based on [crtmpdserver](http://www.rtmpd.com/), [nginx-rtmp](https://github.com/arut/nginx-rtmp-module), and [ffmpeg](https://github.com/FFmpeg/FFmpeg):
+
+* Let you install crtmpd, ffmpeg, or BOTH (for proxy mode !)
+* Sandboxes all components (temporary files, HLS streams, config files, log files ...)
+* Create nginx-rtmp config files
+* Create crtmpd conf files
 * Generates necessary daemontools scripts for crtmpd(/log) nginx(/log) and ffmpeg(/log) 
-* Supported broadcasters:
+* Provide in depth control of each daemontools scripts via the *~rstream* helper
+* Make requirements checks (for HLS and FFMPEG notably)
+* Provide a wrapper to ffmpeg via *rstream-transcoder* to generate multiple bitrate (240p, 340p, 480p, 720p) streams from one single RTMP feed
+* Provide HLS (HTTP Live Streaming) via ffmpeg and nginx-rtmp (Read HLS notes !)
+
+* (new) Supports multiple transcoding methods (nginx-to-nginx, crtmpd-to-crtmpd) to provide multiple bitrate (240p, 340p, 480p, 720p) streams from one single RTMP feed
+* (new) Built-in configuration wizard
+* (new) Multi bitrate HLS streams
+* (experimental) HLS via *ffmpeg onnly*, can connect to either crtmpd or nginx (*~rstream-transcoder -run hls stream_name*)
+
+* Support the following broadcasters:
 	* [Telestream Wirecast](http://www.adobe.com/products/flash-media-encoder.html) (OSX 10.7.x / Windows 7, h264/aac)
 	* [Adobe FlashMediaLiveEncoer](http://www.adobe.com/products/flash-media-encoder.html) (OSX 10.7.x / Windows 7 / Linux, h264/aac)
 	* http://www.osmf.org/configurator/fmp/ (Flash Player 11+, h264/aac)
 	* [Android: OS Broadcaster](https://play.google.com/store/search?q=+OS+Broadcaster&c=apps) (Android 3+, h264/aac)
-* Supported clients:
+
+* Support the following clients:
 	* jwplayer
 	* flowplayer
-	* Mobile Safari (iOS/ipad 5+, iOS/iphone 5+, should work with iOS/ipad 5+)
+	* Mobile Safari: iOS/ipad 5+, iOS/iphone 5+, should work with iOS/ipad 5+ (only is HLS is enabled)
 	* http://dl.dropbox.com/u/2918563/flvplayback.swf (Flash Player 10+)
 	* http://www.osmf.org/configurator/fmp/  (Flash Player 10+)
 
 What it is
 ---
 
-* For me, a week of random r&d including a heavy dose of trial an error, docs ingesting, google resarch, all possible because of [these people](https://github.com/kelexel/rstream#credits)
+* For me, a week (update: two week now) of random r&d including a heavy dose of trial an error, docs ingesting, google resarch, all possible because of [these people](https://github.com/kelexel/rstream#credits). It is meant for educational purpose only. It will only setup what you tell it too.
 * It uses good old Bourne shell - so it just works *out of the box* on *any* *NIX
-* A set of configuration files and script to simplify deploy a full-feature streaming server CDN capable of transcoding a single FLV (h264/acc no vpx/mp3) received using the RTMP protocol, to multiple bitrate video streams compatible with Adobe FLASH (RTMP) and iOS-style HTTPLiveStreaming (HLS) compatible devices.
-* Transcoding has now 3x different ways of working (check Transcoding section), each mode being able to generate 720p, 480p, 340p, 240p FLV (h264/aac) streams from a single given h264/aac stream.
+* A set of configuration files and script to simplify deploy a full-feature streaming server CDN capable of transcoding a single FLV (h264/acc no vpx/mp3) received *via* the RTMP protocol, to multiple bitrate video streams compatible with both Adobe FLASH (RTMP) and iOS-style HTTPLiveStreaming (HLS) compatible devices.
+* The "transcoder" is nothing less than a bourne script invoking ffmpeg with my set of settings, you are encouraged to experiment with these settings (specially the HLS ones)
+* Transcoder has now 3x different ways of working (check Transcoding section), each mode being able to generate 720p, 480p, 340p, 240p FLV (h264/aac) streams from a single given h264/aac stream.
 * IF HLS is enabled via nginx, the same broadcaster's stream will be converted to the above four streams + their equivalent in HLS streams, for a total of 8 different streams (4x RTMP and 4x HLS)
 * It can now work with crtmpd only, nginx only, or both crtmpd and nginx
 * It is per OS customizable - you can easily port rstream to *any* os, assuming you create your own ~/rstream/include/system-os/* files
@@ -75,11 +85,13 @@ What it is
 What it is NOT
 ---
 
+* It is not a program, nor an application. It is a set of simple shell scripts that will let you deploy a generic config for a full featured RTMP > H264/HLS CDN.
 * It is not pefect, 0.1 was written in roughly 6hours, 0.2 was  released few (sleepless) hours later, and I'm now preparing to push to 0.5 with *major* code refactoring. You should really only use this if you know what you are doing, and mostly, if you are doing on a vanilla server (i.e.: without prior specific config/files/data on it)
 * It is NOT-YET production-stress-tested 
 * It is NOT-YET Linux-friendly (just fork it!)
 * It is NOT-YET OSX-friendly (just fork it!)
 * It is NOT-YET capable of steaming vpX/mp3
+* Is is NOT(-YET?) capable of installing nginx(-rtmp), crtmpd, or ffmpeg for you, you must do this by yourself !
 
 Why crmptd + nginx-rtmp at the same time ?!
 ---
@@ -88,98 +100,66 @@ The ultimate goal of this is project is to provide an *easy* way for a single Wi
 
 At the time I'm writing these lines, two great projects exist in the Open-Source RTMP ecosystem (there are many *other* great RTMP servers out there!), crtmpdserver](http://www.rtmpd.com/), and [nginx-rtmp](https://github.com/arut/nginx-rtmp-module).
 
-Each has it's own pros and cons:
-
-On nginx side
-
-* nginx-rtmp has no built-in auth / management modules. It's up to you to write your own returning HTTP codes as allow/deny commands to nginx.
-* nginx-rtmp does HLS out of the box, and does it pretty well ! (assuming you compile it with HLS support)
-* nginx-rtmp IS BROKEN WITH WIRECAST (the original reason why I created rstream)
-* nginx-rtmp is based on nginx (!), and what better than nginx to serve HLS files ?
-
-On crtmpd side
-
-* crtmpd has a built-in auth system
-* crtmpd supports RTMP and *many* other protocols
-* crtmpd has NO HLS SUPPORT (if you want HLS get the commercial version a.k.a. [evostream](http://www.evostream.com/))
-* crmtpd WORKS WITH WIRECAST (!)
+Each has it's own pros and cons, see notes bellow
 
 
-This project originally started as a must-need-both crtmpd and nginx, but it quickly evolved to a *jack-of-all-trades* tool to easily deploy either crmpd or nginx-rtmpd or *both* on a *NIX system.
+Notes on crtmpd
+---
+
+It clearly appeared to me that it was a huge competitor in the world of RTMP and video broadcasting in general, specially with it's [evostream*](http://www.evostream.com) flag-ship big brother
+
+It's main strength is the library on top of which are built every crtmpd "apps"; think of crtmpd as an advanced framework for manipulating media streams.
+
+The frustrating part, is that if, as me, you have limited knowledge of C/C++/C#, creating your own app is probably out of the equation.
+
+Luckily for me, they provide the sources of several *sample apps*, that even led me to produce [a piggy-style-patch for the proxypublish app]((http://pastebin.com/EmNs2U9M) allowing it to transparently relay any stream_name pushed by a broadcaster to a pre-given remoteServer.
+
+The fact that they provide their *framework* for free is in my humble opinion fantastic, even if it lack some very useful features out of the box (HLS / exec for transcoding...), which can be easily implemented by the programming wise.
+
+Is is worth mentioning that as of now (16/08/2012), crtmpd supports encryption over RTMPS, mostly "Adobe style" authentication over RTMP
+
+
+Notes on nginx-rtmp
+---
+
+The first thing that struck me was *nginx* in the name. Anyone who ever dealt with high-availability-heavy-load-httpd setups knows nginx.
+
+Second, the fact that it supported HLS and "exec" was enough to convince me that [nginx-rtmp](https://github.com/arut/nginx-rtmp-module/) was going to become a key element in this project.
+
+It has a built-in trigger mechanism to handle play read/record access.
+
+It has a stats module that provides a descent efficient overview of your server's current usage
+
+It only supports the RTMP protocol.
+
+HLS is still considered experimental
+
+Is is worth mentioning that as of now (16/08/2012), nginx-rtmp only supports the RTMP protocol, and has no built-in user authentication mechanism
 
 Notes on HLS
 ---
 
-* HLS is not available in the (free) crtmpd
-* HLS is available in nginx-rtmp, no nginx-rtmp = no HLS for you 
-* HLS requires ffmpeg
-* HLS multi-bitrate is only available if Transcoding is enabled
+* HLS built-in generation **is not yet** implemented in the (free) crtmpd
+* HLS built-in generation **is** implemented in the (free) nginx-rtmp (via ffmpeg)
+* HLS is theoretically doable for crtmpd using ffmpeg in a standalone process (i.e.: via rstream-transcoder -run hls <streamname>)
+* HLS is available in nginx-rtmp via ffmpeg, no nginx-rtmp or no ffmpeg = no HLS for you 
+* HLS support requires a recent ffmpeg (!) with RTMP support enabled, and a recent (!) version of nginx-rtmp (don't forget to add HLS support, see nginx-rtmp install notes)
+* HLS multi-bitrate is only available if both nginx-rtmp and ffmpeg are enabled
+* HLS does not -yet- work with ffmpeg directly (aka without nginx-rtmp), because I have found no way to generate an HLS friendly -segment_list (see [this ffmpeg enhancement request](https://ffmpeg.org/trac/ffmpeg/ticket/1642))
 
 Notes on Transcoding
 ---
 
-* ffmpeg is required for transcoding
-* Transcoding only works on nginx for now (as of restream-0.5), but I'm working on it for crtmpd
+* ffmpeg is required for transcoding, and by this, I mean you probably will need to compile it from a freshly cloned [Ffmpeg github repo](https://github.com/FFmpeg/FFmpeg)
+* Since nginx-rtmp now supports "exec" on FreeBSD, it is now nginx-rtmp that invokes rstream-transcoder when a new broadcaster publishes a stream. There is no more need to have ffmpeg processes on a per streamname basis, as I was doing before with daemontools.
+* I have focused all my efforts right now on transcoding with nginx, but haven't forgotten crtmpd, and I am still working on a good crtmpd way to share the streams (probably pushing them via tcp )
 
-Changelog
-======
-
-TAG 0.1
----
-
-* initial release, Freebsd9 only
-* added "-proxy"
-* added "-debug-reset"
-
-TAG 0.2
----
-
-* updated to new modulable script structure
-* added per OS-Type helpers
-* created rstream-core containing cross-OS logic
-* added nginx-rtmpd-hls.conf-dist
-* updated nginx-rtmpd.conf-dist
-* removed "-proxy"
-* added "-setup crtmpd-proxy-to-nginx"
-* added "-nginx (start|stop|status|setup)"
-* added "-crtmpd (start|stop|status|setup)"
-
-TAG 0.3
----
-
-* added global "start|stop|restart" switches
-* added rstream-firewall.dist 0.1 - Firewalls ONE or SEVERAL IPs on a SINGLE ETHERNET ADAPTER *BSD System !
-* enabled auth for broadcasters connecting to rtmp://<CRTMPD_RTMP_IP>:<CRTMPD_RTMP_PORT>/proxy default
-* added auth default credentials in $HOME/etc/crtmpd-users.lua (username: "broadcast", password: "n3rox")
-* added prerequisists to transcoding
-
-TAG 0.3t
----
-* enhancements and fixes for transcoding compatibility
-* added ffmpeg source presets in $HOME/etc/ffmpeg 
-* added rstream-transcoder -run <method> <stream>
-* highly experimental ffmpeg-transcoding using:
-	* "~rstream/bin/rstream-transcoder -run m1" == CRTMPD (RTMP / FLV) > ffmpeg > CRTMPD (tcvp / FLV)
-	* "~rstream/bin/rstream-transcoder -run m2" == CRTMPD (RTMP / FLV) > ffmpeg > NGINX (rtmp / FLV)
-* added "-debug-cycle", cleans, reinstalls, configures and restarts rstream
-
-TAG 0.4
----
-* not released, lots of tests and trials, major code refactoring
-
-TAG 0.5
----
-* added rstream-config-helper, invoke it on first run
-* added nginx startup & control via daemontools 
-* added crtmpd new config files
-* added crtmpd transparentStream support in proxypublish
-* added nginx new config files
-* added massive directory re-structuring
-* removed rstream-transcoder (for now)
 
 Todo
 ======
 
+* Make crtmpd transcoding
+* Make experimentations with webm/mp4 segments
 * Make rstream Linux friendly ? (you just fork it!)
 * Make rstream in .py or .rb ? (you just fork it!)
 
@@ -254,7 +234,7 @@ CRTMPD_BIN=/my/custom/crtmpserver
 FFMPEG_BIN=/usr/local/sbin/nginx
 ```
 
-(new 0.5) Start rstream one time to generate a new rstream configuration file
+Start rstream one time to generate a new rstream configuration file
 ```bash
 ~rstream/bin/rstream
 ```
@@ -331,7 +311,7 @@ Transcoding for nginx
 ---
 
 Transcoding in nginx-rtmp is now controlled via nginx itself (prior version needed a separate script).
-Any stream pushed to the app "r" will be transcoded as HLS and H264 streams automagically to the following URLs:
+Any stream pushed to the app "proxy" will be transcoded as HLS and H264 streams automagically to the following URLs:
 
 ```bash
 # rtmp://NGINX_RTMP_IP:NGINX_RTMP_PORT/r/NGINX_RTMP_STREAM_720p
@@ -348,10 +328,10 @@ Download and install Wirecast(pro) demo from http://www.telestream.net/wirecast/
 Go to Broadcast settings (on OSX, CMD+Y)
 Create a new broadcast profile profile containing:
 
-* Input the matching url (yes the /proxy is required and fixed): rtmp://<CRTMPD_RTMP_IP>:<CRTMPD_RTMP_PORT>/proxy
+* Input the matching url (yes the /proxy is required and fixed): rtmp://<RTMP_IP>:<RTMP_PORT>/proxy
 * Set authentication settings with username "broadcast", password "n3rox". The user list is located in $HOME/etc/crtmpd-users.lua
 * Set User Agent to FMLE/3.0
-* Set stream name to <CRTMPD_RTMP_STREAM>
+* Set stream name to <CRTMP_STREAM>
 
 
 Credits

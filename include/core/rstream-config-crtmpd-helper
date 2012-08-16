@@ -66,7 +66,7 @@ askProxyData(){
 	if [ -z $CRTMPD_PROXY_URL ]; then CRTMPD_PROXY_URL=$rtmp_host; fi
 
 	echo -n "Do you want to enable proxy transparentStream mode ? (implies you patched crtmpd with r779-transparentStream-patch !) ? [y/N] "
-	read CRTMPD_PROXY_TRANSPARENT
+	read tmp
 	case $tmp in
 		y|Y) CRTMPD_PROXY_TRANSPARENT=1;;
 		n) CRTMPD_PROXY_TRANSPARENT=0;;

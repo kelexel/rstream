@@ -31,6 +31,10 @@ nginxSetup(){
 	fi
 	checkDir $HOME/var/log/nginx -c www 755
 	checkDir $HOME/shared/www/stats -c www 777
+	checkDir /var/tmp/nginx/ -c www 777
+
+	# copy xsl template
+	cp $HOME/include/templates/nginx-rtmp-stat.xsl $HOME/shared/www/stats/stat.xsl
 	#checkDir $HOME/var/log/nginx-crtmpd-ffmpeg -c $USER
 
 	if [ ! -z $HLS_ENABLE ] && [ ! -z $HLS_TYPE ] && [ $HLS_TYPE = "nginx" ]; then checkDir $HOME/tmp/nginx/hls -c www 777; fi
@@ -73,13 +77,14 @@ nginxSetup(){
 		echo "*+ enabling TRANSCODING in nginx configuration"
 		FFMPEG_NGINX_TRANSCODING=1
 		cat $NGINX_CONF \
-			| sed s,_FFMPEG_BIN_,$FFMPEG_BIN,g \
 			| sed s,_FFMPEG_TRANSCODER_IP_,$FFMPEG_TRANSCODER_IP,g \
 			| sed s,_FFMPEG_NGINX_TRANSCODING_,$FFMPEG_NGINX_TRANSCODING,g \
 			| sed s,"#TRANSCODING","",g \
 		> $NGINX_CONF.tmp && mv $NGINX_CONF.tmp $NGINX_CONF
 
 	fi
+
+	checkDir /var/tmp/nginx -c www 777
 
 	checkServiceEnabled nginx -n
 

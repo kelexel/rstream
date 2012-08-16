@@ -111,10 +111,11 @@ genConf(){
 		> $CONFIG_FILE.tmp && mv $CONFIG_FILE.tmp $CONFIG_FILE
 	fi
 	if [ ! -z $FFMPEG_ENABLE ] && [ $FFMPEG_ENABLE -eq 1 ]; then
-		cat  $HOME/include/templates/rstream-conf-transcoder.tpl >> $CONFIG_FILE 
+		cat  $HOME/include/templates/rstream-conf-ffmpeg.tpl >> $CONFIG_FILE 
 		cat $CONFIG_FILE \
 			| sed s,_TAG_,$TAG,g \
 			| sed s,_FFMPEG_ENABLE_,$FFMPEG_ENABLE,g \
+			| sed s,_FFMPEG_BIN_,$FFMPEG_BIN,g \
 			| sed s,_FFMPEG_TRANSCODER_IP_,$FFMPEG_TRANSCODER_IP,g \
 			| sed s,_FFMPEG_CRTMPD_ENABLE_,$FFMPEG_CRTMPD_ENABLE,g \
 			| sed s,_FFMPEG_NGINX_ENABLE_,$FFMPEG_NGINX_ENABLE,g \
