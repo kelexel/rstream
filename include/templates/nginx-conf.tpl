@@ -21,7 +21,7 @@ rtmp {
             live on;
 #TRANSCODING            exec /bin/sh -c "_HOME_/bin/rstream-transcoder -run nginx $name";
             allow publish _NGINX_RTMP_IP_;
-            deny publish all;
+#PROXYLOCALHOST            deny publish all;
             allow play all;
          }
          application r {
@@ -29,8 +29,8 @@ rtmp {
 #HLS            hls on;
 #HLS            hls_path _HLS_PATH_/hls;
 #HLS            hls_fragment 5s;
-#TRANSCODING#PROXYLOCALHOST             allow publish _FFMPEG_TRANSCODER_IP_;
-#TRANSCODING#PROXYLOCALHOST            deny publish all;
+#TRANSCODING            allow publish _FFMPEG_TRANSCODER_IP_;
+#TRANSCODING            deny publish all;
             allow play all;
         }
     }
