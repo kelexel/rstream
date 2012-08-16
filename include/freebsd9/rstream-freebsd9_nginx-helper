@@ -60,8 +60,7 @@ nginxSetup(){
 	cp $HOME/include/templates/nginx-rtmp-mime-types.tpl $HOME/etc/nginx-rtmp-mime.types
 
 	# only make the following tests if NGINX_HLS is set to 1
-	if [ $HLS_ENABLE ]; then
-
+	if [ $HLS_ENABLE ] && [ ! -z $HLS_TYPE ] && [ $HLS_TYPE = "nginx" ]; then
 		echo "*+ enabling HLS in nginx configuration"
 		cat $NGINX_CONF \
 			| sed s,_HLS_ENABLE_,$HLS_ENABLE,g \
@@ -81,9 +80,14 @@ nginxSetup(){
 			| sed s,_FFMPEG_NGINX_TRANSCODING_,$FFMPEG_NGINX_TRANSCODING,g \
 			| sed s,"#TRANSCODING","",g \
 		> $NGINX_CONF.tmp && mv $NGINX_CONF.tmp $NGINX_CONF
-
 	fi
-
+	if [ ! -z $CRTMPD_ENABLE ] && [ $CRTMPD_ENABLE -eq 1 ]; then
+		echo "*+ enabling TRANSCODING in nginx configuration"
+		FFMPEG_NGINX_TRANSCODING=1
+		cat $NGINX_CONF \
+			| sed s,"#PROXYLOCALHOST","",g \
+		> $NGINX_CONF.tmp && mv $NGINX_CONF.tmp $NGINX_CONF
+	fi
 	checkDir /var/tmp/nginx -c www 777
 
 	checkServiceEnabled nginx -n

@@ -25,7 +25,7 @@ checkUser(){
 		pw useradd $1 -s /usr/sbin/nologin -d $2
 		if [ ! $? -eq 0 ]; then echo "!! error !!"; exit 99; fi
 	else
-		echo "* found system user \"$1\"";
+		if [ $VERBOSE -eq 1 ]; then echo "* found system user \"$1\""; fi
 	fi
 }
 ## Used ot check if a given file exists
@@ -47,13 +47,13 @@ if [ ! -d $1 ]; then
 				if [ ! $? -eq 0 ]; then echo "!! error !!"; exit 99; fi
 				# check for chown arg
 				if [ ! -z $3 ]; then
-					echo "*+ setting ownership to \"$3\" on \"$1\""
+					if [ $VERBOSE -eq 1 ]; then echo "*+ setting ownership to \"$3\" on \"$1\""; fi
 					chown ${3}:${3} $1
 					if [ ! $? -eq 0 ]; then echo "!! error !!"; exit 99; fi
 				fi
 				# check chmod chown arg
 				if [ ! -z $4 ]; then
-					echo "*+ setting permisions to \"$4\" on \"$1\""
+					if  [ $VERBOSE -eq 1 ]; then echo "*+ setting permissions to \"$4\" on \"$1\""; fi
 					chmod ${4} $1
 					if [ ! $? -eq 0 ]; then echo "!! error !!"; exit 99; fi
 				fi
@@ -61,7 +61,7 @@ if [ ! -d $1 ]; then
 		esac
 	fi
 else
-	echo "* found $1";
+	if [ $VERBOSE -eq 1 ]; then echo "* found $1"; fi;
 fi
 }
 
@@ -77,9 +77,9 @@ checkServiceEnabled(){
 		if [ $test -eq 0 ]; then echo "$1 was found in system startup scripts"	;
 		else echo "*! $1 was found in system startup scripts, exiting"; exit 99; fi
 	else	
-		if [ $2 = "-n" ] && [ $test -eq 0 ]; then echo "-!"; echo "-! WARNNING, $1 was found in system startup scripts, pleas enable it!"; echo "-!";  fi
+		if [ $2 = "-n" ] && [ $test -eq 0 ] && [ $VERBOSE -eq 1 ]; then echo "-!"; echo "-! WARNNING, $1 was found in system startup scripts, pleas enable it!"; echo "-!";  fi
 		if [ $2 = "-nn" ] && [ $test -eq 0 ]; then echo "-! WARNNING, $1 was found in system startup scripts, please enable it, exiting"; exit 99; fi
-		if [ $2 = "-y" ] && [ $test -eq 1 ]; then echo "-!";  echo "-! WARNNING, $1 was found in system startup scripts, please remove it!"; echo "-!";  fi
+		if [ $2 = "-y" ] && [ $test -eq 1 ] && [ $VERBOSE -eq 1 ]; then echo "-!";  echo "-! WARNNING, $1 was found in system startup scripts, please remove it!"; echo "-!";  fi
 		if [ $2 = "-yy" ] && [ $test -eq 1 ]; then echo "-! WARNNING, $1 was found in system startup scripts, please remote it, exiting"; exit 99; fi
 	fi
 }

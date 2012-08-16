@@ -24,6 +24,9 @@ FFMPEG_BIN=`which ffmpeg`
 # Set the following to 1 if you patched crtmpd with crtmpd-r779-transparentStream.patch found here http://pastebin.com/EmNs2U9M
 CRTMPD_TRANSPARENT_STREAM=1
 
+VERBOSE=0
+
+
 #########################
 #########################
 #########################

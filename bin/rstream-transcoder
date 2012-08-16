@@ -17,11 +17,21 @@ HOME="/home/rstream"
 # This only checks & creates the default user test on your system
 USER="rstream"
 
+# set DAEMONTOOLS_SERVICE based on default port service path
 DAEMONTOOLS_SERVICE="/var/service"
 
-. $HOME/.version
+VERBOSE=0
 
-# set DAEMONTOOLS_SERVICE based on default port service path
+#########################
+#########################
+#########################
+# You should not need to edit anything below this point.
+# If you have/feel the need to do otherwise, please inform me of your changes via github.
+#########################
+#########################
+#########################
+
+. $HOME/.version
 
 ####
 ### Load OS Core files
@@ -95,15 +105,16 @@ genPlaylistMulti()
 	echo "*+ generating new multi-bitrate ${1}.m3u8 playlist";
 	echo ""
 	echo ""
+	if [ ! -f ${1}_360p.m3u8 ]; then echo "Error, ffmpeg not running ? "; exit 1; fi
 	playlist=${1}.m3u8
 	echo "#EXTM3U" > $playlist
-	echo "#EXT-X-1-INF:PROGRAM-ID=1, BANDWIDTH=860000" >> $playlist
+	echo "#EXT-X-1-INF:PROGRAM-ID=1, BANDWIDTH=900000" >> $playlist
 	echo "${1}_72Op.m3u8" >> $playlist
-	echo "#EXT-X-1-INF:PROGRAM-ID=1, BANDWIDTH=512000" >> $playlist
+	echo "#EXT-X-1-INF:PROGRAM-ID=1, BANDWIDTH=700000" >> $playlist
 	echo "${1}_480p.m3u8" >> $playlist
-	echo "#EXT-X-1-INF:PROGRAM-ID=1, BANDWIDTH=396000" >> $playlist
+	echo "#EXT-X-1-INF:PROGRAM-ID=1, BANDWIDTH=500000" >> $playlist
 	echo "${1}_360p.m3u8" >> $playlist
-	echo "#EXT-X-1-INF:PROGRAM-ID=1, BANDWIDTH=256000" >> $playlist
+	echo "#EXT-X-1-INF:PROGRAM-ID=1, BANDWIDTH=150000" >> $playlist
 	echo "${1}_360p.m3u8" >> $playlist
 }
 
@@ -122,7 +133,7 @@ transcoderNginxHLS(){
 	genPlaylistSingle $stream "360p"
 	genPlaylistSingle $stream "240p"
 
-	(sleep 15 && genPlaylistMulti $HOME/tmp/ffmpeg/hls/$stream) &
+	(sleep 15 && cd $HLS_PATH/hls  && genPlaylistMulti $stream) &
 
 	# Please improve or modify these to your liking !
 #	cmd="$cmd -re -acodec libfaac -ar 44000 -b:a 96k -vcodec libx264 -s 1280x720 -b:v 512k -vpre libx264-ipod640 -flags -global_header -map 0 -f segment -segment_time 10 -segment_list_size 0 -segment_list ${stream}_720p.m3u8 -segment_format mpegts ${stream}_720p%05d.ts"
@@ -130,12 +141,14 @@ transcoderNginxHLS(){
 	cmd="$cmd -re -acodec libfaac -ar 44000 -b:a 96k -vcodec libx264 -s 1280x720 -b:v 512k -vpre libx264-ipod640 -flags -global_header -map 0 -f segment -segment_time 10 -segment_list_size 10 -segment_wrap 10 -segment_format mpegts ${stream}_480p%05d.ts"
 	cmd="$cmd -re -acodec libfaac -ar 44000 -b:a 96k -vcodec libx264 -s 426x250  -b:v 256k -vpre libx264-ipod320 -flags -global_header -map 0 -f segment -segment_time 10 -segment_list_size 10 -segment_wrap 10 -segment_format mpegts ${stream}_360p%05d.ts"
 	cmd="$cmd -re -acodec libfaac -ar 44000 -b:a 48k -vcodec libx264 -s 426x250  -b:v 128k -vpre libx264-ipod320 -flags -global_header -map 0 -f segment -segment_time 10 -segment_list_size 10 -segment_wrap 10 -segment_format mpegts ${stream}_240p%05d.ts"
-	logHeader "Running enconding args: $cmd"
-	exec $FFMPEG_BIN  -loglevel info -threads 15  -i "$src live=1" $cmd
+	logHeader "Enconding source: $src"
+	logHeader "Encoder destinations: $cmd"
+	exec $FFMPEG_BIN  -loglevel fatal -threads 15 -i "$src live=1" $cmd
 
 }
 # nginx transcoding - working as of 0.4
 transcoderNginxH264(){
+	if [ ! -f $FFMPEG_BIN ]; then echo "!! error FFMPEG_BIN not found !!"; exit 99; fi
 	if [ -z $FFMPEG_NGINX_ENABLE ] || [ ! $FFMPEG_NGINX_ENABLE -eq 1 ]; then echo "Error: \"-run nginx <streamname>\" supplied, but FFMPEG_NGINX_ENABLE is not set to \"1\" in $HOME/etc/rstream.conf, exiting !"; exit 98; fi
 	app="proxy"
 	dest_app="r"
@@ -148,17 +161,19 @@ transcoderNginxH264(){
 	# if hls is enabled and set to nginx, create the multi-bitrate playlist 10 secs after the stream started to aboid "iOS stuck on black screen"
 	if [ ! -z $HLS_ENABLE ] && [ $HLS_ENABLE -eq 1 ] && [ ! -z $HLS_TYPE ] && [ $HLS_TYPE = "nginx" ]; then
 		checkDir $HOME/tmp/nginx/hls -c www 777;
-		(sleep 10 && genPlaylistMulti $HLS_PATH/hls/$stream) &
+		echo "** Cleaning up HLS files older than 5 minutes"
+		find $HOME/tmp/nginx/hls -mmin +5 -name "*.m3u8" -o -name "*.ts" -exec rm -f {} \;
+		echo "** Launching multi-bitrate sleeping beauty"
+		(sleep 20 && cd $HLS_PATH/hls && genPlaylistMulti $stream) &
 	fi
 
-	cmd="$cmd -re -acodec libfaac -ar 44100 -b:a 96k -vcodec libx264 -s 1280x720 -b:v 512k -metadata streamName=${stream}_720p -f flv $dest_720"
-	cmd="$cmd -re -acodec libfaac -ar 44100 -b:a 96k -vcodec libx264 -s 854x480 -b:v 512k -metadata streamName=${stream}_480p -f flv $dest_480"
-	cmd="$cmd -re -acodec libfaac -ar 22050 -b:a 96k -vcodec libx264 -s 640x360 -b:v 256k -metadata streamName=${stream}_360p  -f flv $dest_360"
-	cmd="$cmd -re -acodec libfaac -ar 22050 -b:a 48k -vcodec libx264 -s 426x250 -b:v 128k -metadata streamName=${stream}_240p  -f flv $dest_240"
+	cmd="$cmd -re -acodec libfaac -ar 44100 -b:a 96k -vcodec libx264 -s 1280x720 -b:v 896k -r 25 -metadata streamName=${stream}_720p -f flv $dest_720"
+	cmd="$cmd -re -acodec libfaac -ar 44100 -b:a 96k -vcodec libx264 -s 854x480 -b:v 512k -r 25 -metadata streamName=${stream}_480p -f flv $dest_480"
+	cmd="$cmd -re -acodec libfaac -ar 22050 -b:a 96k -vcodec libx264 -s 640x360 -b:v 256k -r 25 -metadata streamName=${stream}_360p  -f flv $dest_360"
+	cmd="$cmd -re -acodec libfaac -ar 22050 -b:a 48k -vcodec libx264 -s 426x250 -b:v 128k -r 25 -metadata streamName=${stream}_240p  -f flv $dest_240"
 
 	logHeader "Running enconding args: $cmd"
-	echo "FFMPEB_BIN: $FFMPEG_BIN"
-	exec $FFMPEG_BIN -loglevel warning -threads 15  -i "$src live=1" $cmd
+	exec $FFMPEG_BIN -loglevel fatal -threads 16  -i "$src live=1" $cmd
 }
 
 transcoderCrtmpd(){
@@ -171,7 +186,7 @@ transcoderCrtmpd(){
 	src="rtmp://$CRTMPD_RTMP_IP:$CRTMPD_RTMP_PORT/$app/$stream"
 
 	genStreamDestinations "tcp" $CRTMPD_LIVEFLV_IP $CRTMPD_LIVEFLV_PORT $stream
-	cmd="$cmd -re -acodec libfaac -ar 44100 -b:a 96k -vcodec libx264 -s 1280x720 -b:v 860k -f flv -metadata streamName=${stream}_720p -f flv $dest_720"
+	cmd="$cmd -re -acodec libfaac -ar 44100 -b:a 96k -vcodec libx264 -s 1280x720 -b:v 896k -f flv -metadata streamName=${stream}_720p -f flv $dest_720"
 	cmd="$cmd -re -acodec libfaac -ar 44100 -b:a 96k -vcodec libx264 -s 854x480 -b:v 512k -f flv -metadata streamName=${stream}_480p -f flv $dest_480"
 	cmd="$cmd -re -acodec libfaac -ar 22050 -b:a 96k -vcodec libx264 -s 640x360 -b:v 396k -f flv -metadata streamName=${stream}_360p -f flv $dest_360"
 	cmd="$cmd -re -acodec libfaac -ar 22050 -b:a 48k -vcodec libx264 -s 426x250 -b:v 256k -f flv -metadata streamName=${stream}_240p -f flv $dest_240"
