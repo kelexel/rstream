@@ -113,7 +113,7 @@ Luckily for me, they provide the sources of several *sample apps*, that even led
 
 The fact that they provide their *framework* for free is in my humble opinion fantastic, even if it lack some very useful features out of the box (HLS / exec for transcoding...), which can be easily implemented by the programming wise.
 
-Is is worth mentioning that as of now (16/08/2012), crtmpd supports encryption over RTMPS, mostly "Adobe style" authentication over RTMP
+Is is worth mentioning that as of now (16/08/2012), crtmpd supports encryption over RTMPS, mostly "Adobe style" broadcaster authentication for the RTMP(S) protocols
 
 
 Notes on nginx-rtmp
@@ -123,7 +123,7 @@ The first thing that struck me was *nginx* in the name. Anyone who ever dealt wi
 
 Second, the fact that it supported HLS and "exec" was enough to convince me that [nginx-rtmp](https://github.com/arut/nginx-rtmp-module/) was going to become a key element in this project.
 
-It has a built-in trigger mechanism to handle play read/record access.
+It has a built-in trigger mechanism using http requests via customizable URLs to handle play read/record client access
 
 It has a stats module that provides a descent efficient overview of your server's current usage
 
@@ -131,7 +131,10 @@ It only supports the RTMP protocol.
 
 HLS is still considered experimental
 
-Is is worth mentioning that as of now (16/08/2012), nginx-rtmp only supports the RTMP protocol, and has no built-in user authentication mechanism
+Is is worth mentioning that as of now (16/08/2012), nginx-rtmp only supports the RTMP protocol, and has no built-in "Adobe style" broadcast user authentication mechanism 
+
+If using nginx-rtmp only, the only auth mechanism available to filter broadcasters is by setting allow/deny rules on per IP basis, see ~rstream/etc/nginx-rtmp.conf
+But I am sure this will be fixed in a few ;)
 
 Notes on HLS
 ---

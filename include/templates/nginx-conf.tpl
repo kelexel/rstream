@@ -30,7 +30,7 @@ rtmp {
 #HLS            hls_path _HLS_PATH_/hls;
 #HLS            hls_fragment 5s;
 #TRANSCODING#PROXYLOCALHOST             allow publish _FFMPEG_TRANSCODER_IP_;
-            deny publish all;
+#TRANSCODING#PROXYLOCALHOST            deny publish all;
             allow play all;
         }
     }
