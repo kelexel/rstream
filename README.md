@@ -49,18 +49,15 @@ Setup a fully featured Streaming CDN with HTTPLiveStream + RTMP + Transcoding ba
 * Make requirements checks (for HLS and FFMPEG notably)
 * Provide a wrapper to ffmpeg via *rstream-transcoder* to generate multiple bitrate (240p, 340p, 480p, 720p) streams from one single RTMP feed
 * Provide HLS (HTTP Live Streaming) via ffmpeg and nginx-rtmp (Read HLS notes !)
-
 * (new) Supports multiple transcoding methods (nginx-to-nginx, crtmpd-to-crtmpd) to provide multiple bitrate (240p, 340p, 480p, 720p) streams from one single RTMP feed
 * (new) Built-in configuration wizard
-* (new) Multi bitrate HLS streams
+* (new) Multi bitrate HLS streams (via nginx-rtmp & ffmpeg)
 * (experimental) HLS via *ffmpeg onnly*, can connect to either crtmpd or nginx (*~rstream-transcoder -run hls stream_name*)
-
 * Support the following broadcasters:
 	* [Telestream Wirecast](http://www.adobe.com/products/flash-media-encoder.html) (OSX 10.7.x / Windows 7, h264/aac)
 	* [Adobe FlashMediaLiveEncoer](http://www.adobe.com/products/flash-media-encoder.html) (OSX 10.7.x / Windows 7 / Linux, h264/aac)
 	* http://www.osmf.org/configurator/fmp/ (Flash Player 11+, h264/aac)
 	* [Android: OS Broadcaster](https://play.google.com/store/search?q=+OS+Broadcaster&c=apps) (Android 3+, h264/aac)
-
 * Support the following clients:
 	* jwplayer
 	* flowplayer
@@ -310,7 +307,7 @@ Howto: Transcoding
 Transcoding for nginx
 ---
 
-Transcoding in nginx-rtmp is now controlled via nginx itself (prior version needed a separate script).
+Transcoding in nginx-rtmp is now controlled via nginx-rtmp itself (prior version needed a separate script). nginx-rtmp uses "exec" function to start ~rstream/bin/rstream-transcoder, a glorified wrapper-to-ffmpeg. You are encouraged to modify any settings in it that you will see fit.
 Any stream pushed to the app "proxy" will be transcoded as HLS and H264 streams automagically to the following URLs:
 
 ```bash
@@ -319,6 +316,7 @@ Any stream pushed to the app "proxy" will be transcoded as HLS and H264 streams 
 # rtmp://NGINX_RTMP_IP:NGINX_RTMP_PORT/r/NGINX_RTMP_STREAM_360p
 # rtmp://NGINX_RTMP_IP:NGINX_RTMP_PORT/r/NGINX_RTMP_STREAM_240p
 ```
+
 
 Howto: Using Wirecast as a broadcaster
 ----
@@ -337,7 +335,6 @@ Create a new broadcast profile profile containing:
 Credits
 ======
 
-
 I would like to extend my *diamonds for ever* to these persons / teams:
 
 * arut, for his patience and port of nginx-rtmp (available at https://github.com/arut/nginx-rtmp-module)
@@ -353,5 +350,12 @@ I would like to extend my *diamonds for ever* to these persons / teams:
 
 Final notes
 ======
+
+Take this *thing* as a training exercise.
+First to learn the components required in a modern full featured video CDN platform.
+Second, because slamming my head on the wall several times did help me understand and learn some of the key concepts behind HLS, ffmpeg, and a few other things.
+If it helps you learn a thing or two, than I'm happy.
+If their are peaces of it (I honestly think a few shell functions in this script are quite helpful) you want to reuse, please do so, but be fair.
+People behind projects like crtmpd or nginx-rtmp are the true hero, I am only exploiting / requesting / admiring / troubleshooting / bug-reporting / enhancement-suggesting their work.
 
 Open-Source 4 ever.
