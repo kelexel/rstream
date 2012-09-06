@@ -120,20 +120,19 @@ Notes on nginx-rtmp
 ---
 
 The first thing that struck me was *nginx* in the name. Anyone who ever dealt with high-availability-heavy-load-httpd setups knows nginx.
-
 Second, the fact that it supported HLS and "exec" was enough to convince me that [nginx-rtmp](https://github.com/arut/nginx-rtmp-module/) was going to become a key element in this project.
 
 It has a built-in trigger mechanism using http requests via customizable URLs to handle play read/record client access
-
 It has a stats module that provides a descent efficient overview of your server's current usage
-
-It only supports the RTMP protocol.
 
 HLS is still considered experimental
 
+nginx-rtmp is single threaded, meaning if using exec, it is strongly advised to fork your ffmpeg scripts in the background
+It only supports the RTMP protocol
+
 Is is worth mentioning that as of now (16/08/2012), nginx-rtmp only supports the RTMP protocol, and has no built-in "Adobe style" broadcast user authentication mechanism 
 
-If using nginx-rtmp only, the only auth mechanism available to filter broadcasters is by setting allow/deny rules on per IP basis, see ~rstream/etc/nginx-rtmp.conf
+If using rstream in "nginx-rtmp only" mode, you will only be able to restrain broadcaster access via allow/deny rules on per IP basis, see ~rstream/etc/nginx-rtmp.conf, or nginx-rtmp docs fo examples
 But I am sure this will be fixed in a few ;)
 
 Notes on HLS
@@ -146,6 +145,7 @@ Notes on HLS
 * HLS support requires a recent ffmpeg (!) with RTMP support enabled, and a recent (!) version of nginx-rtmp (don't forget to add HLS support, see nginx-rtmp install notes)
 * HLS multi-bitrate is only available if both nginx-rtmp and ffmpeg are enabled
 * HLS does not -yet- work with ffmpeg directly (aka without nginx-rtmp), because I have found no way to generate an HLS friendly -segment_list (see [this ffmpeg enhancement request](https://ffmpeg.org/trac/ffmpeg/ticket/1642))
+* HLS can be i/o consumming based on the concurent number of streams being HLS transcoded. Setting up a ramdisk/tmpfs in ~rstream/etc is a *great* idea, since this is where all mpeg2ts segments will be created by ffmpeg's libs via nginx-tmp
 
 Notes on Transcoding
 ---

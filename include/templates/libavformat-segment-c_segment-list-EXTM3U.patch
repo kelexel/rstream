@@ -1,0 +1,51 @@
+--- libavformat/segment.c.org	2012-08-16 18:23:53.000000000 +0000
++++ libavformat/segment.c	2012-08-16 18:41:43.000000000 +0000
+@@ -34,6 +34,7 @@
+ typedef enum {
+     LIST_TYPE_FLAT = 0,
+     LIST_TYPE_EXT,
++    LIST_TYPE_EXTM3U,
+     LIST_TYPE_NB,
+ } ListType;
+ 
+@@ -129,7 +130,11 @@
+             avio_printf(seg->list_pb, "%s\n", oc->filename);
+         } else if (seg->list_type == LIST_TYPE_EXT) {
+             avio_printf(seg->list_pb, "%s,%f,%f\n", oc->filename, seg->start_time, seg->end_time);
++        } else if (seg->list_type == LIST_TYPE_EXTM3U) {
++            avio_printf(seg->list_pb, "#EXTINF:%s,\n",seg->time_str);
++            avio_printf(seg->list_pb, "%s\n", oc->filename);
+         }
++
+         avio_flush(seg->list_pb);
+     }
+ 
+@@ -238,11 +243,19 @@
+     if (!oc)
+         return AVERROR(ENOMEM);
+ 
+-    if (seg->list)
++    if (seg->list) {
+         if ((ret = avio_open2(&seg->list_pb, seg->list, AVIO_FLAG_WRITE,
+                               &s->interrupt_callback, NULL)) < 0)
+             goto fail;
+ 
++        if (seg->list_type == LIST_TYPE_EXTM3U) {
++            avio_printf(seg->list_pb, "#EXTM3U\n");
++            avio_printf(seg->list_pb, "#EXT-X-TARGETDURATION:%s\n",seg->time_str);
++            avio_printf(seg->list_pb, "#EXT-X-ALLOW-CACHE:1s\n");
++            avio_printf(seg->list_pb, "\n");
++        }
++    }
++
+     for (i = 0; i< s->nb_streams; i++)
+         seg->has_video +=
+             (s->streams[i]->codec->codec_type == AVMEDIA_TYPE_VIDEO);
+@@ -369,6 +382,7 @@
+     { "segment_list_type", "set the segment list type",                  OFFSET(list_type), AV_OPT_TYPE_INT,  {.dbl = LIST_TYPE_FLAT}, 0, LIST_TYPE_NB-1, E, "list_type" },
+     { "flat", "flat format",     0, AV_OPT_TYPE_CONST, {.dbl=LIST_TYPE_FLAT }, INT_MIN, INT_MAX, 0, "list_type" },
+     { "ext",  "extended format", 0, AV_OPT_TYPE_CONST, {.dbl=LIST_TYPE_EXT  }, INT_MIN, INT_MAX, 0, "list_type" },
++    { "extm3u",  "extended M3U format", 0, AV_OPT_TYPE_CONST, {.dbl=LIST_TYPE_EXTM3U  }, INT_MIN, INT_MAX, 0, "list_type" },
+     { "segment_time",      "set segment duration",                       OFFSET(time_str),AV_OPT_TYPE_STRING, {.str = NULL},  0, 0,       E },
+     { "segment_time_delta","set approximation value used for the segment times", OFFSET(time_delta_str), AV_OPT_TYPE_STRING, {.str = "0"}, 0, 0, E },
+     { "segment_times",     "set segment split time points",              OFFSET(times_str),AV_OPT_TYPE_STRING,{.str = NULL},  0, 0,       E },

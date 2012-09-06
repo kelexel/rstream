@@ -55,8 +55,6 @@ daemontools-router(){
 		;;
 		stop)
 			echo "* stopping svscan"
-			echo "* cleaning old lock files in \"$HOME/rstream/tmp/ffmpeg/*.lock\""
-			#rm -f $HOME/tmp/ffmpeg/*.lock
 			service svscan stop
 		;;
 		start)

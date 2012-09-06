@@ -20,6 +20,7 @@ rtmp {
             application proxy {  
             live on;
 #TRANSCODING            exec /bin/sh -c "_HOME_/bin/rstream-transcoder -run nginx $name";
+##TRANSCODING            exec /bin/sh -c "_HOME_/bin/rstream-transcoder -run hls $name";
             allow publish _NGINX_RTMP_IP_;
 #PROXYLOCALHOST            deny publish all;
             allow play all;
